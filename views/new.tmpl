@@ -1,0 +1,25 @@
+{{define "content"}}
+<h2>New Post</h2>
+<form method="post" action="/new">
+    <fieldset>
+
+        <div class="form-group">
+            <label for="form-title">Title:</label>
+            <input type="text" id="form-title" name="title" />
+        </div>
+
+        <div class="form-group">
+            <label for="form-date">Date:</label>
+            <input type="date" id="form-date" name="date" />
+        </div>
+
+        <div class="form-group">
+            <label for="form-content">Content:</label>
+            <textarea id="form-content" name="content"></textarea>
+        </div>
+
+        <button type="sumbit">Save</button>
+
+    </fieldset>
+</form>
+{{end}}

@@ -28,6 +28,11 @@ type IndexController struct {
 	Controller
 }
 
+// NewController Handle creating a new entry
+type NewController struct {
+	Controller
+}
+
 // ViewController Handle displaying individual entry
 type ViewController struct {
 	Controller
@@ -50,6 +55,20 @@ func (c *IndexController) Run(w http.ResponseWriter, r *http.Request) {
 	t.ExecuteTemplate(w, "content", nil)
 	t.ExecuteTemplate(w, "footer", nil)
 	t.Execute(w, nil)
+}
+
+// Run NewController
+func (c *NewController) Run(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/new.tmpl")
+		t.ExecuteTemplate(w, "header", nil)
+		t.ExecuteTemplate(w, "content", nil)
+		t.ExecuteTemplate(w, "footer", nil)
+		t.Execute(w, nil)
+	} else {
+		r.ParseForm()
+		fmt.Println(r.Form)
+	}
 }
 
 // Run ViewController
@@ -142,6 +161,8 @@ func main() {
 
 		m := &mux{}
 		m.add("GET", "/", false, &IndexController{})
+		m.add("GET", "/new", false, &NewController{})
+		m.add("POST", "/new", false, &NewController{})
 		m.add("GET", "\\/([\\w\\-]+)", true, &ViewController{})
 
 		log.Printf("Listening on port %s\n", *port)
