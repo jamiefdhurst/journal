@@ -46,14 +46,20 @@ func (c *Controller) SetParams(p []string) {
 // Run IndexController
 func (c *IndexController) Run(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/index.tmpl")
+	t.ExecuteTemplate(w, "header", nil)
+	t.ExecuteTemplate(w, "content", nil)
+	t.ExecuteTemplate(w, "footer", nil)
 	t.Execute(w, nil)
 }
 
 // Run ViewController
 func (c *ViewController) Run(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("./src/journal/views/view.gtpl")
+	t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/view.tmpl")
 	v := ViewData{Params: c.params}
-	t.Execute(w, v)
+	t.ExecuteTemplate(w, "header", nil)
+	t.ExecuteTemplate(w, "content", v)
+	t.ExecuteTemplate(w, "footer", nil)
+	t.Execute(w, nil)
 }
 
 type route struct {
@@ -76,7 +82,6 @@ func (m *mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("%s: %s", r.Method, r.URL.Path)
 	for _, route := range m.routes {
-		fmt.Println(route.uri, r.URL.Path)
 		if r.URL.Path == route.uri && (r.Method == route.method || (r.Method == "" && route.method == "GET")) {
 			route.controller.Run(w, r)
 			return
