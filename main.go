@@ -8,9 +8,32 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
+
+var db *sql.DB
+
+// Journals collection of journals
+type Journals struct {
+	journals []Journal
+}
+
+// Journal model
+type Journal struct {
+	id      int
+	slug    string
+	title   string
+	date    string
+	content string
+}
+
+func slugify(s string) string {
+	re := regexp.MustCompile("[\\W+]")
+
+	return strings.ToLower(re.ReplaceAllString(s, "-"))
+}
 
 // Controller defn
 type Controller struct {
@@ -66,8 +89,19 @@ func (c *NewController) Run(w http.ResponseWriter, r *http.Request) {
 		t.ExecuteTemplate(w, "footer", nil)
 		t.Execute(w, nil)
 	} else {
-		r.ParseForm()
-		fmt.Println(r.Form)
+
+		stmt, err := db.Prepare("INSERT INTO `journal`(`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)")
+		checkErr(err)
+
+		// Create journal entry
+		j := Journal{0, slugify(r.FormValue("title")), r.FormValue("title"), r.FormValue("date"), r.FormValue("content")}
+
+		// Store insert ID
+		res, err := stmt.Exec(j.slug, j.title, j.date, j.content)
+		id, _ := res.LastInsertId()
+		j.id = int(id)
+
+		http.Redirect(w, r, "/", 302)
 	}
 }
 
@@ -140,7 +174,8 @@ func main() {
 	flag.Parse()
 
 	// Load database
-	db, err := sql.Open("sqlite3", "./data/journal.db")
+	newdb, err := sql.Open("sqlite3", "./data/journal.db")
+	db = newdb
 	checkErr(err)
 	fmt.Printf("Journal v%s...\n-------------------\n\n", version)
 
@@ -167,6 +202,8 @@ func main() {
 
 		log.Printf("Listening on port %s\n", *port)
 		log.Fatal(http.ListenAndServe(":"+*port, m))
+
+		db.Close()
 
 	}
 }

@@ -7,8 +7,6 @@ It makes use of a SQLite database to store the journal entries.
 
 ## Remaining Items
 
-* Form for submitting new entries (at /new)
-* Store new entries
 * Display entries on index
 * Display individual entry
 * Design
