@@ -7,7 +7,6 @@ It makes use of a SQLite database to store the journal entries.
 
 ## Remaining Items
 
-* Display individual entry
 * Design
 * Better 404
 * Split into separate files, somehow!

@@ -76,7 +76,7 @@ type ViewController struct {
 
 // ViewData Data for view
 type ViewData struct {
-	Params []string
+	Journal Journal
 }
 
 // SetParams on the controller
@@ -133,12 +133,28 @@ func (c *NewController) Run(w http.ResponseWriter, r *http.Request) {
 
 // Run ViewController
 func (c *ViewController) Run(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/view.tmpl")
-	v := ViewData{Params: c.params}
-	t.ExecuteTemplate(w, "header", nil)
-	t.ExecuteTemplate(w, "content", v)
-	t.ExecuteTemplate(w, "footer", nil)
-	t.Execute(w, nil)
+
+	// Attempt to find the entry
+	rows, err := db.Query("SELECT * FROM `journal` WHERE `slug` = ?", strings.Replace(c.params[0], "/", "", 1))
+	checkErr(err)
+
+	v := ViewData{}
+
+	for rows.Next() {
+		v.Journal = Journal{}
+		err := rows.Scan(&v.Journal.id, &v.Journal.Slug, &v.Journal.Title, &v.Journal.Date, &v.Journal.Content)
+		checkErr(err)
+	}
+
+	if v.Journal.id == 0 {
+		http.NotFound(w, r)
+	} else {
+		t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/view.tmpl")
+		t.ExecuteTemplate(w, "header", nil)
+		t.ExecuteTemplate(w, "content", v)
+		t.ExecuteTemplate(w, "footer", nil)
+		t.Execute(w, nil)
+	}
 }
 
 type route struct {

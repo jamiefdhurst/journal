@@ -4,7 +4,7 @@
 {{range .Journals}}
     <article>
         <h2>{{.Title}}</h2>
-        <p>{{.GetDate}}<br /><a href="/{{.Slug}}">View Post</a></p>
+        <p>Posted on <strong>{{.GetDate}}</strong><br /><a href="/{{.Slug}}">View Post</a></p>
     </article>
 {{end}}
 

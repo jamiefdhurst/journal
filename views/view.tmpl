@@ -1,5 +1,9 @@
 {{define "content"}}
-{{range .Params}}
-    <h2>{{.}}</h2>
-{{end}}
+<article>
+    <h2>{{.Journal.Title}}</h2>
+    <p>Posted on: <strong>{{.Journal.GetDate}}</strong></p>
+    {{.Journal.Content}}
+</article>
+
+<p><a href="/">Back</a></p>
 {{end}}
