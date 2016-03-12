@@ -4,206 +4,15 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"html/template"
+	"journal/controller"
+	"journal/lib"
 	"log"
 	"net/http"
-	"regexp"
-	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var db *sql.DB
-
-// Journal model
-type Journal struct {
-	id      int
-	Slug    string
-	Title   string
-	Date    string
-	Content string
-}
-
-// GetDate Get the friendly date for the Journal
-func (j Journal) GetDate() string {
-	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
-	date := re.FindString(j.Date)
-	dateArr := strings.Split(date, "-")
-	for i := 0; i < len(dateArr)/2; i++ {
-		k := len(dateArr) - i - 1
-		dateArr[i], dateArr[k] = dateArr[k], dateArr[i]
-	}
-
-	return strings.Join(dateArr, "/")
-}
-
-func slugify(s string) string {
-	re := regexp.MustCompile("[\\W+]")
-
-	return strings.ToLower(re.ReplaceAllString(s, "-"))
-}
-
-// Controller defn
-type Controller struct {
-	params []string
-}
-
-// ControllerInterface provide the interface for the controller
-type ControllerInterface interface {
-	Run(w http.ResponseWriter, r *http.Request)
-	SetParams(p []string)
-}
-
-// IndexController Handle displaying all blog entries
-type IndexController struct {
-	Controller
-}
-
-// IndexData Data for index
-type IndexData struct {
-	Journals []Journal
-}
-
-// NewController Handle creating a new entry
-type NewController struct {
-	Controller
-}
-
-// ViewController Handle displaying individual entry
-type ViewController struct {
-	Controller
-}
-
-// ViewData Data for view
-type ViewData struct {
-	Journal Journal
-}
-
-// SetParams on the controller
-func (c *Controller) SetParams(p []string) {
-	c.params = p
-}
-
-// Run IndexController
-func (c *IndexController) Run(w http.ResponseWriter, r *http.Request) {
-	rows, err := db.Query("SELECT * FROM `journal` ORDER BY `date` DESC")
-	checkErr(err)
-
-	js := IndexData{}
-
-	for rows.Next() {
-		j := Journal{}
-		err := rows.Scan(&j.id, &j.Slug, &j.Title, &j.Date, &j.Content)
-		checkErr(err)
-
-		js.Journals = append(js.Journals, j)
-	}
-
-	t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/index.tmpl")
-	t.ExecuteTemplate(w, "header", nil)
-	t.ExecuteTemplate(w, "content", js)
-	t.ExecuteTemplate(w, "footer", nil)
-	t.Execute(w, nil)
-}
-
-// Run NewController
-func (c *NewController) Run(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/new.tmpl")
-		t.ExecuteTemplate(w, "header", nil)
-		t.ExecuteTemplate(w, "content", nil)
-		t.ExecuteTemplate(w, "footer", nil)
-		t.Execute(w, nil)
-	} else {
-
-		stmt, err := db.Prepare("INSERT INTO `journal`(`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)")
-		checkErr(err)
-
-		// Create journal entry
-		j := Journal{0, slugify(r.FormValue("title")), r.FormValue("title"), r.FormValue("date"), r.FormValue("content")}
-
-		// Store insert ID
-		res, err := stmt.Exec(j.Slug, j.Title, j.Date, j.Content)
-		id, _ := res.LastInsertId()
-		j.id = int(id)
-
-		http.Redirect(w, r, "/", 302)
-	}
-}
-
-// Run ViewController
-func (c *ViewController) Run(w http.ResponseWriter, r *http.Request) {
-
-	// Attempt to find the entry
-	rows, err := db.Query("SELECT * FROM `journal` WHERE `slug` = ?", strings.Replace(c.params[0], "/", "", 1))
-	checkErr(err)
-
-	v := ViewData{}
-
-	for rows.Next() {
-		v.Journal = Journal{}
-		err := rows.Scan(&v.Journal.id, &v.Journal.Slug, &v.Journal.Title, &v.Journal.Date, &v.Journal.Content)
-		checkErr(err)
-	}
-
-	if v.Journal.id == 0 {
-		http.NotFound(w, r)
-	} else {
-		t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/view.tmpl")
-		t.ExecuteTemplate(w, "header", nil)
-		t.ExecuteTemplate(w, "content", v)
-		t.ExecuteTemplate(w, "footer", nil)
-		t.Execute(w, nil)
-	}
-}
-
-type route struct {
-	method     string
-	uri        string
-	matchable  bool
-	controller ControllerInterface
-}
-
-type mux struct {
-	routes []route
-}
-
-func (m *mux) add(t string, u string, a bool, c ControllerInterface) {
-	r := route{t, u, a, c}
-	m.routes = append(m.routes, r)
-}
-
-func (m *mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	log.Printf("%s: %s", r.Method, r.URL.Path)
-	for _, route := range m.routes {
-		if r.URL.Path == route.uri && (r.Method == route.method || (r.Method == "" && route.method == "GET")) {
-			route.controller.Run(w, r)
-			return
-		}
-
-		// Attempt regex match
-		if route.matchable {
-			matched, _ := regexp.MatchString(route.uri, r.URL.Path)
-			if matched && (r.Method == route.method || (r.Method == "" && route.method == "GET")) {
-				re := regexp.MustCompile(route.uri)
-				route.controller.SetParams(re.FindAllString(r.URL.Path, -1))
-				route.controller.Run(w, r)
-				return
-			}
-		}
-	}
-
-	log.Printf("%s: %s 404 Not Found", r.Method, r.URL.Path)
-	http.NotFound(w, r)
-	return
-}
-
-func checkErr(err error) {
-	if err != nil {
-		log.Fatal("Error reported: ", err)
-	}
-}
 
 func main() {
 	const version = "0.1"
@@ -218,7 +27,7 @@ func main() {
 	// Load database
 	newdb, err := sql.Open("sqlite3", "./data/journal.db")
 	db = newdb
-	checkErr(err)
+	lib.CheckErr(err)
 	fmt.Printf("Journal v%s...\n-------------------\n\n", version)
 
 	if *mode == "create" {
@@ -230,17 +39,18 @@ func main() {
 			"`date` DATE NOT NULL, " +
 			"`content` TEXT NOT NULL" +
 			")")
-		checkErr(err)
+		lib.CheckErr(err)
 		db.Close()
 		log.Println("Database created")
 
 	} else {
 
-		m := &mux{}
-		m.add("GET", "/", false, &IndexController{})
-		m.add("GET", "/new", false, &NewController{})
-		m.add("POST", "/new", false, &NewController{})
-		m.add("GET", "\\/([\\w\\-]+)", true, &ViewController{})
+		m := &lib.Router{}
+		m.SetDb(db)
+		m.Add("GET", "/", false, &controller.Index{})
+		m.Add("GET", "/new", false, &controller.New{})
+		m.Add("POST", "/new", false, &controller.New{})
+		m.Add("GET", "\\/([\\w\\-]+)", true, &controller.View{})
 
 		log.Printf("Listening on port %s\n", *port)
 		log.Fatal(http.ListenAndServe(":"+*port, m))
