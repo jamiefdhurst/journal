@@ -1,4 +1,13 @@
 {{define "content"}}
 <p>Welcome!</p>
+
+{{range .Journals}}
+    <article>
+        <h2>{{.Title}}</h2>
+        <p>{{.GetDate}}<br /><a href="/{{.Slug}}">View Post</a></p>
+    </article>
+{{end}}
+
+
 <p><a href="/new">Create New Post</a></p>
 {{end}}

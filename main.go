@@ -15,18 +15,26 @@ import (
 
 var db *sql.DB
 
-// Journals collection of journals
-type Journals struct {
-	journals []Journal
-}
-
 // Journal model
 type Journal struct {
 	id      int
-	slug    string
-	title   string
-	date    string
-	content string
+	Slug    string
+	Title   string
+	Date    string
+	Content string
+}
+
+// GetDate Get the friendly date for the Journal
+func (j Journal) GetDate() string {
+	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
+	date := re.FindString(j.Date)
+	dateArr := strings.Split(date, "-")
+	for i := 0; i < len(dateArr)/2; i++ {
+		k := len(dateArr) - i - 1
+		dateArr[i], dateArr[k] = dateArr[k], dateArr[i]
+	}
+
+	return strings.Join(dateArr, "/")
 }
 
 func slugify(s string) string {
@@ -51,6 +59,11 @@ type IndexController struct {
 	Controller
 }
 
+// IndexData Data for index
+type IndexData struct {
+	Journals []Journal
+}
+
 // NewController Handle creating a new entry
 type NewController struct {
 	Controller
@@ -73,9 +86,22 @@ func (c *Controller) SetParams(p []string) {
 
 // Run IndexController
 func (c *IndexController) Run(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Query("SELECT * FROM `journal` ORDER BY `date` DESC")
+	checkErr(err)
+
+	js := IndexData{}
+
+	for rows.Next() {
+		j := Journal{}
+		err := rows.Scan(&j.id, &j.Slug, &j.Title, &j.Date, &j.Content)
+		checkErr(err)
+
+		js.Journals = append(js.Journals, j)
+	}
+
 	t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/index.tmpl")
 	t.ExecuteTemplate(w, "header", nil)
-	t.ExecuteTemplate(w, "content", nil)
+	t.ExecuteTemplate(w, "content", js)
 	t.ExecuteTemplate(w, "footer", nil)
 	t.Execute(w, nil)
 }
@@ -97,7 +123,7 @@ func (c *NewController) Run(w http.ResponseWriter, r *http.Request) {
 		j := Journal{0, slugify(r.FormValue("title")), r.FormValue("title"), r.FormValue("date"), r.FormValue("content")}
 
 		// Store insert ID
-		res, err := stmt.Exec(j.slug, j.title, j.date, j.content)
+		res, err := stmt.Exec(j.Slug, j.Title, j.Date, j.Content)
 		id, _ := res.LastInsertId()
 		j.id = int(id)
 
