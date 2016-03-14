@@ -34,7 +34,8 @@ func (c *View) Run(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if v.Journal.ID == 0 {
-		http.NotFound(w, r)
+		e := Error{}
+		e.Run(w, r)
 	} else {
 		t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/view.tmpl")
 		t.ExecuteTemplate(w, "header", nil)

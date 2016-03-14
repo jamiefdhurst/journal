@@ -47,6 +47,7 @@ func main() {
 
 		m := &lib.Router{}
 		m.SetDb(db)
+		m.SetErr(&controller.Error{})
 		m.Add("GET", "/", false, &controller.Index{})
 		m.Add("GET", "/new", false, &controller.New{})
 		m.Add("POST", "/new", false, &controller.New{})

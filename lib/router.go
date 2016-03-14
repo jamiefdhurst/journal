@@ -19,6 +19,7 @@ type Route struct {
 // Router Contian routes
 type Router struct {
 	db     *sql.DB
+	err    ControllerInterface
 	routes []Route
 }
 
@@ -63,10 +64,15 @@ func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	http.NotFound(w, r)
+	m.err.Run(w, r)
 }
 
 // SetDb Set the db
 func (m *Router) SetDb(db *sql.DB) {
 	m.db = db
+}
+
+// SetErr Set the err controller
+func (m *Router) SetErr(err ControllerInterface) {
+	m.err = err
 }

@@ -7,6 +7,4 @@ It makes use of a SQLite database to store the journal entries.
 
 ## Remaining Items
 
-* Design
-* Better 404
 * TESTS!
