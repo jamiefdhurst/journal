@@ -1,0 +1,108 @@
+@import "../../node_modules/susy/sass/susy";
+@import "../../node_modules/bourbon/app/assets/stylesheets/bourbon";
+@import "plugins/normalize";
+@import "variables";
+
+body {
+    color: $textColour;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    margin: 0;
+    padding: 1rem;
+}
+
+h1, h2, h3, h4 {
+    color: $headingColour;
+}
+
+a, a:link, a:visited, a:active {
+    color: $linkColour;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+a:hover {
+    color: inherit;
+    text-decoration: underline;
+}
+
+#container {
+    margin: 0 auto;
+    max-width: rem(960)
+}
+
+header[role=banner] {
+    background: $headingBgColour;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+}
+
+h1 {
+    margin: 0;
+    text-align: center;
+}
+
+h2:before {
+    background: $headingBgColour;
+    border-radius: 5px;
+    content: "";
+    display: block;
+    float: left;
+    height: 1rem;
+    margin: .25rem .5rem 0 0;
+    width: 1rem;
+}
+
+article {
+    border-bottom: 1px solid $borderColour;
+}
+
+.button, button {
+    background-color: $linkColour;
+    border-radius: 5px;
+    border: none;
+    color: #fff !important;
+    font-weight: bold;
+    padding: .5rem .75rem;
+
+    &:hover {
+        background-color: lighten($linkColour, 10);
+        text-decoration: none;
+    }
+}
+
+fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+
+    > div {
+        margin: 0 0 1rem;
+    }
+
+    label {
+        display: inline-block;
+        font-weight: bold;
+        width: rem(100);
+    }
+
+    input[type=text], input[type=date], textarea {
+        border: 1px solid $borderColour;
+        color: $textColour;
+        outline: none;
+        padding: .5rem .75rem;
+        width: rem(500);
+
+        &:focus {
+            border-color: $linkColour;
+        }
+    }
+
+    textarea {
+        height: 10rem;
+    }
+
+    button {
+        margin-left: rem(104);
+    }
+}

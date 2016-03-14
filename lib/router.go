@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 )
 
@@ -31,6 +32,17 @@ func (m *Router) Add(t string, u string, a bool, c ControllerInterface) {
 func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("%s: %s", r.Method, r.URL.Path)
+
+	// Attempt static file first
+	file := "src/journal/public" + r.URL.Path
+	if r.URL.Path != "/" {
+		_, err := os.Stat(file)
+		if !os.IsNotExist(err) {
+			http.ServeFile(w, r, file)
+			return
+		}
+	}
+
 	for _, route := range m.routes {
 		if r.URL.Path == route.uri && (r.Method == route.method || (r.Method == "" && route.method == "GET")) {
 			route.controller.SetDb(m.db)
@@ -51,9 +63,7 @@ func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	log.Printf("%s: %s 404 Not Found", r.Method, r.URL.Path)
 	http.NotFound(w, r)
-	return
 }
 
 // SetDb Set the db
