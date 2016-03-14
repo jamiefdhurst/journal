@@ -4,6 +4,9 @@ var gulp = require('gulp'),
     webpackStream = require('webpack-stream');
 
 gulp.task('lib', function () {
+    gulp.src(['./node_modules/medium-editor/dist/css/medium-editor.css'])
+        .pipe(plugins.rename('_medium-editor.scss'))
+        .pipe(gulp.dest('./build/scss/plugins/'));
     gulp.src(['./node_modules/normalize-css/normalize.css'])
         .pipe(plugins.rename('_normalize.scss'))
         .pipe(gulp.dest('./build/scss/plugins/'));

@@ -9,3 +9,4 @@ It makes use of a SQLite database to store the journal entries.
 
 * Design
 * Better 404
+* TESTS!
