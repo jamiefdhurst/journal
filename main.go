@@ -8,6 +8,7 @@ import (
 	"journal/lib"
 	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -23,6 +24,9 @@ func main() {
 		port = flag.String("port", "3000", "Port to run web server on")
 	)
 	flag.Parse()
+
+	// Set CWD
+	os.Chdir(os.Getenv("GOPATH"))
 
 	// Load database
 	newdb, err := sql.Open("sqlite3", "./data/journal.db")

@@ -13,8 +13,8 @@ type Controller struct {
 
 // ControllerInterface Interface to satisfy being a controller.
 type ControllerInterface interface {
-	SetDb(db *sql.DB)
 	Run(w http.ResponseWriter, r *http.Request)
+	SetDb(db *sql.DB)
 	SetParams(p []string)
 }
 

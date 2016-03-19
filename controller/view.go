@@ -4,7 +4,6 @@ import (
 	"journal/lib"
 	"journal/model"
 	"net/http"
-	"strings"
 	"text/template"
 )
 
@@ -13,33 +12,25 @@ type View struct {
 	lib.Controller
 }
 
-// ViewData Data for view
-type ViewData struct {
+type viewData struct {
 	Journal model.Journal
 }
 
 // Run View
 func (c *View) Run(w http.ResponseWriter, r *http.Request) {
 
-	// Attempt to find the entry
-	rows, err := c.Db.Query("SELECT * FROM `journal` WHERE `slug` = ?", strings.Replace(c.Params[0], "/", "", 1))
-	lib.CheckErr(err)
+	js := model.Journals{}
+	js.SetDb(c.Db)
+	j := js.FindBySlug(c.Params[0])
 
-	v := ViewData{}
-
-	for rows.Next() {
-		v.Journal = model.Journal{}
-		err := rows.Scan(&v.Journal.ID, &v.Journal.Slug, &v.Journal.Title, &v.Journal.Date, &v.Journal.Content)
-		lib.CheckErr(err)
-	}
-
-	if v.Journal.ID == 0 {
+	if j.ID == 0 {
 		e := Error{}
 		e.Run(w, r)
 	} else {
+		data := viewData{j}
 		t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/view.tmpl")
 		t.ExecuteTemplate(w, "header", nil)
-		t.ExecuteTemplate(w, "content", v)
+		t.ExecuteTemplate(w, "content", data)
 		t.ExecuteTemplate(w, "footer", nil)
 		t.Execute(w, nil)
 	}
