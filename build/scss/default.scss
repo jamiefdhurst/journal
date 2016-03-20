@@ -58,6 +58,22 @@ article {
     border-bottom: 1px solid $borderColour;
 }
 
+.saved {
+    background-color: #cfc;
+    border: 1px solid #090;
+    color: #060;
+    margin: 15px 0;
+    padding: 8px 12px;
+}
+
+.error {
+    background-color: #fcc;
+    border: 1px solid #f00;
+    color: #c00;
+    margin: 15px 0;
+    padding: 8px 12px;
+}
+
 .button, button {
     background-color: $linkColour;
     border-radius: 5px;

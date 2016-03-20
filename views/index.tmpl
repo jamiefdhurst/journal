@@ -1,5 +1,9 @@
 {{define "content"}}
 
+{{if .Saved}}
+    <div class="saved">Journal saved.</div>
+{{end}}
+
 {{range .Journals}}
     <article>
         <h2>{{.Title}}</h2>

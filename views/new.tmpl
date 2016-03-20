@@ -1,5 +1,10 @@
 {{define "content"}}
 <h2>New Post</h2>
+
+{{if .Error}}
+    <div class="error">Make sure all the fields are filled in before saving.</div>
+{{end}}
+
 <form method="post" action="/new">
     <fieldset>
 
