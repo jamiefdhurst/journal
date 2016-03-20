@@ -14,5 +14,5 @@ SQLite file there.
 
 ## Options
 
-`-mode=create` - Use to create the database and initialise the table.
-`-port=80` - Use to set the port, defaults to 3000.
+* `-mode=create` - Use to create the database and initialise the table.
+* `-port=80` - Use to set the port, defaults to 3000.
