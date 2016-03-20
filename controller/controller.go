@@ -1,26 +1,16 @@
-package lib
+package controller
 
-import (
-	"database/sql"
-	"net/http"
-)
+import "net/http"
 
 // Controller Super-struct for all controllers.
 type Controller struct {
-	Db     *sql.DB
 	Params []string
 }
 
-// ControllerInterface Interface to satisfy being a controller.
-type ControllerInterface interface {
+// Interface Interface to satisfy being a controller.
+type Interface interface {
 	Run(w http.ResponseWriter, r *http.Request)
-	SetDb(db *sql.DB)
 	SetParams(p []string)
-}
-
-// SetDb Set the database pointer
-func (c *Controller) SetDb(db *sql.DB) {
-	c.Db = db
 }
 
 // SetParams Set the current parameters on the controller.

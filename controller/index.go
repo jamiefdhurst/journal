@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"journal/lib"
 	"journal/model"
 	"net/http"
 	"text/template"
@@ -9,7 +8,7 @@ import (
 
 // Index Handle displaying all blog entries
 type Index struct {
-	lib.Controller
+	Controller
 }
 
 type indexData struct {
@@ -21,7 +20,6 @@ type indexData struct {
 func (c *Index) Run(w http.ResponseWriter, r *http.Request) {
 
 	js := model.Journals{}
-	js.SetDb(c.Db)
 	js.FetchAll()
 	data := indexData{js.Journals, false}
 	query := r.URL.Query()

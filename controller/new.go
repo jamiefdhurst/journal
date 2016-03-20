@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"journal/lib"
 	"journal/model"
 	"net/http"
 	"text/template"
@@ -9,7 +8,7 @@ import (
 
 // New Handle creating a new entry
 type New struct {
-	lib.Controller
+	Controller
 }
 
 // Run NewC
@@ -34,7 +33,6 @@ func (c *New) Run(w http.ResponseWriter, r *http.Request) {
 		}
 
 		js := model.Journals{}
-		js.SetDb(c.Db)
 		js.Create(0, model.Slugify(r.FormValue("title")), r.FormValue("title"), r.FormValue("date"), r.FormValue("content"))
 
 		http.Redirect(w, r, "/?saved=1", 302)

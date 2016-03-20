@@ -1,14 +1,13 @@
 package controller
 
 import (
-	"journal/lib"
 	"net/http"
 	"text/template"
 )
 
 // Error Display a 404
 type Error struct {
-	lib.Controller
+	Controller
 }
 
 // Run Error

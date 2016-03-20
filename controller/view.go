@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"journal/lib"
 	"journal/model"
 	"net/http"
 	"text/template"
@@ -9,7 +8,7 @@ import (
 
 // View Handle displaying individual entry
 type View struct {
-	lib.Controller
+	Controller
 }
 
 type viewData struct {
@@ -20,7 +19,6 @@ type viewData struct {
 func (c *View) Run(w http.ResponseWriter, r *http.Request) {
 
 	js := model.Journals{}
-	js.SetDb(c.Db)
 	j := js.FindBySlug(c.Params[0])
 
 	if j.ID == 0 {

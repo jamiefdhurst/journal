@@ -2,16 +2,20 @@ package model
 
 import (
 	"database/sql"
-	"journal/lib"
+	"log"
+	"os"
 	"regexp"
 	"strings"
+
+	_ "github.com/mattn/go-sqlite3" // SQLite 3 driver
 )
 
 const table = "journal"
 
+var db *sql.DB
+
 // Journals Collection of Journals
 type Journals struct {
-	db       *sql.DB
 	Journals []Journal
 }
 
@@ -38,8 +42,7 @@ func (js *Journals) Create(id int, slug string, title string, date string, conte
 
 // FetchAll Get all journals
 func (js *Journals) FetchAll() {
-	rows, err := js.db.Query("SELECT * FROM `" + table + "` ORDER BY `date` DESC")
-	lib.CheckErr(err)
+	rows, _ := db.Query("SELECT * FROM `" + table + "` ORDER BY `date` DESC")
 
 	defer rows.Close()
 	for rows.Next() {
@@ -50,8 +53,7 @@ func (js *Journals) FetchAll() {
 // FindBySlug Find a journal by slug.
 func (js *Journals) FindBySlug(s string) Journal {
 	// Attempt to find the entry
-	rows, err := js.db.Query("SELECT * FROM `"+table+"` WHERE `slug` = ?", strings.Replace(s, "/", "", 1))
-	lib.CheckErr(err)
+	rows, _ := db.Query("SELECT * FROM `"+table+"` WHERE `slug` = ?", strings.Replace(s, "/", "", 1))
 
 	defer rows.Close()
 	for rows.Next() {
@@ -72,39 +74,28 @@ func (js *Journals) load(rows *sql.Rows) {
 	var date string
 	var content string
 
-	err := rows.Scan(&id, &slug, &title, &date, &content)
-	lib.CheckErr(err)
-
+	rows.Scan(&id, &slug, &title, &date, &content)
 	js.Create(id, slug, title, date, content)
 }
 
 func (js *Journals) save(j Journal) Journal {
 	var stmt *sql.Stmt
-	var err error
 	var res sql.Result
 	if j.ID == 0 {
-		stmt, err = js.db.Prepare("INSERT INTO `" + table + "` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)")
-		lib.CheckErr(err)
-		res, err = stmt.Exec(j.Slug, j.Title, j.Date, j.Content)
+		stmt, _ = db.Prepare("INSERT INTO `" + table + "` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)")
+		res, _ = stmt.Exec(j.Slug, j.Title, j.Date, j.Content)
 	} else {
-		stmt, err = js.db.Prepare("UPDATE `" + table + "` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ? WHERE `id` = ?")
-		lib.CheckErr(err)
-		res, err = stmt.Exec(j.Slug, j.Title, j.Date, j.Content, j.ID)
+		stmt, _ = db.Prepare("UPDATE `" + table + "` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ? WHERE `id` = ?")
+		res, _ = stmt.Exec(j.Slug, j.Title, j.Date, j.Content, j.ID)
 	}
 
 	// Store insert ID
-	lib.CheckErr(err)
 	if j.ID == 0 {
 		id, _ := res.LastInsertId()
 		j.ID = int(id)
 	}
 
 	return j
-}
-
-// SetDb Set the database.
-func (js *Journals) SetDb(db *sql.DB) {
-	js.db = db
 }
 
 // GetDate Get the friendly date for the Journal
@@ -120,9 +111,31 @@ func (j Journal) GetDate() string {
 	return strings.Join(dateArr, "/")
 }
 
+// JournalCreateTable Create the actual table
+func JournalCreateTable() error {
+	_, err := db.Exec("CREATE TABLE `journal` (" +
+		"`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
+		"`slug` VARCHAR(255) NOT NULL, " +
+		"`title` VARCHAR(255) NOT NULL, " +
+		"`date` DATE NOT NULL, " +
+		"`content` TEXT NOT NULL" +
+		")")
+
+	return err
+}
+
 // Slugify Utility to convert a string into a slug
 func Slugify(s string) string {
 	re := regexp.MustCompile("[\\W+]")
 
 	return strings.ToLower(re.ReplaceAllString(s, "-"))
+}
+
+func init() {
+	var err error
+	db, err = sql.Open("sqlite3", "./data/journal.db")
+	if err != nil {
+		log.Print(err)
+		os.Exit(1)
+	}
 }
