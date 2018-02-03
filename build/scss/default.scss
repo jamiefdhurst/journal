@@ -29,7 +29,7 @@ a:hover {
 
 #container {
     margin: 0 auto;
-    max-width: rem(960)
+    max-width: 60rem;
 }
 
 header[role=banner] {
@@ -107,7 +107,7 @@ fieldset {
         font-weight: bold;
         padding-top: .5rem;
         vertical-align: top;
-        width: rem(100);
+        width: 6.25rem;
     }
 
     input[type=text], input[type=date], textarea, [data-medium-editor-element] {
@@ -116,7 +116,7 @@ fieldset {
         display: inline-block;
         outline: none;
         padding: .5rem .75rem;
-        width: rem(500);
+        width: 31.25rem;
 
         &:focus {
             border-color: $linkColour;
@@ -124,10 +124,14 @@ fieldset {
     }
 
     textarea, [data-medium-editor-element] {
-        height: 10rem;
+        min-height: 10rem;
+
+        p:first-child {
+            margin-top: 0;
+        }
     }
 
     button {
-        margin-left: rem(104);
+        margin-left: 6.5rem;
     }
 }

@@ -5,7 +5,7 @@ server driven blog with the ability to post new entries.
 
 It makes use of a SQLite database to store the journal entries.
 
-## Installation
+## Installation
 
 * Clone the repository to `$GOPATH/src/journal`.
 * Make sure the `$GOPATH/data` directory exists, and initialise a `journal.db`
