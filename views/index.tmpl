@@ -4,12 +4,12 @@
     <div class="saved">Journal saved.</div>
 {{end}}
 
+<p><a class="button" href="/new">Create New Post</a></p>
+
 {{range .Journals}}
     <article>
         <h2>{{.Title}}</h2>
         <p>Posted on <strong>{{.GetDate}}</strong><br /><a href="/{{.Slug}}">View Post</a></p>
     </article>
 {{end}}
-
-<p><a class="button" href="/new">Create New Post</a></p>
 {{end}}

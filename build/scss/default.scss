@@ -93,6 +93,10 @@ article {
     }
 }
 
+p > .button {
+    float: right;
+}
+
 fieldset {
     border: none;
     margin: 0;
