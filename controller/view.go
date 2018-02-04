@@ -19,7 +19,7 @@ type viewData struct {
 func (c *View) Run(w http.ResponseWriter, r *http.Request) {
 
 	js := model.Journals{}
-	j := js.FindBySlug(c.Params[0])
+	j := js.FindBySlug(c.Params[1])
 
 	if j.ID == 0 {
 		e := Error{}
