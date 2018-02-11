@@ -21,11 +21,11 @@ type Journals struct {
 
 // Journal model
 type Journal struct {
-	ID      int
-	Slug    string
-	Title   string
-	Date    string
-	Content string
+	ID      int    `json:"id"`
+	Slug    string `json:"slug"`
+	Title   string `json:"title"`
+	Date    string `json:"date"`
+	Content string `json:"content"`
 }
 
 // Create Create a new journal entry, saving it as necessary
@@ -53,7 +53,7 @@ func (js *Journals) FetchAll() {
 // FindBySlug Find a journal by slug.
 func (js *Journals) FindBySlug(s string) Journal {
 	// Attempt to find the entry
-	rows, _ := db.Query("SELECT * FROM `"+table+"` WHERE `slug` = ?", strings.Replace(s, "/", "", 1))
+	rows, _ := db.Query("SELECT * FROM `"+table+"` WHERE `slug` = ?", s)
 
 	defer rows.Close()
 	for rows.Next() {
