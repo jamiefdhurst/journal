@@ -36,6 +36,7 @@ func (s *Server) initRouter() {
 	s.router.Add("GET", "/api/v1/post", false, &apiv1.List{})
 	s.router.Add("POST", "/api/v1/post", false, &apiv1.Create{})
 	s.router.Add("GET", "\\/api\\/v1\\/post\\/([\\w\\-]+)", true, &apiv1.Single{})
+	s.router.Add("PUT", "\\/api\\/v1\\/post\\/([\\w\\-]+)", true, &apiv1.Update{})
 	s.router.Add("GET", "\\/([\\w\\-]+)\\/edit", true, &controller.Edit{})
 	s.router.Add("POST", "\\/([\\w\\-]+)\\/edit", true, &controller.Edit{})
 	s.router.Add("GET", "\\/([\\w\\-]+)", true, &controller.View{})
