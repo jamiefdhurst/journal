@@ -16,7 +16,7 @@ type Route struct {
 	controller controller.Interface
 }
 
-// Router Contian routes
+// Router Contain routes
 type Router struct {
 	err    controller.Interface
 	routes []Route

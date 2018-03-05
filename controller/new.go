@@ -11,22 +11,25 @@ type New struct {
 	Controller
 }
 
+type newData struct {
+	Error   bool
+	Journal model.Journal
+}
+
 // Run NewC
 func (c *New) Run(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		data := map[string]bool{
-			"Error": false,
-		}
+		data := newData{}
 		query := r.URL.Query()
 		if query["error"] != nil {
-			data["Error"] = true
+			data.Error = true
 		}
 
-		t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/new.tmpl")
-		t.ExecuteTemplate(w, "header", nil)
-		t.ExecuteTemplate(w, "content", data)
-		t.ExecuteTemplate(w, "footer", nil)
-		t.Execute(w, nil)
+		t, _ := template.ParseFiles(
+			"./src/journal/views/_layout/default.tmpl",
+			"./src/journal/views/new.tmpl",
+			"./src/journal/views/_partial/form.tmpl")
+		t.ExecuteTemplate(w, "layout", data)
 	} else {
 		if r.FormValue("title") == "" || r.FormValue("date") == "" || r.FormValue("content") == "" {
 			http.Redirect(w, r, "/new?error=1", 302)

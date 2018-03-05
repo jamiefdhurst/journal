@@ -1,4 +1,4 @@
-{{define "header"}}
+{{define "layout"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,4 +13,11 @@
         <header role="banner">
             <h1>Jamie's Journal</h1>
         </header>
+
+        {{template "content" .}}
+
+    </div>
+    <script src="/js/default.min.js"></script>
+</body>
+</html>
 {{end}}
