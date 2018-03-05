@@ -27,9 +27,8 @@ func (c *Index) Run(w http.ResponseWriter, r *http.Request) {
 		data.Saved = true
 	}
 
-	t, _ := template.ParseFiles("./src/journal/views/_layout/header.tmpl", "./src/journal/views/_layout/footer.tmpl", "./src/journal/views/index.tmpl")
-	t.ExecuteTemplate(w, "header", nil)
-	t.ExecuteTemplate(w, "content", data)
-	t.ExecuteTemplate(w, "footer", nil)
-	t.Execute(w, nil)
+	t, _ := template.ParseFiles(
+		"./src/journal/views/_layout/default.tmpl",
+		"./src/journal/views/index.tmpl")
+	t.ExecuteTemplate(w, "layout", data)
 }

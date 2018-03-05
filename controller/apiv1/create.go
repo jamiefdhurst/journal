@@ -12,12 +12,6 @@ type Create struct {
 	controller.Controller
 }
 
-type journalFromJSON struct {
-	Title   string
-	Date    string
-	Content string
-}
-
 // Run Create
 func (c *Create) Run(w http.ResponseWriter, r *http.Request) {
 

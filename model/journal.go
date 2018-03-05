@@ -98,6 +98,11 @@ func (js *Journals) save(j Journal) Journal {
 	return j
 }
 
+// Update Save an existing journal entry's changes
+func (js *Journals) Update(j Journal) Journal {
+	return js.save(j)
+}
+
 // GetDate Get the friendly date for the Journal
 func (j Journal) GetDate() string {
 	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
@@ -109,6 +114,12 @@ func (j Journal) GetDate() string {
 	}
 
 	return strings.Join(dateArr, "/")
+}
+
+// GetEditableDate Get the date string for editing
+func (j Journal) GetEditableDate() string {
+	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
+	return re.FindString(j.Date)
 }
 
 // JournalCreateTable Create the actual table

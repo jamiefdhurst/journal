@@ -1,0 +1,26 @@
+{{define "form"}}
+
+<form method="post">
+    <fieldset>
+
+        <div class="form-group">
+            <label for="form-title">Title:</label>
+            <input type="text" id="form-title" name="title" value="{{.Journal.Title}}" />
+        </div>
+
+        <div class="form-group">
+            <label for="form-date">Date:</label>
+            <input type="date" id="form-date" name="date" value="{{.Journal.GetEditableDate}}" />
+        </div>
+
+        <div class="form-group">
+            <label for="form-content">Content:</label>
+            <textarea id="form-content" name="content">{{.Journal.Content}}</textarea>
+        </div>
+
+        <button type="sumbit">Save</button>
+
+    </fieldset>
+</form>
+
+{{end}}
