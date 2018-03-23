@@ -2,17 +2,13 @@ package model
 
 import (
 	"database/sql"
-	"log"
-	"os"
 	"regexp"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3" // SQLite 3 driver
 )
 
-const table = "journal"
-
-var db *sql.DB
+const journalTable = "journal"
 
 // Journals Collection of Journals
 type Journals struct {
@@ -42,7 +38,7 @@ func (js *Journals) Create(id int, slug string, title string, date string, conte
 
 // FetchAll Get all journals
 func (js *Journals) FetchAll() {
-	rows, _ := db.Query("SELECT * FROM `" + table + "` ORDER BY `date` DESC")
+	rows, _ := db.Query("SELECT * FROM `" + journalTable + "` ORDER BY `date` DESC")
 
 	defer rows.Close()
 	for rows.Next() {
@@ -53,7 +49,7 @@ func (js *Journals) FetchAll() {
 // FindBySlug Find a journal by slug.
 func (js *Journals) FindBySlug(s string) Journal {
 	// Attempt to find the entry
-	rows, _ := db.Query("SELECT * FROM `"+table+"` WHERE `slug` = ?", s)
+	rows, _ := db.Query("SELECT * FROM `"+journalTable+"` WHERE `slug` = ?", s)
 
 	defer rows.Close()
 	for rows.Next() {
@@ -82,10 +78,10 @@ func (js *Journals) save(j Journal) Journal {
 	var stmt *sql.Stmt
 	var res sql.Result
 	if j.ID == 0 {
-		stmt, _ = db.Prepare("INSERT INTO `" + table + "` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)")
+		stmt, _ = db.Prepare("INSERT INTO `" + journalTable + "` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)")
 		res, _ = stmt.Exec(j.Slug, j.Title, j.Date, j.Content)
 	} else {
-		stmt, _ = db.Prepare("UPDATE `" + table + "` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ? WHERE `id` = ?")
+		stmt, _ = db.Prepare("UPDATE `" + journalTable + "` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ? WHERE `id` = ?")
 		res, _ = stmt.Exec(j.Slug, j.Title, j.Date, j.Content, j.ID)
 	}
 
@@ -124,7 +120,7 @@ func (j Journal) GetEditableDate() string {
 
 // JournalCreateTable Create the actual table
 func JournalCreateTable() error {
-	_, err := db.Exec("CREATE TABLE `journal` (" +
+	_, err := db.Exec("CREATE TABLE `" + journalTable + "` (" +
 		"`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		"`slug` VARCHAR(255) NOT NULL, " +
 		"`title` VARCHAR(255) NOT NULL, " +
@@ -140,13 +136,4 @@ func Slugify(s string) string {
 	re := regexp.MustCompile("[\\W+]")
 
 	return strings.ToLower(re.ReplaceAllString(s, "-"))
-}
-
-func init() {
-	var err error
-	db, err = sql.Open("sqlite3", "./data/journal.db")
-	if err != nil {
-		log.Print(err)
-		os.Exit(1)
-	}
 }

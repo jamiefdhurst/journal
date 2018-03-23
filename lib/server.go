@@ -1,17 +1,18 @@
 package lib
 
 import (
-	"database/sql"
+	"bufio"
+	"fmt"
 	"journal/controller"
 	"journal/controller/apiv1"
 	"journal/model"
 	"log"
 	"net/http"
+	"os"
 )
 
 // Server Contain the server
 type Server struct {
-	db     *sql.DB
 	router Router
 }
 
@@ -23,9 +24,20 @@ func (s Server) CheckErr(err error) {
 }
 
 func (s *Server) createDb() {
-	err := model.JournalCreateTable()
+	err := model.GiphyCreateTable()
 	s.CheckErr(err)
+	err2 := model.JournalCreateTable()
+	s.CheckErr(err2)
 	log.Println("Database created")
+}
+
+func (s *Server) giphyAPIKey() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter GIPHY API key: ")
+	apiKey, _ := reader.ReadString('\n')
+	gs := model.Giphys{}
+	gs.Update(apiKey)
+	log.Println("API key saved")
 }
 
 func (s *Server) initRouter() {
@@ -46,11 +58,13 @@ func (s *Server) initRouter() {
 func (s *Server) Run(mode string, port string) {
 	if mode == "create" {
 		s.createDb()
+	} else if mode == "giphy" {
+		s.giphyAPIKey()
 	} else {
 		s.initRouter()
 		s.serve(port)
 	}
-	s.db.Close()
+	model.Close()
 }
 
 func (s *Server) serve(port string) {
