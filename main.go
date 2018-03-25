@@ -14,7 +14,7 @@ func main() {
 
 	// Command line flags
 	var (
-		mode = flag.String("mode", "run", "Run or create database file")
+		mode = flag.String("mode", "run", "Run or perform a maintenance action")
 		port = flag.String("port", "3000", "Port to run web server on")
 	)
 	flag.Parse()
