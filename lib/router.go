@@ -65,7 +65,7 @@ func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	m.err.Run(w, r)
 }
 
-// NewRouter Create a new router
+// NewRouter Create a new router with an error controller provided
 func NewRouter(s *Server, e controller.Interface) Router {
 	var r []Route
 

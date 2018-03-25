@@ -77,6 +77,10 @@ func (js *Journals) load(rows *sql.Rows) {
 func (js *Journals) save(j Journal) Journal {
 	var stmt *sql.Stmt
 	var res sql.Result
+
+	// Convert content for saving
+	j.Content = ConvertSearchesToIDs(j.Content)
+
 	if j.ID == 0 {
 		stmt, _ = db.Prepare("INSERT INTO `" + journalTable + "` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)")
 		res, _ = stmt.Exec(j.Slug, j.Title, j.Date, j.Content)

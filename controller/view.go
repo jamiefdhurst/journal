@@ -25,6 +25,7 @@ func (c *View) Run(w http.ResponseWriter, r *http.Request) {
 		e := Error{}
 		e.Run(w, r)
 	} else {
+		j.Content = model.ConvertIDsForDisplay(j.Content)
 		data := viewData{j}
 		t, _ := template.ParseFiles(
 			"./src/journal/views/_layout/default.tmpl",

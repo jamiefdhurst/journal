@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 // Server Contain the server
@@ -36,7 +37,7 @@ func (s *Server) giphyAPIKey() {
 	fmt.Print("Enter GIPHY API key: ")
 	apiKey, _ := reader.ReadString('\n')
 	gs := model.Giphys{}
-	gs.Update(apiKey)
+	gs.Update(strings.Replace(apiKey, "\n", "", -1))
 	log.Println("API key saved")
 }
 
