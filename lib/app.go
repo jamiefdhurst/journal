@@ -67,6 +67,8 @@ func (a *App) Run(mode string, port string) {
 		a.initRouter()
 		a.serveHTTP(port)
 	}
+
+	// Close database once finished
 	model.Close()
 }
 

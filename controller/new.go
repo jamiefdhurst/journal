@@ -27,9 +27,9 @@ func (c *New) Run(w http.ResponseWriter, r *http.Request) {
 		}
 
 		t, _ := template.ParseFiles(
-			"./src/github.com/jamiefdhurst/journal/views/_layout/default.tmpl",
-			"./src/github.com/jamiefdhurst/journal/views/new.tmpl",
-			"./src/github.com/jamiefdhurst/journal/views/_partial/form.tmpl")
+			"./views/_layout/default.tmpl",
+			"./views/new.tmpl",
+			"./views/_partial/form.tmpl")
 		t.ExecuteTemplate(w, "layout", data)
 	} else {
 		if r.FormValue("title") == "" || r.FormValue("date") == "" || r.FormValue("content") == "" {

@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	// Set CWD
-	os.Chdir(os.Getenv("GOPATH"))
+	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 	fmt.Printf("Journal v%s...\n-------------------\n\n", version)
 
 	app = lib.App{}

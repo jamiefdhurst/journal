@@ -35,9 +35,9 @@ func (c *Edit) Run(w http.ResponseWriter, r *http.Request) {
 				data.Error = true
 			}
 			t, _ := template.ParseFiles(
-				"./src/github.com/jamiefdhurst/journal/views/_layout/default.tmpl",
-				"./src/github.com/jamiefdhurst/journal/views/edit.tmpl",
-				"./src/github.com/jamiefdhurst/journal/views/_partial/form.tmpl")
+				"./views/_layout/default.tmpl",
+				"./views/edit.tmpl",
+				"./views/_partial/form.tmpl")
 			t.ExecuteTemplate(w, "layout", data)
 		} else {
 			if r.FormValue("title") == "" || r.FormValue("date") == "" || r.FormValue("content") == "" {

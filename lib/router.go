@@ -60,11 +60,9 @@ func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Debug output into the console
 	log.Printf("%s: %s", r.Method, r.URL.Path)
 
-	// TODO: Convert this to use relative path
-	// TODO: Extract method here
-	// Attempt to serve a file first - still uses the full GOPATH
-	file := "src/github.com/jamiefdhurst/journal/public" + r.URL.Path
+	// Attempt to serve a file first
 	if r.URL.Path != "/" {
+		file := "public" + r.URL.Path
 		_, err := os.Stat(file)
 		if !os.IsNotExist(err) {
 			http.ServeFile(w, r, file)

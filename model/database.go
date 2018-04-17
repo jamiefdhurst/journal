@@ -17,7 +17,7 @@ func Close() {
 
 func init() {
 	var err error
-	db, err = sql.Open("sqlite3", "./data/journal.db")
+	db, err = sql.Open("sqlite3", os.Getenv("GOPATH")+"/data/journal.db")
 	if err != nil {
 		log.Print(err)
 		os.Exit(1)

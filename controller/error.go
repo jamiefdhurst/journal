@@ -15,7 +15,7 @@ func (c *Error) Run(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 
 	t, _ := template.ParseFiles(
-		"./src/github.com/jamiefdhurst/journal/views/_layout/default.tmpl",
-		"./src/github.com/jamiefdhurst/journal/views/error.tmpl")
+		"./views/_layout/default.tmpl",
+		"./views/error.tmpl")
 	t.ExecuteTemplate(w, "layout", nil)
 }
