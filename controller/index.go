@@ -29,7 +29,7 @@ func (c *Index) Run(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t, _ := template.ParseFiles(
-		"./src/journal/views/_layout/default.tmpl",
-		"./src/journal/views/index.tmpl")
+		"./src/github.com/jamiefdhurst/journal/views/_layout/default.tmpl",
+		"./src/github.com/jamiefdhurst/journal/views/index.tmpl")
 	t.ExecuteTemplate(w, "layout", data)
 }

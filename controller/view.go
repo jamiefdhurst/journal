@@ -29,8 +29,8 @@ func (c *View) Run(w http.ResponseWriter, r *http.Request) {
 		j.Content = model.ConvertIDsForDisplay(j.Content)
 		data := viewData{j}
 		t, _ := template.ParseFiles(
-			"./src/journal/views/_layout/default.tmpl",
-			"./src/journal/views/view.tmpl")
+			"./src/github.com/jamiefdhurst/journal/views/_layout/default.tmpl",
+			"./src/github.com/jamiefdhurst/journal/views/view.tmpl")
 		t.ExecuteTemplate(w, "layout", data)
 	}
 }

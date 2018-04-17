@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/jamiefdhurst/journal/controller"
 )
@@ -12,22 +13,45 @@ import (
 // Route A route contains a method (GET), URI, and a controller
 type Route struct {
 	method     string
-	uri        string
-	matchable  bool
+	regexURI   string
 	controller controller.Interface
 }
 
 // Router A router contains routes and links back to the application and implements the ServeHTTP interface
 type Router struct {
-	err    controller.Interface
-	routes []Route
-	app    *App
+	app             *App
+	routes          []Route
+	errorController controller.Interface
 }
 
-// Add Create and add a new route into the router
-func (m *Router) Add(method string, uri string, matchable bool, controller controller.Interface) {
-	r := Route{method, uri, matchable, controller}
-	m.routes = append(m.routes, r)
+func (m *Router) convertSimpleURIToRegex(uri string) string {
+	uri = strings.Replace(uri, "/", "\\/", -1)
+
+	// Match slugs
+	uri = strings.Replace(uri, "[%s]", "([\\w\\-]+)", -1)
+
+	// Match IDs
+	uri = strings.Replace(uri, "[%d]", "(\\d+)", -1)
+
+	// Match anything
+	uri = strings.Replace(uri, "[%a]", "(.+?)", -1)
+
+	return uri
+}
+
+// Get Create and add a new route into the router to handle a GET request
+func (m *Router) Get(uri string, controller controller.Interface) {
+	m.routes = append(m.routes, Route{"GET", m.convertSimpleURIToRegex(uri), controller})
+}
+
+// Post Create and add a new route into the router to handle a POST request
+func (m *Router) Post(uri string, controller controller.Interface) {
+	m.routes = append(m.routes, Route{"POST", m.convertSimpleURIToRegex(uri), controller})
+}
+
+// Put Create and add a new route into the router to handle a PUT request
+func (m *Router) Put(uri string, controller controller.Interface) {
+	m.routes = append(m.routes, Route{"PUT", m.convertSimpleURIToRegex(uri), controller})
 }
 
 // ServeHTTP Serve a given HTTP request
@@ -36,6 +60,8 @@ func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Debug output into the console
 	log.Printf("%s: %s", r.Method, r.URL.Path)
 
+	// TODO: Convert this to use relative path
+	// TODO: Extract method here
 	// Attempt to serve a file first - still uses the full GOPATH
 	file := "src/github.com/jamiefdhurst/journal/public" + r.URL.Path
 	if r.URL.Path != "/" {
@@ -46,30 +72,16 @@ func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Go through each route and attempt to match
 	for _, route := range m.routes {
-		if r.URL.Path == route.uri && (r.Method == route.method || (r.Method == "" && route.method == "GET")) {
+		matched, _ := regexp.MatchString(route.regexURI, r.URL.Path)
+		if matched && (r.Method == route.method || (r.Method == "" && route.method == "GET")) {
+			re := regexp.MustCompile(route.regexURI)
+			route.controller.SetParams(re.FindStringSubmatch(r.URL.Path))
 			route.controller.Run(w, r)
 			return
 		}
-
-		// Attempt regex match
-		if route.matchable {
-			matched, _ := regexp.MatchString(route.uri, r.URL.Path)
-			if matched && (r.Method == route.method || (r.Method == "" && route.method == "GET")) {
-				re := regexp.MustCompile(route.uri)
-				route.controller.SetParams(re.FindStringSubmatch(r.URL.Path))
-				route.controller.Run(w, r)
-				return
-			}
-		}
 	}
 
-	m.err.Run(w, r)
-}
-
-// NewRouter Create a new router with an error controller provided
-func NewRouter(s *Server, e controller.Interface) Router {
-	var r []Route
-
-	return Router{e, r, s}
+	m.errorController.Run(w, r)
 }

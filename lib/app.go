@@ -45,16 +45,16 @@ func (a *App) giphyAPIKey() {
 func (a *App) initRouter() {
 	var routes []Route
 	a.router = Router{a, routes, &controller.Error{}}
-	a.router.Add("GET", "/", false, &controller.Index{})
-	a.router.Add("GET", "/new", false, &controller.New{})
-	a.router.Add("POST", "/new", false, &controller.New{})
-	a.router.Add("GET", "/api/v1/post", false, &apiv1.List{})
-	a.router.Add("POST", "/api/v1/post", false, &apiv1.Create{})
-	a.router.Add("GET", "\\/api\\/v1\\/post\\/([\\w\\-]+)", true, &apiv1.Single{})
-	a.router.Add("PUT", "\\/api\\/v1\\/post\\/([\\w\\-]+)", true, &apiv1.Update{})
-	a.router.Add("GET", "\\/([\\w\\-]+)\\/edit", true, &controller.Edit{})
-	a.router.Add("POST", "\\/([\\w\\-]+)\\/edit", true, &controller.Edit{})
-	a.router.Add("GET", "\\/([\\w\\-]+)", true, &controller.View{})
+	a.router.Get("/new", &controller.New{})
+	a.router.Post("/new", &controller.New{})
+	a.router.Get("/api/v1/post", &apiv1.List{})
+	a.router.Post("/api/v1/post", &apiv1.Create{})
+	a.router.Get("/api/v1/post/[%s]", &apiv1.Single{})
+	a.router.Put("/api/v1/post/[%s]", &apiv1.Update{})
+	a.router.Get("/[%s]/edit", &controller.Edit{})
+	a.router.Post("/[%s]/edit", &controller.Edit{})
+	a.router.Get("/[%s]", &controller.View{})
+	a.router.Get("/", &controller.Index{})
 }
 
 // Run Determine the mode and run appropriate app call
