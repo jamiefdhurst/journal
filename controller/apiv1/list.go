@@ -2,9 +2,10 @@ package apiv1
 
 import (
 	"encoding/json"
-	"journal/controller"
-	"journal/model"
 	"net/http"
+
+	"github.com/jamiefdhurst/journal/controller"
+	"github.com/jamiefdhurst/journal/model"
 )
 
 // List Display all blog entries as JSON

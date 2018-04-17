@@ -1,9 +1,10 @@
 package controller
 
 import (
-	"journal/model"
 	"net/http"
 	"text/template"
+
+	"github.com/jamiefdhurst/journal/model"
 )
 
 // New Handle creating a new entry

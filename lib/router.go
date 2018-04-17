@@ -1,14 +1,15 @@
 package lib
 
 import (
-	"journal/controller"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
+
+	"github.com/jamiefdhurst/journal/controller"
 )
 
-// Route Define a route
+// Route A route contains a method (GET), URI, and a controller
 type Route struct {
 	method     string
 	uri        string
@@ -16,26 +17,27 @@ type Route struct {
 	controller controller.Interface
 }
 
-// Router Contain routes
+// Router A router contains routes and links back to the application and implements the ServeHTTP interface
 type Router struct {
 	err    controller.Interface
 	routes []Route
-	server *Server
+	app    *App
 }
 
-// Add A new route
-func (m *Router) Add(t string, u string, a bool, c controller.Interface) {
-	r := Route{t, u, a, c}
+// Add Create and add a new route into the router
+func (m *Router) Add(method string, uri string, matchable bool, controller controller.Interface) {
+	r := Route{method, uri, matchable, controller}
 	m.routes = append(m.routes, r)
 }
 
-// ServeHTTP Serve the HTTP request
+// ServeHTTP Serve a given HTTP request
 func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	// Debug output into the console
 	log.Printf("%s: %s", r.Method, r.URL.Path)
 
-	// Attempt static file first
-	file := "src/journal/public" + r.URL.Path
+	// Attempt to serve a file first - still uses the full GOPATH
+	file := "src/github.com/jamiefdhurst/journal/public" + r.URL.Path
 	if r.URL.Path != "/" {
 		_, err := os.Stat(file)
 		if !os.IsNotExist(err) {
