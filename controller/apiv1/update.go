@@ -13,37 +13,36 @@ type Update struct {
 	controller.Controller
 }
 
-// Run Update
-func (c *Update) Run(w http.ResponseWriter, r *http.Request) {
+// Run Update action
+func (c *Update) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{}
-	j := js.FindBySlug(c.Params[1])
+	journal := model.FindJournalBySlug(c.Params[1])
 
-	w.Header().Add("Content-Type", "application/json")
-	if j.ID == 0 {
-		w.WriteHeader(http.StatusNotFound)
+	response.Header().Add("Content-Type", "application/json")
+	if journal.ID == 0 {
+		response.WriteHeader(http.StatusNotFound)
 	} else {
-		var j2 = journalFromJSON{}
-		decoder := json.NewDecoder(r.Body)
-		err := decoder.Decode(&j2)
+		var journalRequest = journalFromJSON{}
+		decoder := json.NewDecoder(request.Body)
+		err := decoder.Decode(&journalRequest)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			response.WriteHeader(http.StatusBadRequest)
 		} else {
 			// Update only fields that are present
-			if j2.Title != "" {
-				j.Title = j2.Title
+			if journalRequest.Title != "" {
+				journal.Title = journalRequest.Title
 			}
-			if j2.Date != "" {
-				j.Date = j2.Date
+			if journalRequest.Date != "" {
+				journal.Date = journalRequest.Date
 			}
-			if j2.Content != "" {
-				j.Content = j2.Content
+			if journalRequest.Content != "" {
+				journal.Content = journalRequest.Content
 			}
-			js.Update(j)
-			encoder := json.NewEncoder(w)
+			journal.Save()
+			encoder := json.NewEncoder(response)
 			encoder.SetEscapeHTML(false)
-			if err := encoder.Encode(j); err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
+			if err := encoder.Encode(journal); err != nil {
+				response.WriteHeader(http.StatusInternalServerError)
 			}
 		}
 	}

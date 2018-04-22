@@ -10,27 +10,22 @@ import (
 // View Handle displaying individual entry
 type View struct {
 	Controller
-}
-
-type viewData struct {
 	Journal model.Journal
 }
 
-// Run View
-func (c *View) Run(w http.ResponseWriter, r *http.Request) {
+// Run View action
+func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{}
-	j := js.FindBySlug(c.Params[1])
+	c.Journal = model.FindJournalBySlug(c.Params[1])
 
-	if j.ID == 0 {
-		e := Error{}
-		e.Run(w, r)
+	if c.Journal.ID == 0 {
+		errorController := Error{}
+		errorController.Run(response, request)
 	} else {
-		j.Content = model.ConvertIDsForDisplay(j.Content)
-		data := viewData{j}
-		t, _ := template.ParseFiles(
+		c.Journal.Content = model.ConvertGiphyIDsToIframes(c.Journal.Content)
+		template, _ := template.ParseFiles(
 			"./views/_layout/default.tmpl",
 			"./views/view.tmpl")
-		t.ExecuteTemplate(w, "layout", data)
+		template.ExecuteTemplate(response, "layout", c)
 	}
 }
