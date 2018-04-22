@@ -2,9 +2,10 @@ package apiv1
 
 import (
 	"encoding/json"
-	"journal/controller"
-	"journal/model"
 	"net/http"
+
+	"github.com/jamiefdhurst/journal/controller"
+	"github.com/jamiefdhurst/journal/model"
 )
 
 // List Display all blog entries as JSON
@@ -12,15 +13,14 @@ type List struct {
 	controller.Controller
 }
 
-// Run List
-func (c *List) Run(w http.ResponseWriter, r *http.Request) {
+// Run List action
+func (c *List) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{}
-	js.FetchAll()
-	w.Header().Add("Content-Type", "application/json")
-	encoder := json.NewEncoder(w)
+	journals := model.FetchAllJournals()
+	response.Header().Add("Content-Type", "application/json")
+	encoder := json.NewEncoder(response)
 	encoder.SetEscapeHTML(false)
-	if err := encoder.Encode(js.Journals); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if err := encoder.Encode(journals); err != nil {
+		response.WriteHeader(http.StatusInternalServerError)
 	}
 }

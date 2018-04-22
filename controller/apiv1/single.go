@@ -2,9 +2,10 @@ package apiv1
 
 import (
 	"encoding/json"
-	"journal/controller"
-	"journal/model"
 	"net/http"
+
+	"github.com/jamiefdhurst/journal/controller"
+	"github.com/jamiefdhurst/journal/model"
 )
 
 // Single Find and display single blog entry
@@ -12,24 +13,19 @@ type Single struct {
 	controller.Controller
 }
 
-type singleData struct {
-	Journal model.Journal
-}
+// Run Single action
+func (c *Single) Run(response http.ResponseWriter, request *http.Request) {
 
-// Run Single
-func (c *Single) Run(w http.ResponseWriter, r *http.Request) {
+	journal := model.FindJournalBySlug(c.Params[1])
 
-	js := model.Journals{}
-	j := js.FindBySlug(c.Params[1])
-
-	w.Header().Add("Content-Type", "application/json")
-	if j.ID == 0 {
-		w.WriteHeader(http.StatusNotFound)
+	response.Header().Add("Content-Type", "application/json")
+	if journal.ID == 0 {
+		response.WriteHeader(http.StatusNotFound)
 	} else {
-		encoder := json.NewEncoder(w)
+		encoder := json.NewEncoder(response)
 		encoder.SetEscapeHTML(false)
-		if err := encoder.Encode(j); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+		if err := encoder.Encode(journal); err != nil {
+			response.WriteHeader(http.StatusInternalServerError)
 		}
 	}
 

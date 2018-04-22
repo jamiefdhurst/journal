@@ -16,10 +16,10 @@ func Close() {
 }
 
 func init() {
-	var err error
-	db, err = sql.Open("sqlite3", "./data/journal.db")
+	db, _ = sql.Open("sqlite3", os.Getenv("GOPATH")+"/data/journal.db")
+	err := db.Ping()
 	if err != nil {
-		log.Print(err)
+		log.Println("Database error - please verify that the $GOPATH/data folder is available.")
 		os.Exit(1)
 	}
 }

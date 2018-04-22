@@ -2,9 +2,10 @@ package apiv1
 
 import (
 	"encoding/json"
-	"journal/controller"
-	"journal/model"
 	"net/http"
+
+	"github.com/jamiefdhurst/journal/controller"
+	"github.com/jamiefdhurst/journal/model"
 )
 
 // Create Create a new entry via API
@@ -12,24 +13,24 @@ type Create struct {
 	controller.Controller
 }
 
-// Run Create
-func (c *Create) Run(w http.ResponseWriter, r *http.Request) {
+// Run Create action
+func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
 
-	decoder := json.NewDecoder(r.Body)
-	var j = journalFromJSON{}
-	err := decoder.Decode(&j)
+	decoder := json.NewDecoder(request.Body)
+	var journalRequest = journalFromJSON{}
+	err := decoder.Decode(&journalRequest)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		response.WriteHeader(http.StatusBadRequest)
 	} else {
-		if j.Title == "" || j.Content == "" || j.Date == "" {
-			w.WriteHeader(http.StatusBadRequest)
+		if journalRequest.Title == "" || journalRequest.Content == "" || journalRequest.Date == "" {
+			response.WriteHeader(http.StatusBadRequest)
 		} else {
-			js := model.Journals{}
-			journal := js.Create(0, model.Slugify(j.Title), j.Title, j.Date, j.Content)
-			encoder := json.NewEncoder(w)
+			journal := model.Journal{ID: 0, Slug: model.Slugify(journalRequest.Title), Title: journalRequest.Title, Date: journalRequest.Date, Content: journalRequest.Content}
+			journal.Save()
+			encoder := json.NewEncoder(response)
 			encoder.SetEscapeHTML(false)
 			if err := encoder.Encode(journal); err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
+				response.WriteHeader(http.StatusInternalServerError)
 			}
 		}
 	}
