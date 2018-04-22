@@ -19,7 +19,7 @@ type App struct {
 }
 
 // ExitOnError Check for an error and log/exit it if necessary
-func (a *App) ExitOnError(err error) {
+func (a App) ExitOnError(err error) {
 	if err != nil {
 		log.Fatal("Error reported: ", err)
 	}
@@ -43,12 +43,12 @@ func (a *App) Run(mode string, port string) {
 func (a *App) createDatabase() {
 	err := model.CreateGiphyTable()
 	a.ExitOnError(err)
-	err2 := model.JournalCreateTable()
+	err2 := model.CreateJournalTable()
 	a.ExitOnError(err2)
 	log.Println("Database created")
 }
 
-func (a *App) giphyAPIKey() {
+func (a App) giphyAPIKey() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Enter GIPHY API key: ")
 	apiKey, _ := reader.ReadString('\n')
