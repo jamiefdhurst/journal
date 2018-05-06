@@ -127,7 +127,7 @@ func TestServeHTTP(t *testing.T) {
 	staticURL := &url.URL{Path: "/css/default.min.css"}
 	staticRequest := &http.Request{URL: staticURL, Method: "GET"}
 	router.ServeHTTP(response, staticRequest)
-	if errorController.HasRun == true {
+	if errorController.HasRun {
 		t.Errorf("Expected static file to have been served but error controller was run")
 	}
 
@@ -135,7 +135,7 @@ func TestServeHTTP(t *testing.T) {
 	indexURL := &url.URL{Path: "/"}
 	indexRequest := &http.Request{URL: indexURL, Method: "GET"}
 	router.ServeHTTP(response, indexRequest)
-	if indexController.HasRun != true || errorController.HasRun == true {
+	if !indexController.HasRun || errorController.HasRun {
 		t.Errorf("Expected index controller to have been served but error controller was run")
 	}
 
@@ -143,7 +143,7 @@ func TestServeHTTP(t *testing.T) {
 	standardURL := &url.URL{Path: "/standard"}
 	standardRequest := &http.Request{URL: standardURL, Method: "GET"}
 	router.ServeHTTP(response, standardRequest)
-	if standardController.HasRun != true || errorController.HasRun == true {
+	if !standardController.HasRun || errorController.HasRun {
 		t.Errorf("Expected standard controller to have been served but error controller was run")
 	}
 
@@ -151,7 +151,7 @@ func TestServeHTTP(t *testing.T) {
 	paramURL := &url.URL{Path: "/param/test1"}
 	paramRequest := &http.Request{URL: paramURL, Method: "GET"}
 	router.ServeHTTP(response, paramRequest)
-	if paramController.HasRun != true || errorController.HasRun == true {
+	if !paramController.HasRun || errorController.HasRun {
 		t.Errorf("Expected param controller to have been served but error controller was run")
 	}
 
@@ -159,7 +159,7 @@ func TestServeHTTP(t *testing.T) {
 	notFoundURL := &url.URL{Path: "/random"}
 	notFoundRequest := &http.Request{URL: notFoundURL, Method: "GET"}
 	router.ServeHTTP(response, notFoundRequest)
-	if errorController.HasRun != true {
+	if !errorController.HasRun {
 		t.Errorf("Expected error controller to have been served")
 	}
 }
