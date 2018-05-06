@@ -1,15 +1,16 @@
-package controller
+package web
 
 import (
 	"net/http"
 	"text/template"
 
+	"github.com/jamiefdhurst/journal/controller"
 	"github.com/jamiefdhurst/journal/model"
 )
 
 // Edit Handle updating an existing entry
 type Edit struct {
-	Controller
+	controller.Super
 	Error   bool
 	Journal model.Journal
 }
@@ -17,7 +18,8 @@ type Edit struct {
 // Run Edit action
 func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 
-	c.Journal = model.FindJournalBySlug(c.Params[1])
+	js := model.Journals{Db: c.Super.Db}
+	c.Journal = js.FindBySlug(c.Params[1])
 
 	if c.Journal.ID == 0 {
 		errorController := Error{}
@@ -42,7 +44,7 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 			c.Journal.Title = request.FormValue("title")
 			c.Journal.Date = request.FormValue("date")
 			c.Journal.Content = request.FormValue("content")
-			c.Journal.Save()
+			js.Save(c.Journal)
 
 			http.Redirect(response, request, "/?saved=1", 302)
 		}

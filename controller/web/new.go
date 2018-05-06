@@ -1,15 +1,16 @@
-package controller
+package web
 
 import (
 	"net/http"
 	"text/template"
 
+	"github.com/jamiefdhurst/journal/controller"
 	"github.com/jamiefdhurst/journal/model"
 )
 
 // New Handle creating a new entry
 type New struct {
-	Controller
+	controller.Super
 	Error   bool
 	Journal model.Journal
 }
@@ -32,8 +33,9 @@ func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 			http.Redirect(response, request, "/new?error=1", 302)
 		}
 
+		js := model.Journals{Db: c.Super.Db}
 		journal := model.Journal{ID: 0, Slug: model.Slugify(request.FormValue("title")), Title: model.Slugify(request.FormValue("title")), Date: request.FormValue("date"), Content: request.FormValue("content")}
-		journal.Save()
+		js.Save(journal)
 
 		http.Redirect(response, request, "/?saved=1", 302)
 	}

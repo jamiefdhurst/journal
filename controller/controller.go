@@ -1,19 +1,26 @@
 package controller
 
-import "net/http"
+import (
+	"net/http"
 
-// Controller Super-struct for all controllers.
-type Controller struct {
+	"github.com/jamiefdhurst/journal/model"
+)
+
+// Controller Main interface for controllers
+type Controller interface {
+	Init(db model.Database, params []string)
+	Run(response http.ResponseWriter, request *http.Request)
+}
+
+// Super Super-struct for all controllers.
+type Super struct {
+	Controller
+	Db     model.Database
 	Params []string
 }
 
-// Interface Interface to satisfy being a controller.
-type Interface interface {
-	Run(w http.ResponseWriter, r *http.Request)
-	SetParams(p []string)
-}
-
-// SetParams Set the current parameters on the controller.
-func (c *Controller) SetParams(p []string) {
-	c.Params = p
+// Init Initialise the controller
+func (c *Super) Init(db model.Database, params []string) {
+	c.Db = db
+	c.Params = params
 }

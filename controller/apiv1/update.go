@@ -10,13 +10,14 @@ import (
 
 // Update Update an existing entry via API
 type Update struct {
-	controller.Controller
+	controller.Super
 }
 
 // Run Update action
 func (c *Update) Run(response http.ResponseWriter, request *http.Request) {
 
-	journal := model.FindJournalBySlug(c.Params[1])
+	js := model.Journals{Db: c.Super.Db}
+	journal := js.FindBySlug(c.Params[1])
 
 	response.Header().Add("Content-Type", "application/json")
 	if journal.ID == 0 {
@@ -38,7 +39,7 @@ func (c *Update) Run(response http.ResponseWriter, request *http.Request) {
 			if journalRequest.Content != "" {
 				journal.Content = journalRequest.Content
 			}
-			journal.Save()
+			journal = js.Save(journal)
 			encoder := json.NewEncoder(response)
 			encoder.SetEscapeHTML(false)
 			if err := encoder.Encode(journal); err != nil {

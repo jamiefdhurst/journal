@@ -10,13 +10,14 @@ import (
 
 // List Display all blog entries as JSON
 type List struct {
-	controller.Controller
+	controller.Super
 }
 
 // Run List action
 func (c *List) Run(response http.ResponseWriter, request *http.Request) {
 
-	journals := model.FetchAllJournals()
+	js := model.Journals{Db: c.Super.Db}
+	journals := js.FetchAll()
 	response.Header().Add("Content-Type", "application/json")
 	encoder := json.NewEncoder(response)
 	encoder.SetEscapeHTML(false)

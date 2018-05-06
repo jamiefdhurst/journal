@@ -10,13 +10,14 @@ import (
 
 // Single Find and display single blog entry
 type Single struct {
-	controller.Controller
+	controller.Super
 }
 
 // Run Single action
 func (c *Single) Run(response http.ResponseWriter, request *http.Request) {
 
-	journal := model.FindJournalBySlug(c.Params[1])
+	js := model.Journals{Db: c.Super.Db}
+	journal := js.FindBySlug(c.Params[1])
 
 	response.Header().Add("Content-Type", "application/json")
 	if journal.ID == 0 {

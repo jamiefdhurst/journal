@@ -8,23 +8,31 @@ import (
 	"strings"
 
 	"github.com/jamiefdhurst/journal/controller"
+	"github.com/jamiefdhurst/journal/controller/apiv1"
+	"github.com/jamiefdhurst/journal/controller/web"
+	"github.com/jamiefdhurst/journal/model"
 )
+
+// Server Common interface for HTTP
+type Server interface {
+	ListenAndServe() error
+}
 
 // Route A route contains a method (GET), URI, and a controller
 type Route struct {
 	method     string
 	regexURI   string
-	controller controller.Interface
+	controller controller.Controller
 }
 
 // Router A router contains routes and links back to the application and implements the ServeHTTP interface
 type Router struct {
-	app             *App
-	routes          []Route
-	errorController controller.Interface
+	Db              model.Database
+	Routes          []Route
+	ErrorController controller.Controller
 }
 
-func (m *Router) convertSimpleURIToRegex(uri string) string {
+func (r Router) convertSimpleURIToRegex(uri string) string {
 	uri = strings.Replace(uri, "/", "\\/", -1)
 
 	// Match slugs
@@ -36,50 +44,66 @@ func (m *Router) convertSimpleURIToRegex(uri string) string {
 	// Match anything
 	uri = strings.Replace(uri, "[%a]", "(.+?)", -1)
 
-	return uri
+	return "^" + uri + "$"
 }
 
 // Get Create and add a new route into the router to handle a GET request
-func (m *Router) Get(uri string, controller controller.Interface) {
-	m.routes = append(m.routes, Route{"GET", m.convertSimpleURIToRegex(uri), controller})
+func (r *Router) Get(uri string, controller controller.Controller) {
+	r.Routes = append(r.Routes, Route{"GET", r.convertSimpleURIToRegex(uri), controller})
 }
 
 // Post Create and add a new route into the router to handle a POST request
-func (m *Router) Post(uri string, controller controller.Interface) {
-	m.routes = append(m.routes, Route{"POST", m.convertSimpleURIToRegex(uri), controller})
+func (r *Router) Post(uri string, controller controller.Controller) {
+	r.Routes = append(r.Routes, Route{"POST", r.convertSimpleURIToRegex(uri), controller})
 }
 
 // Put Create and add a new route into the router to handle a PUT request
-func (m *Router) Put(uri string, controller controller.Interface) {
-	m.routes = append(m.routes, Route{"PUT", m.convertSimpleURIToRegex(uri), controller})
+func (r *Router) Put(uri string, controller controller.Controller) {
+	r.Routes = append(r.Routes, Route{"PUT", r.convertSimpleURIToRegex(uri), controller})
 }
 
 // ServeHTTP Serve a given HTTP request
-func (m *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 
 	// Debug output into the console
-	log.Printf("%s: %s", r.Method, r.URL.Path)
+	log.Printf("%s: %s", request.Method, request.URL.Path)
 
 	// Attempt to serve a file first
-	if r.URL.Path != "/" {
-		file := "public" + r.URL.Path
+	if request.URL.Path != "/" {
+		file := "public" + request.URL.Path
 		_, err := os.Stat(file)
 		if !os.IsNotExist(err) {
-			http.ServeFile(w, r, file)
+			http.ServeFile(response, request, file)
 			return
 		}
 	}
 
 	// Go through each route and attempt to match
-	for _, route := range m.routes {
-		matched, _ := regexp.MatchString(route.regexURI, r.URL.Path)
-		if matched && (r.Method == route.method || (r.Method == "" && route.method == "GET")) {
+	for _, route := range r.Routes {
+		matched, _ := regexp.MatchString(route.regexURI, request.URL.Path)
+		if matched && (request.Method == route.method || (request.Method == "" && route.method == "GET")) {
 			re := regexp.MustCompile(route.regexURI)
-			route.controller.SetParams(re.FindStringSubmatch(r.URL.Path))
-			route.controller.Run(w, r)
+			route.controller.Init(r.Db, re.FindStringSubmatch(request.URL.Path))
+			route.controller.Run(response, request)
 			return
 		}
 	}
 
-	m.errorController.Run(w, r)
+	r.ErrorController.Run(response, request)
+}
+
+// StartAndServe Start the HTTP server and listen for connections
+func (r *Router) StartAndServe(server Server) error {
+	r.Get("/new", &web.New{})
+	r.Post("/new", &web.New{})
+	r.Get("/api/v1/post", &apiv1.List{})
+	r.Post("/api/v1/post", &apiv1.Create{})
+	r.Get("/api/v1/post/[%s]", &apiv1.Single{})
+	r.Put("/api/v1/post/[%s]", &apiv1.Update{})
+	r.Get("/[%s]/edit", &web.Edit{})
+	r.Post("/[%s]/edit", &web.Edit{})
+	r.Get("/[%s]", &web.View{})
+	r.Get("/", &web.Index{})
+
+	return server.ListenAndServe()
 }

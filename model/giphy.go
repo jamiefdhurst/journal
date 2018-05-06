@@ -1,19 +1,50 @@
 package model
 
 import (
+	"bufio"
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
 const giphyTable = "giphy"
 
-// ConvertGiphyIDsToIframes Convert any IDs in the content into <iframe> embeds
-func ConvertGiphyIDsToIframes(s string) string {
-	content := findGiphyTags(s)
+// GiphyAPIResponse Response holder for GIPHY API call
+type GiphyAPIResponse struct {
+	Data GiphyAPIResponseData `json:"data"`
+}
+
+// GiphyAPIResponseData Data object within API response
+type GiphyAPIResponseData struct {
+	ID string `json:"id"`
+}
+
+// GiphyContent Extracted details about Giphy lookups in content
+type GiphyContent struct {
+	IDs      []string
+	searches []string
+}
+
+// Giphy model
+type Giphy struct {
+	ID     int    `json:"id"`
+	APIKey string `json:"apiKey"`
+}
+
+// Giphys Common database resource link for Giphy actions
+type Giphys struct {
+	Db Database
+}
+
+// ConvertIDsToIframes Convert any IDs in the content into <iframe> embeds
+func (gs *Giphys) ConvertIDsToIframes(s string) string {
+	content := gs.findTags(s)
 	if len(content.IDs) > 0 {
 		for _, i := range content.IDs {
 			s = strings.Replace(s, ":gif:id:"+i, "<iframe src=\"https://giphy.com/embed/"+i+"\"></iframe>", 1)
@@ -23,9 +54,9 @@ func ConvertGiphyIDsToIframes(s string) string {
 	return s
 }
 
-// CreateGiphyTable Create the actual table
-func CreateGiphyTable() error {
-	_, err := db.Exec("CREATE TABLE `" + giphyTable + "` (" +
+// CreateTable Create the actual table
+func (gs *Giphys) CreateTable() error {
+	_, err := gs.Db.Exec("CREATE TABLE `" + giphyTable + "` (" +
 		"`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		"`apiKey` VARCHAR(64) NOT NULL" +
 		")")
@@ -33,12 +64,12 @@ func CreateGiphyTable() error {
 	return err
 }
 
-// ExtractContentsAndSearchGiphyAPI Convert any searches, connecting to Giphy where required
-func ExtractContentsAndSearchGiphyAPI(s string) string {
-	content := findGiphyTags(s)
+// ExtractContentsAndSearchAPI Convert any searches, connecting to Giphy where required
+func (gs *Giphys) ExtractContentsAndSearchAPI(s string) string {
+	content := gs.findTags(s)
 	if len(content.searches) > 0 {
 		for _, i := range content.searches {
-			id, err := searchGiphyAPI(i)
+			id, err := gs.searchAPI(i)
 			if err == nil {
 				s = strings.Replace(s, ":gif:"+i, ":gif:id:"+id, 1)
 			} else {
@@ -50,10 +81,10 @@ func ExtractContentsAndSearchGiphyAPI(s string) string {
 	return s
 }
 
-// GetGiphyAPIKey Get the current API key
-func GetGiphyAPIKey() string {
-	rows, _ := db.Query("SELECT * FROM `" + giphyTable + "`")
-	giphys := loadGiphysFromRows(rows)
+// GetAPIKey Get the current API key
+func (gs *Giphys) GetAPIKey() string {
+	rows, _ := gs.Db.Query("SELECT * FROM `" + giphyTable + "`")
+	giphys := gs.loadFromRows(rows)
 
 	if len(giphys) == 1 {
 		return giphys[0].APIKey
@@ -62,15 +93,25 @@ func GetGiphyAPIKey() string {
 	return ""
 }
 
-// UpdateGiphyAPIKey Update/save the API key
-func UpdateGiphyAPIKey(apiKey string) Giphy {
+// InputNewAPIKey Load a new API key into the Giphy table
+func (gs *Giphys) InputNewAPIKey(reader io.Reader) error {
+	bufferReader := bufio.NewReader(reader)
+	fmt.Print("Enter GIPHY API key: ")
+	apiKey, _ := bufferReader.ReadString('\n')
+	gs.UpdateAPIKey(strings.Replace(apiKey, "\n", "", -1))
+
+	return nil
+}
+
+// UpdateAPIKey Update/save the API key
+func (gs *Giphys) UpdateAPIKey(apiKey string) Giphy {
 	g := Giphy{1, apiKey}
-	g.save()
+	gs.save(g)
 
 	return g
 }
 
-func findGiphyIds(s string) []string {
+func (gs Giphys) findIds(s string) []string {
 	reIDs := regexp.MustCompile(":gif:id:(\\w+)")
 	onlyIDs := []string{}
 	IDs := reIDs.FindAllStringSubmatch(s, -1)
@@ -81,7 +122,7 @@ func findGiphyIds(s string) []string {
 	return onlyIDs
 }
 
-func findGiphySearches(s string) []string {
+func (gs Giphys) findSearches(s string) []string {
 	reSearches := regexp.MustCompile("gif:([\\w\\-]+)")
 	onlySearches := []string{}
 	searches := reSearches.FindAllStringSubmatch(s, -1)
@@ -94,11 +135,11 @@ func findGiphySearches(s string) []string {
 	return onlySearches
 }
 
-func findGiphyTags(s string) GiphyContent {
-	return GiphyContent{findGiphyIds(s), findGiphySearches(s)}
+func (gs Giphys) findTags(s string) GiphyContent {
+	return GiphyContent{gs.findIds(s), gs.findSearches(s)}
 }
 
-func loadGiphysFromRows(rows *sql.Rows) []Giphy {
+func (gs Giphys) loadFromRows(rows *sql.Rows) []Giphy {
 	var id int
 	var apiKey string
 
@@ -112,8 +153,14 @@ func loadGiphysFromRows(rows *sql.Rows) []Giphy {
 	return giphys
 }
 
-func searchGiphyAPI(s string) (string, error) {
-	apiKey := GetGiphyAPIKey()
+func (gs *Giphys) save(g Giphy) Giphy {
+	gs.Db.Exec("REPLACE INTO `"+giphyTable+"` (`id`, `apiKey`) VALUES(?,?)", strconv.Itoa(g.ID), g.APIKey)
+
+	return g
+}
+
+func (gs *Giphys) searchAPI(s string) (string, error) {
+	apiKey := gs.GetAPIKey()
 	if apiKey == "" {
 		return "", errors.New("No API key was found for GIPHY")
 	}
@@ -141,32 +188,4 @@ func searchGiphyAPI(s string) (string, error) {
 	}
 
 	return "", errors.New("No response was provided")
-}
-
-// Giphy model
-type Giphy struct {
-	ID     int    `json:"id"`
-	APIKey string `json:"apiKey"`
-}
-
-// GiphyAPIResponse Response holder for GIPHY API call
-type GiphyAPIResponse struct {
-	Data GiphyAPIResponseData `json:"data"`
-}
-
-// GiphyAPIResponseData Data object within API response
-type GiphyAPIResponseData struct {
-	ID string `json:"id"`
-}
-
-// GiphyContent Extracted details about Giphy lookups in content
-type GiphyContent struct {
-	IDs      []string
-	searches []string
-}
-
-func (g *Giphy) save() {
-	var stmt *sql.Stmt
-	stmt, _ = db.Prepare("REPLACE INTO `" + giphyTable + "` (`id`, `apiKey`) VALUES(?,?)")
-	stmt.Exec(g.ID, g.APIKey)
 }

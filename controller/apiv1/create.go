@@ -10,7 +10,7 @@ import (
 
 // Create Create a new entry via API
 type Create struct {
-	controller.Controller
+	controller.Super
 }
 
 // Run Create action
@@ -26,7 +26,8 @@ func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
 			response.WriteHeader(http.StatusBadRequest)
 		} else {
 			journal := model.Journal{ID: 0, Slug: model.Slugify(journalRequest.Title), Title: journalRequest.Title, Date: journalRequest.Date, Content: journalRequest.Content}
-			journal.Save()
+			js := model.Journals{Db: c.Super.Db}
+			journal = js.Save(journal)
 			encoder := json.NewEncoder(response)
 			encoder.SetEscapeHTML(false)
 			if err := encoder.Encode(journal); err != nil {

@@ -1,13 +1,15 @@
-package controller
+package web
 
 import (
 	"net/http"
 	"text/template"
+
+	"github.com/jamiefdhurst/journal/controller"
 )
 
 // Error Display a 404 not found page
 type Error struct {
-	Controller
+	controller.Super
 }
 
 // Run Error
