@@ -32,7 +32,7 @@ func (f *FakeDatabase) Exec(sql string, args ...interface{}) (sql.Result, error)
 	return nil, nil
 }
 
-func (f *FakeDatabase) Query(sql string, args ...interface{}) (*sql.Rows, error) {
+func (f *FakeDatabase) Query(sql string, args ...interface{}) (model.Rows, error) {
 	return nil, nil
 }
 

@@ -2,14 +2,20 @@ package model
 
 import (
 	"database/sql"
+	"errors"
 	"os"
 	"testing"
 )
 
 type FakeSqlite struct {
-	Closed    bool
-	Connected bool
-	Queries   int
+	Closed           bool
+	Connected        bool
+	ErrorAtQuery     int
+	ErrorMode        bool
+	ExpectedArgument string
+	Queries          int
+	Result           sql.Result
+	Rows             Rows
 }
 
 func (f *FakeSqlite) Close() {
@@ -23,15 +29,37 @@ func (f *FakeSqlite) Connect() error {
 
 func (f *FakeSqlite) Exec(sql string, args ...interface{}) (sql.Result, error) {
 	f.Queries++
-	return nil, nil
+	if f.ErrorMode || f.ErrorAtQuery == f.Queries {
+		return nil, errors.New("Simulating error")
+	}
+	if f.ExpectedArgument != "" && !f.inArgs(args) {
+		return nil, errors.New("Expected " + f.ExpectedArgument + " in query")
+	}
+	return f.Result, nil
 }
 
-func (f *FakeSqlite) Query(sql string, args ...interface{}) (*sql.Rows, error) {
+func (f *FakeSqlite) Query(sql string, args ...interface{}) (Rows, error) {
 	f.Queries++
-	return nil, nil
+	if f.ErrorMode || f.ErrorAtQuery == f.Queries {
+		return nil, errors.New("Simulating error")
+	}
+	if f.ExpectedArgument != "" && !f.inArgs(args) {
+		return nil, errors.New("Expected " + f.ExpectedArgument + " in query")
+	}
+	return f.Rows, nil
+}
+
+func (f *FakeSqlite) inArgs(slice []interface{}) bool {
+	for _, v := range slice {
+		if v.(string) == f.ExpectedArgument {
+			return true
+		}
+	}
+	return false
 }
 
 func TestCreateTables(t *testing.T) {
+	// Test without errors
 	database := &FakeSqlite{}
 	err := CreateTables(database)
 	if err != nil {
@@ -39,6 +67,21 @@ func TestCreateTables(t *testing.T) {
 	}
 	if database.Queries != 2 {
 		t.Errorf("Expected at least 2 queries from creating tables")
+	}
+
+	// Test with errors
+	database.ErrorMode = true
+	err = CreateTables(database)
+	if err == nil {
+		t.Errorf("Expected error from creating tables")
+	}
+
+	// Simulate error in 2nd query only
+	database.ErrorMode = false
+	database.ErrorAtQuery = 5
+	err = CreateTables(database)
+	if err == nil {
+		t.Errorf("Expected error from creating tables")
 	}
 }
 

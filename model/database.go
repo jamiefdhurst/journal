@@ -26,7 +26,15 @@ type Database interface {
 	Close()
 	Connect() error
 	Exec(sql string, args ...interface{}) (sql.Result, error)
-	Query(sql string, args ...interface{}) (*sql.Rows, error)
+	Query(sql string, args ...interface{}) (Rows, error)
+}
+
+// Rows Define a common interface for a result of rows
+type Rows interface {
+	Close() error
+	Columns() ([]string, error)
+	Next() bool
+	Scan(dest ...interface{}) error
 }
 
 // Sqlite Handle an Sqlite connection
@@ -52,6 +60,6 @@ func (s *Sqlite) Exec(sql string, args ...interface{}) (sql.Result, error) {
 }
 
 // Query Query the database
-func (s *Sqlite) Query(sql string, args ...interface{}) (*sql.Rows, error) {
+func (s *Sqlite) Query(sql string, args ...interface{}) (Rows, error) {
 	return s.db.Query(sql, args...)
 }

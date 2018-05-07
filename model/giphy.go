@@ -2,31 +2,19 @@ package model
 
 import (
 	"bufio"
-	"database/sql"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
-	"net/http"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/jamiefdhurst/journal/adapter"
 )
 
 const giphyTable = "giphy"
 
-// GiphyAPIResponse Response holder for GIPHY API call
-type GiphyAPIResponse struct {
-	Data GiphyAPIResponseData `json:"data"`
-}
-
-// GiphyAPIResponseData Data object within API response
-type GiphyAPIResponseData struct {
-	ID string `json:"id"`
-}
-
-// GiphyContent Extracted details about Giphy lookups in content
-type GiphyContent struct {
+type giphyContent struct {
 	IDs      []string
 	searches []string
 }
@@ -39,7 +27,13 @@ type Giphy struct {
 
 // Giphys Common database resource link for Giphy actions
 type Giphys struct {
-	Db Database
+	Client adapter.GiphyAdapter
+	Db     Database
+}
+
+// GiphysExtractor Interface for extracting a Giphy search
+type GiphysExtractor interface {
+	ExtractContentsAndSearchAPI(s string) string
 }
 
 // ConvertIDsToIframes Convert any IDs in the content into <iframe> embeds
@@ -69,7 +63,7 @@ func (gs *Giphys) ExtractContentsAndSearchAPI(s string) string {
 	content := gs.findTags(s)
 	if len(content.searches) > 0 {
 		for _, i := range content.searches {
-			id, err := gs.searchAPI(i)
+			id, err := gs.Client.SearchForID(i)
 			if err == nil {
 				s = strings.Replace(s, ":gif:"+i, ":gif:id:"+id, 1)
 			} else {
@@ -81,9 +75,12 @@ func (gs *Giphys) ExtractContentsAndSearchAPI(s string) string {
 	return s
 }
 
-// GetAPIKey Get the current API key
+// GetAPIKey Get the API key from Giphy to be used in client
 func (gs *Giphys) GetAPIKey() string {
-	rows, _ := gs.Db.Query("SELECT * FROM `" + giphyTable + "`")
+	rows, err := gs.Db.Query("SELECT * FROM `" + giphyTable + "`")
+	if err != nil {
+		return ""
+	}
 	giphys := gs.loadFromRows(rows)
 
 	if len(giphys) == 1 {
@@ -98,17 +95,9 @@ func (gs *Giphys) InputNewAPIKey(reader io.Reader) error {
 	bufferReader := bufio.NewReader(reader)
 	fmt.Print("Enter GIPHY API key: ")
 	apiKey, _ := bufferReader.ReadString('\n')
-	gs.UpdateAPIKey(strings.Replace(apiKey, "\n", "", -1))
+	_, err := gs.updateAPIKey(strings.Replace(apiKey, "\n", "", -1))
 
-	return nil
-}
-
-// UpdateAPIKey Update/save the API key
-func (gs *Giphys) UpdateAPIKey(apiKey string) Giphy {
-	g := Giphy{1, apiKey}
-	gs.save(g)
-
-	return g
+	return err
 }
 
 func (gs Giphys) findIds(s string) []string {
@@ -135,57 +124,31 @@ func (gs Giphys) findSearches(s string) []string {
 	return onlySearches
 }
 
-func (gs Giphys) findTags(s string) GiphyContent {
-	return GiphyContent{gs.findIds(s), gs.findSearches(s)}
+func (gs Giphys) findTags(s string) giphyContent {
+	return giphyContent{gs.findIds(s), gs.findSearches(s)}
 }
 
-func (gs Giphys) loadFromRows(rows *sql.Rows) []Giphy {
-	var id int
-	var apiKey string
-
+func (gs Giphys) loadFromRows(rows Rows) []Giphy {
 	defer rows.Close()
 	giphys := []Giphy{}
 	for rows.Next() {
-		rows.Scan(&id, &apiKey)
-		giphys = append(giphys, Giphy{id, apiKey})
+		g := Giphy{}
+		rows.Scan(&g.ID, &g.APIKey)
+		log.Println(g.APIKey)
+		giphys = append(giphys, g)
 	}
 
 	return giphys
 }
 
-func (gs *Giphys) save(g Giphy) Giphy {
-	gs.Db.Exec("REPLACE INTO `"+giphyTable+"` (`id`, `apiKey`) VALUES(?,?)", strconv.Itoa(g.ID), g.APIKey)
+func (gs *Giphys) save(g Giphy) (Giphy, error) {
+	_, err := gs.Db.Exec("REPLACE INTO `"+giphyTable+"` (`id`, `apiKey`) VALUES(?,?)", strconv.Itoa(g.ID), g.APIKey)
 
-	return g
+	return g, err
 }
 
-func (gs *Giphys) searchAPI(s string) (string, error) {
-	apiKey := gs.GetAPIKey()
-	if apiKey == "" {
-		return "", errors.New("No API key was found for GIPHY")
-	}
+func (gs *Giphys) updateAPIKey(apiKey string) (Giphy, error) {
+	g := Giphy{1, apiKey}
 
-	// Perform search
-	url := "https://api.giphy.com/v1/gifs/random?api_key=" + apiKey + "&tag=" + s + "&rating=G"
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("User-Agent", "Journal")
-	client := &http.Client{}
-	rs, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer rs.Body.Close()
-
-	response := GiphyAPIResponse{}
-	json.NewDecoder(rs.Body).Decode(&response)
-
-	if response.Data.ID != "" {
-		return response.Data.ID, nil
-	}
-
-	return "", errors.New("No response was provided")
+	return gs.save(g)
 }
