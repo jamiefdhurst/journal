@@ -18,5 +18,4 @@ It makes use of a SQLite database to store the journal entries.
 
 * `-mode=createdb` - Use to create the database within the data directory.
 * `-mode=giphy` - Input a GIPHY API key to enable GIF usage within posts.
-* `-mode=giphy` - Input a GIPHY API key to enable GIF usage within posts.
 * `-port=3000` - Use to set the port to serve on for HTTP, defaults to 3000.
