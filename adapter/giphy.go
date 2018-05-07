@@ -23,11 +23,11 @@ type GiphyAdapter interface {
 type GiphyClient struct {
 	GiphyAdapter
 	APIKey string
-	Client JSONClient
+	Client JSONAdapter
 }
 
 // GiphySearchAPI Search the Giphy API for a given tag and return the resulting ID
-func (c GiphyClient) GiphySearchAPI(s string) (string, error) {
+func (c GiphyClient) SearchForID(s string) (string, error) {
 	if c.APIKey == "" {
 		return "", errors.New("No API key was found for GIPHY")
 	}
