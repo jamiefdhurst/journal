@@ -18,7 +18,7 @@ type Edit struct {
 // Run Edit action
 func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Db: c.Super.Db}
+	js := model.Journals{Db: c.Super.Db, Gs: &model.Giphys{Db: c.Super.Db}}
 	c.Journal = js.FindBySlug(c.Params[1])
 
 	if c.Journal.ID == 0 {
@@ -39,6 +39,7 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 		} else {
 			if request.FormValue("title") == "" || request.FormValue("date") == "" || request.FormValue("content") == "" {
 				http.Redirect(response, request, "/"+c.Journal.Slug+"/edit?error=1", 302)
+				return
 			}
 
 			c.Journal.Title = request.FormValue("title")
