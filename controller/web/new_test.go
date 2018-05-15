@@ -49,7 +49,7 @@ func TestNew_Run(t *testing.T) {
 		t.Error("Expected redirect back to same page")
 	}
 
-	// // Redirect on success
+	// Redirect on success
 	response.Reset()
 	database.Result = &MockJournalSaveResult{}
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("title=Title&date=2018-02-01&content=Test+again"))

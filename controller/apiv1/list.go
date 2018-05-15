@@ -16,12 +16,10 @@ type List struct {
 // Run List action
 func (c *List) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Db: c.Super.Db}
+	js := model.Journals{Db: c.Super.Db, Gs: &model.Giphys{Db: c.Super.Db}}
 	journals := js.FetchAll()
 	response.Header().Add("Content-Type", "application/json")
 	encoder := json.NewEncoder(response)
 	encoder.SetEscapeHTML(false)
-	if err := encoder.Encode(journals); err != nil {
-		response.WriteHeader(http.StatusInternalServerError)
-	}
+	encoder.Encode(journals)
 }

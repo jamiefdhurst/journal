@@ -26,13 +26,11 @@ func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
 			response.WriteHeader(http.StatusBadRequest)
 		} else {
 			journal := model.Journal{ID: 0, Slug: model.Slugify(journalRequest.Title), Title: journalRequest.Title, Date: journalRequest.Date, Content: journalRequest.Content}
-			js := model.Journals{Db: c.Super.Db}
+			js := model.Journals{Db: c.Super.Db, Gs: &model.Giphys{Db: c.Super.Db}}
 			journal = js.Save(journal)
 			encoder := json.NewEncoder(response)
 			encoder.SetEscapeHTML(false)
-			if err := encoder.Encode(journal); err != nil {
-				response.WriteHeader(http.StatusInternalServerError)
-			}
+			encoder.Encode(journal)
 		}
 	}
 }

@@ -16,7 +16,7 @@ type Single struct {
 // Run Single action
 func (c *Single) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Db: c.Super.Db}
+	js := model.Journals{Db: c.Super.Db, Gs: &model.Giphys{Db: c.Super.Db}}
 	journal := js.FindBySlug(c.Params[1])
 
 	response.Header().Add("Content-Type", "application/json")
@@ -25,9 +25,7 @@ func (c *Single) Run(response http.ResponseWriter, request *http.Request) {
 	} else {
 		encoder := json.NewEncoder(response)
 		encoder.SetEscapeHTML(false)
-		if err := encoder.Encode(journal); err != nil {
-			response.WriteHeader(http.StatusInternalServerError)
-		}
+		encoder.Encode(journal)
 	}
 
 }
