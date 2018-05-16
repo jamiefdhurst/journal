@@ -1,28 +1,8 @@
 package adapter
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"testing"
 )
-
-type MockClient struct {
-	ErrorMode bool
-	Response  string
-}
-
-func (m *MockClient) Get(url string, destination interface{}) error {
-	if m.ErrorMode {
-		return errors.New("Simulated error")
-	}
-
-	if m.Response != "" {
-		json.NewDecoder(bytes.NewBufferString(m.Response)).Decode(&destination)
-	}
-
-	return nil
-}
 
 func TestGiphy_SearchForID(t *testing.T) {
 

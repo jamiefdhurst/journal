@@ -1,30 +1,13 @@
 package controller
 
 import (
-	"database/sql"
 	"testing"
 
 	"github.com/jamiefdhurst/journal/model"
 )
 
-type FakeDatabase struct{}
-
-func (f *FakeDatabase) Close() {}
-
-func (f *FakeDatabase) Connect() error {
-	return nil
-}
-
-func (f *FakeDatabase) Exec(sql string, args ...interface{}) (sql.Result, error) {
-	return nil, nil
-}
-
-func (f *FakeDatabase) Query(sql string, args ...interface{}) (model.Rows, error) {
-	return nil, nil
-}
-
 func TestInit(t *testing.T) {
-	db := &FakeDatabase{}
+	db := &model.MockDatabase{}
 	params := []string{
 		"param1", "param2", "param3", "param4",
 	}

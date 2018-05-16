@@ -5,10 +5,12 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/jamiefdhurst/journal/controller"
 )
 
 func TestError_Run(t *testing.T) {
-	response := &FakeResponse{}
+	response := &controller.MockResponse{}
 	controller := &Error{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 

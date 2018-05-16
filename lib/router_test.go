@@ -1,62 +1,18 @@
 package lib
 
 import (
-	"database/sql"
 	"net/http"
 	"net/url"
 	"os"
 	"testing"
 
+	"github.com/jamiefdhurst/journal/controller"
 	"github.com/jamiefdhurst/journal/model"
 )
 
-type FakeController struct {
-	HasRun bool
-}
-
-func (f *FakeController) Init(db model.Database, params []string) {}
-
-func (f *FakeController) Run(response http.ResponseWriter, request *http.Request) {
-	f.HasRun = true
-}
-
-type FakeDatabase struct{}
-
-func (f *FakeDatabase) Close() {}
-
-func (f *FakeDatabase) Connect() error {
-	return nil
-}
-
-func (f *FakeDatabase) Exec(sql string, args ...interface{}) (sql.Result, error) {
-	return nil, nil
-}
-
-func (f *FakeDatabase) Query(sql string, args ...interface{}) (model.Rows, error) {
-	return nil, nil
-}
-
-type FakeResponse struct{}
-
-func (f FakeResponse) Header() http.Header {
-	return map[string][]string{}
-}
-
-func (f FakeResponse) Write([]byte) (int, error) {
-	return 0, nil
-}
-
-func (f FakeResponse) WriteHeader(statusCode int) {}
-
-type FakeServer struct{}
-
-func (f FakeServer) ListenAndServe() error {
-	return nil
-}
-
 func TestGet(t *testing.T) {
-	controller := &FakeController{}
-	database := &FakeDatabase{}
+	controller := &controller.MockController{}
+	database := &model.MockDatabase{}
 	router := Router{Db: database, Routes: []Route{}, ErrorController: controller}
 
 	// Test normal route
@@ -73,8 +29,8 @@ func TestGet(t *testing.T) {
 }
 
 func TestPost(t *testing.T) {
-	controller := &FakeController{}
-	database := &FakeDatabase{}
+	controller := &controller.MockController{}
+	database := &model.MockDatabase{}
 	router := Router{Db: database, Routes: []Route{}, ErrorController: controller}
 
 	// Test normal route
@@ -91,8 +47,8 @@ func TestPost(t *testing.T) {
 }
 
 func TestPut(t *testing.T) {
-	controller := &FakeController{}
-	database := &FakeDatabase{}
+	controller := &controller.MockController{}
+	database := &model.MockDatabase{}
 	router := Router{Db: database, Routes: []Route{}, ErrorController: controller}
 
 	// Test normal route
@@ -109,12 +65,12 @@ func TestPut(t *testing.T) {
 }
 
 func TestServeHTTP(t *testing.T) {
-	errorController := &FakeController{}
-	indexController := &FakeController{}
-	standardController := &FakeController{}
-	paramController := &FakeController{}
-	database := &FakeDatabase{}
-	response := FakeResponse{}
+	errorController := &controller.MockController{}
+	indexController := &controller.MockController{}
+	standardController := &controller.MockController{}
+	paramController := &controller.MockController{}
+	database := &model.MockDatabase{}
+	response := controller.NewMockResponse()
 	router := Router{Db: database, Routes: []Route{}, ErrorController: errorController}
 	router.Get("/standard", standardController)
 	router.Get("/param/[%s]", paramController)
@@ -165,10 +121,10 @@ func TestServeHTTP(t *testing.T) {
 }
 
 func TestStartAndServe(t *testing.T) {
-	controller := &FakeController{}
-	database := &FakeDatabase{}
+	controller := &controller.MockController{}
+	database := &model.MockDatabase{}
 	router := Router{Db: database, Routes: []Route{}, ErrorController: controller}
-	router.StartAndServe(FakeServer{})
+	router.StartAndServe(MockServer{})
 
 	if len(router.Routes) < 1 {
 		t.Errorf("Expected some routes to have been defined but none were found")

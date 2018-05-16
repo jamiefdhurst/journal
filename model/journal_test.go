@@ -4,79 +4,6 @@ import (
 	"testing"
 )
 
-type MockGiphyExtractor struct {
-	CalledTimes int
-}
-
-func (m *MockGiphyExtractor) ExtractContentsAndSearchAPI(s string) string {
-	m.CalledTimes++
-	return s
-}
-
-type MockJournalMultipleRows struct {
-	MockEmptyRows
-	RowNumber int
-}
-
-func (m *MockJournalMultipleRows) Next() bool {
-	m.RowNumber++
-	if m.RowNumber < 3 {
-		return true
-	}
-	return false
-}
-
-func (m *MockJournalMultipleRows) Scan(dest ...interface{}) error {
-	if m.RowNumber == 1 {
-		*dest[0].(*int) = 1
-		*dest[1].(*string) = "slug"
-		*dest[2].(*string) = "Title"
-		*dest[3].(*string) = "2018-02-01"
-		*dest[4].(*string) = "Content"
-	} else if m.RowNumber == 2 {
-		*dest[0].(*int) = 2
-		*dest[1].(*string) = "slug-2"
-		*dest[2].(*string) = "Title 2"
-		*dest[3].(*string) = "2018-03-01"
-		*dest[4].(*string) = "Content 2"
-	}
-	return nil
-}
-
-type MockJournalSingleRow struct {
-	MockEmptyRows
-	RowNumber int
-}
-
-func (m *MockJournalSingleRow) Next() bool {
-	m.RowNumber++
-	if m.RowNumber < 2 {
-		return true
-	}
-	return false
-}
-
-func (m *MockJournalSingleRow) Scan(dest ...interface{}) error {
-	if m.RowNumber == 1 {
-		*dest[0].(*int) = 1
-		*dest[1].(*string) = "slug"
-		*dest[2].(*string) = "Title"
-		*dest[3].(*string) = "2018-02-01"
-		*dest[4].(*string) = "Content"
-	}
-	return nil
-}
-
-type MockJournalSaveResult struct{}
-
-func (m *MockJournalSaveResult) LastInsertId() (int64, error) {
-	return 10, nil
-}
-
-func (m *MockJournalSaveResult) RowsAffected() (int64, error) {
-	return 0, nil
-}
-
 func TestJournal_GetDate(t *testing.T) {
 	tables := []struct {
 		input  string
@@ -119,7 +46,7 @@ func TestJournal_GetEditableDate(t *testing.T) {
 }
 
 func TestJournals_CreateTable(t *testing.T) {
-	database := &FakeSqlite{}
+	database := &MockSqlite{}
 	js := Journals{Db: database}
 	js.CreateTable()
 	if database.Queries != 1 {
@@ -130,7 +57,7 @@ func TestJournals_CreateTable(t *testing.T) {
 func TestJournals_FetchAll(t *testing.T) {
 
 	// Test error
-	database := &FakeSqlite{}
+	database := &MockSqlite{}
 	database.ErrorMode = true
 	js := Journals{Db: database}
 	journals := js.FetchAll()
@@ -140,14 +67,14 @@ func TestJournals_FetchAll(t *testing.T) {
 
 	// Test empty result
 	database.ErrorMode = false
-	database.Rows = &MockEmptyRows{}
+	database.Rows = &MockRowsEmpty{}
 	journals = js.FetchAll()
 	if len(journals) > 0 {
 		t.Errorf("Expected empty result set returned")
 	}
 
 	// Test successful result
-	database.Rows = &MockJournalMultipleRows{}
+	database.Rows = &MockJournal_MultipleRows{}
 	journals = js.FetchAll()
 	if len(journals) < 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" {
 		t.Errorf("Expected 2 rows returned and with correct data")
@@ -156,7 +83,7 @@ func TestJournals_FetchAll(t *testing.T) {
 
 func TestJournals_FindBySlug(t *testing.T) {
 	// Test error
-	database := &FakeSqlite{}
+	database := &MockSqlite{}
 	database.ErrorMode = true
 	js := Journals{Db: database}
 	journal := js.FindBySlug("example")
@@ -166,14 +93,14 @@ func TestJournals_FindBySlug(t *testing.T) {
 
 	// Test empty result
 	database.ErrorMode = false
-	database.Rows = &MockEmptyRows{}
+	database.Rows = &MockRowsEmpty{}
 	journal = js.FindBySlug("example")
 	if journal.ID > 0 {
 		t.Errorf("Expected empty result set returned")
 	}
 
 	// Test successful result
-	database.Rows = &MockJournalSingleRow{}
+	database.Rows = &MockJournal_SingleRow{}
 	database.ExpectedArgument = "slug"
 	journal = js.FindBySlug("slug")
 	if journal.ID != 1 || journal.Content != "Content" {
@@ -181,7 +108,7 @@ func TestJournals_FindBySlug(t *testing.T) {
 	}
 
 	// Test unexpected amount of rows
-	database.Rows = &MockJournalMultipleRows{}
+	database.Rows = &MockJournal_MultipleRows{}
 	journal = js.FindBySlug("slug")
 	if journal.ID > 0 {
 		t.Errorf("Expected no rows when query returns more than one result")
@@ -189,13 +116,13 @@ func TestJournals_FindBySlug(t *testing.T) {
 }
 
 func TestJournals_Save(t *testing.T) {
-	database := &FakeSqlite{Result: &MockJournalSaveResult{}}
+	database := &MockSqlite{Result: &MockResult{}}
 	gs := &MockGiphyExtractor{}
 	js := Journals{Db: database, Gs: gs}
 
 	// Test with new Journal
 	journal := js.Save(Journal{ID: 0, Title: "Testing"})
-	if journal.ID != 10 || journal.Title != "Testing" {
+	if journal.ID != 1 || journal.Title != "Testing" {
 		t.Error("Expected same Journal to have been returned with new ID")
 	}
 

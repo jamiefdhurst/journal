@@ -1,66 +1,13 @@
 package model
 
 import (
-	"database/sql"
-	"errors"
 	"os"
 	"testing"
 )
 
-type FakeSqlite struct {
-	Closed           bool
-	Connected        bool
-	ErrorAtQuery     int
-	ErrorMode        bool
-	ExpectedArgument string
-	Queries          int
-	Result           sql.Result
-	Rows             Rows
-}
-
-func (f *FakeSqlite) Close() {
-	f.Closed = true
-}
-
-func (f *FakeSqlite) Connect() error {
-	f.Connected = true
-	return nil
-}
-
-func (f *FakeSqlite) Exec(sql string, args ...interface{}) (sql.Result, error) {
-	f.Queries++
-	if f.ErrorMode || f.ErrorAtQuery == f.Queries {
-		return nil, errors.New("Simulating error")
-	}
-	if f.ExpectedArgument != "" && !f.inArgs(args) {
-		return nil, errors.New("Expected " + f.ExpectedArgument + " in query")
-	}
-	return f.Result, nil
-}
-
-func (f *FakeSqlite) Query(sql string, args ...interface{}) (Rows, error) {
-	f.Queries++
-	if f.ErrorMode || f.ErrorAtQuery == f.Queries {
-		return nil, errors.New("Simulating error")
-	}
-	if f.ExpectedArgument != "" && !f.inArgs(args) {
-		return nil, errors.New("Expected " + f.ExpectedArgument + " in query")
-	}
-	return f.Rows, nil
-}
-
-func (f *FakeSqlite) inArgs(slice []interface{}) bool {
-	for _, v := range slice {
-		if v.(string) == f.ExpectedArgument {
-			return true
-		}
-	}
-	return false
-}
-
 func TestCreateTables(t *testing.T) {
 	// Test without errors
-	database := &FakeSqlite{}
+	database := &MockSqlite{}
 	err := CreateTables(database)
 	if err != nil {
 		t.Errorf("Expected no error from creating tables")

@@ -5,21 +5,14 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/jamiefdhurst/journal/controller"
+	"github.com/jamiefdhurst/journal/model"
 )
 
-type MockJournalSaveResult struct{}
-
-func (m *MockJournalSaveResult) LastInsertId() (int64, error) {
-	return 10, nil
-}
-
-func (m *MockJournalSaveResult) RowsAffected() (int64, error) {
-	return 0, nil
-}
-
 func TestNew_Run(t *testing.T) {
-	database := &FakeSqlite{}
-	response := &FakeResponse{}
+	database := &model.MockSqlite{}
+	response := controller.NewMockResponse()
 	response.Reset()
 	controller := &Create{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
@@ -46,7 +39,7 @@ func TestNew_Run(t *testing.T) {
 	response.Reset()
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("{\"title\":\"Something New\",\"date\":\"2018-01-01\",\"content\":\"New\"}"))
 	request.Header.Add("Content-Type", "application/json")
-	database.Result = &MockJournalSaveResult{}
+	database.Result = &model.MockResult{}
 	controller.Run(response, request)
 	if response.StatusCode != 200 || !strings.Contains(response.Content, "Something New") {
 		t.Error("Expected new title to be within content")

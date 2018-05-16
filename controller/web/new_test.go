@@ -5,22 +5,14 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/jamiefdhurst/journal/controller"
+	"github.com/jamiefdhurst/journal/model"
 )
 
-type MockJournalSaveResult struct{}
-
-func (m *MockJournalSaveResult) LastInsertId() (int64, error) {
-	return 10, nil
-}
-
-func (m *MockJournalSaveResult) RowsAffected() (int64, error) {
-	return 0, nil
-}
-
 func TestNew_Run(t *testing.T) {
-	database := &FakeSqlite{}
-	response := &FakeResponse{}
-	response.Reset()
+	database := &model.MockSqlite{}
+	response := controller.NewMockResponse()
 	controller := &New{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
@@ -51,7 +43,7 @@ func TestNew_Run(t *testing.T) {
 
 	// Redirect on success
 	response.Reset()
-	database.Result = &MockJournalSaveResult{}
+	database.Result = &model.MockResult{}
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("title=Title&date=2018-02-01&content=Test+again"))
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	controller.Run(response, request)
