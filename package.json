@@ -20,16 +20,16 @@
   },
   "homepage": "https://github.com/jamiefdhurst/journal#readme",
   "devDependencies": {
-    "bourbon": "^4.2.6",
+    "bourbon": "^5.0.0",
     "gulp": "^3.9.1",
     "gulp-load-plugins": "^1.2.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.2.0",
-    "gulp-uglify": "^1.5.3",
+    "gulp-rename": "^1.2.3",
+    "gulp-sass": "^4.0.1",
+    "gulp-uglify": "^3.0.0",
     "medium-editor": "^5.14.4",
     "normalize-css": "^2.3.1",
-    "susy": "^2.2.12",
-    "webpack": "^1.12.14",
-    "webpack-stream": "^3.1.0"
+    "susy": "^3.0.5",
+    "webpack": "^4.8.3",
+    "webpack-stream": "^4.0.3"
   }
 }
