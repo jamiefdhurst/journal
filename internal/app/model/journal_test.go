@@ -3,6 +3,7 @@ package model
 import (
 	"testing"
 
+	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
@@ -49,7 +50,8 @@ func TestJournal_GetEditableDate(t *testing.T) {
 
 func TestJournals_CreateTable(t *testing.T) {
 	db := &database.MockSqlite{}
-	js := Journals{Db: db}
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
 	js.CreateTable()
 	if db.Queries != 1 {
 		t.Errorf("Expected 1 query to have been run")
@@ -61,7 +63,8 @@ func TestJournals_FetchAll(t *testing.T) {
 	// Test error
 	db := &database.MockSqlite{}
 	db.ErrorMode = true
-	js := Journals{Db: db}
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
 	journals := js.FetchAll()
 	if len(journals) > 0 {
 		t.Errorf("Expected empty result set returned when error received")
@@ -87,7 +90,8 @@ func TestJournals_FindBySlug(t *testing.T) {
 	// Test error
 	db := &database.MockSqlite{}
 	db.ErrorMode = true
-	js := Journals{Db: db}
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
 	journal := js.FindBySlug("example")
 	if journal.ID > 0 {
 		t.Errorf("Expected empty result set returned when error received")
@@ -120,7 +124,8 @@ func TestJournals_FindBySlug(t *testing.T) {
 func TestJournals_Save(t *testing.T) {
 	db := &database.MockSqlite{Result: &database.MockResult{}}
 	gs := &database.MockGiphyExtractor{}
-	js := Journals{Db: db, Gs: gs}
+	container := &app.Container{Db: db}
+	js := Journals{Container: container, Gs: gs}
 
 	// Test with new Journal
 	journal := js.Save(Journal{ID: 0, Title: "Testing"})

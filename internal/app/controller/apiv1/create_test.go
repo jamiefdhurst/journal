@@ -6,19 +6,21 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/test/mocks/controller"
 	"github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
-func TestNew_Run(t *testing.T) {
+func TestCreate_Run(t *testing.T) {
 	db := &database.MockSqlite{}
+	container := &app.Container{Db: db}
 	response := controller.NewMockResponse()
 	response.Reset()
 	controller := &Create{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test invalid JSON
-	controller.Init(db, []string{"", "0"})
+	controller.Init(container, []string{"", "0"})
 	request, _ := http.NewRequest("POST", "/new", strings.NewReader("{\"not\":\"valid\":\"json\"}"))
 	request.Header.Add("Content-Type", "application/json")
 	controller.Run(response, request)
@@ -27,7 +29,7 @@ func TestNew_Run(t *testing.T) {
 	}
 
 	// Test missing JSON
-	controller.Init(db, []string{"", "0"})
+	controller.Init(container, []string{"", "0"})
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("{\"title\":\"only\"}"))
 	request.Header.Add("Content-Type", "application/json")
 	controller.Run(response, request)

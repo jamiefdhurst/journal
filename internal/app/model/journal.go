@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jamiefdhurst/journal/pkg/database"
+	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 )
 
@@ -45,13 +45,13 @@ func (j Journal) GetEditableDate() string {
 
 // Journals Common database resource link for Journal actions
 type Journals struct {
-	Db database.Database
-	Gs GiphysExtractor
+	Container *app.Container
+	Gs        GiphysExtractor
 }
 
 // CreateTable Create the actual table
 func (js *Journals) CreateTable() error {
-	_, err := js.Db.Exec("CREATE TABLE `" + journalTable + "` (" +
+	_, err := js.Container.Db.Exec("CREATE TABLE `" + journalTable + "` (" +
 		"`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		"`slug` VARCHAR(255) NOT NULL, " +
 		"`title` VARCHAR(255) NOT NULL, " +
@@ -64,7 +64,7 @@ func (js *Journals) CreateTable() error {
 
 // FetchAll Get all journals
 func (js *Journals) FetchAll() []Journal {
-	rows, err := js.Db.Query("SELECT * FROM `" + journalTable + "` ORDER BY `date` DESC")
+	rows, err := js.Container.Db.Query("SELECT * FROM `" + journalTable + "` ORDER BY `date` DESC")
 	if err != nil {
 		return []Journal{}
 	}
@@ -75,7 +75,7 @@ func (js *Journals) FetchAll() []Journal {
 // FindBySlug Find a journal by slug
 func (js *Journals) FindBySlug(slug string) Journal {
 	// Attempt to find the entry
-	rows, err := js.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `slug` = ? LIMIT 1", slug)
+	rows, err := js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `slug` = ? LIMIT 1", slug)
 	if err != nil {
 		return Journal{}
 	}
@@ -96,9 +96,9 @@ func (js *Journals) Save(j Journal) Journal {
 	j.Content = js.Gs.ExtractContentsAndSearchAPI(j.Content)
 
 	if j.ID == 0 {
-		res, _ = js.Db.Exec("INSERT INTO `"+journalTable+"` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)", j.Slug, j.Title, j.Date, j.Content)
+		res, _ = js.Container.Db.Exec("INSERT INTO `"+journalTable+"` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)", j.Slug, j.Title, j.Date, j.Content)
 	} else {
-		res, _ = js.Db.Exec("UPDATE `"+journalTable+"` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ? WHERE `id` = ?", j.Slug, j.Title, j.Date, j.Content, strconv.Itoa(j.ID))
+		res, _ = js.Container.Db.Exec("UPDATE `"+journalTable+"` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ? WHERE `id` = ?", j.Slug, j.Title, j.Date, j.Content, strconv.Itoa(j.ID))
 	}
 
 	// Store insert ID

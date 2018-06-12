@@ -2,18 +2,18 @@ package controller
 
 import (
 	"testing"
-
-	"github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
+type BlankInterface struct{}
+
 func TestInit(t *testing.T) {
-	db := &database.MockDatabase{}
+	container := BlankInterface{}
 	params := []string{
 		"param1", "param2", "param3", "param4",
 	}
 	controller := Super{}
-	controller.Init(db, params)
-	if controller.Db != db || controller.Params[2] != "param3" {
+	controller.Init(container, params)
+	if controller.Container != container || controller.Params[2] != "param3" {
 		t.Error("Expected values were not passed into struct")
 	}
 }

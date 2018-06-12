@@ -6,18 +6,20 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/test/mocks/controller"
 	"github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
 func TestNew_Run(t *testing.T) {
 	db := &database.MockSqlite{}
+	container := &app.Container{Db: db}
 	response := controller.NewMockResponse()
 	controller := &New{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Display form
-	controller.Init(db, []string{"", "0"})
+	controller.Init(container, []string{"", "0"})
 	request, _ := http.NewRequest("GET", "/new", strings.NewReader(""))
 	controller.Run(response, request)
 	if controller.Error || !strings.Contains(response.Content, "<form") {

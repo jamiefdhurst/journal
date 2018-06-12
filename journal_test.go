@@ -4,6 +4,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/router"
 	"github.com/jamiefdhurst/journal/pkg/database"
 	pkgrouter "github.com/jamiefdhurst/journal/pkg/router"
@@ -20,6 +21,7 @@ func init() {
 }
 
 func fixtures(t *testing.T) {
+	container := &app.Container{}
 	db := &database.Sqlite{}
 	if err := db.Connect("test/data/test.db"); err != nil {
 		t.Error("Could not open test database for writing...")
@@ -35,8 +37,9 @@ func fixtures(t *testing.T) {
 	db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?", "test-2", "Another Test", "<p>Test again!</p>", "2018-02-01")
 	db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?", "test-3", "A Final Test", "<p>Test finally!</p>", "2018-03-01")
 
-	// Use database
-	rtr.Db = db
+	// Setup container
+	container.Db = db
+	rtr.Container = container
 }
 
 func TestApiv1List(t *testing.T) {

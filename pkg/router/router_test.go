@@ -7,13 +7,14 @@ import (
 	"testing"
 
 	"github.com/jamiefdhurst/journal/test/mocks/controller"
-	"github.com/jamiefdhurst/journal/test/mocks/database"
 	mockrouter "github.com/jamiefdhurst/journal/test/mocks/router"
 )
 
+type BlankContainer struct{}
+
 func TestGet(t *testing.T) {
 	ctrl := &controller.MockController{}
-	router := Router{Db: &database.MockDatabase{}, Routes: []Route{}, ErrorController: ctrl}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
 
 	// Test normal route
 	router.Get("/testing", ctrl)
@@ -30,7 +31,7 @@ func TestGet(t *testing.T) {
 
 func TestPost(t *testing.T) {
 	ctrl := &controller.MockController{}
-	router := Router{Db: &database.MockDatabase{}, Routes: []Route{}, ErrorController: ctrl}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
 
 	// Test normal route
 	router.Post("/testing", ctrl)
@@ -47,7 +48,7 @@ func TestPost(t *testing.T) {
 
 func TestPut(t *testing.T) {
 	ctrl := &controller.MockController{}
-	router := Router{Db: &database.MockDatabase{}, Routes: []Route{}, ErrorController: ctrl}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
 
 	// Test normal route
 	router.Put("/testing", ctrl)
@@ -68,7 +69,7 @@ func TestServeHTTP(t *testing.T) {
 	standardController := &controller.MockController{}
 	paramController := &controller.MockController{}
 	response := controller.NewMockResponse()
-	router := Router{Db: &database.MockDatabase{}, Routes: []Route{}, ErrorController: errorController}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: errorController}
 	router.Get("/standard", standardController)
 	router.Get("/param/[%s]", paramController)
 	router.Get("/", indexController)
@@ -119,7 +120,7 @@ func TestServeHTTP(t *testing.T) {
 
 func TestStartAndServe(t *testing.T) {
 	ctrl := &controller.MockController{}
-	router := Router{Db: &database.MockDatabase{}, Routes: []Route{}, ErrorController: ctrl}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
 	server := &mockrouter.MockServer{}
 	router.StartAndServe(server)
 

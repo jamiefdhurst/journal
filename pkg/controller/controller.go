@@ -2,25 +2,23 @@ package controller
 
 import (
 	"net/http"
-
-	"github.com/jamiefdhurst/journal/pkg/database"
 )
 
 // Controller Main interface for controllers
 type Controller interface {
-	Init(db database.Database, params []string)
+	Init(app interface{}, params []string)
 	Run(response http.ResponseWriter, request *http.Request)
 }
 
 // Super Super-struct for all controllers.
 type Super struct {
 	Controller
-	Db     database.Database
-	Params []string
+	Container interface{}
+	Params    []string
 }
 
 // Init Initialise the controller
-func (c *Super) Init(db database.Database, params []string) {
-	c.Db = db
+func (c *Super) Init(app interface{}, params []string) {
+	c.Container = app
 	c.Params = params
 }

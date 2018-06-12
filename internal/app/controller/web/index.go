@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"text/template"
 
+	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
 	"github.com/jamiefdhurst/journal/pkg/controller"
 )
@@ -18,7 +19,7 @@ type Index struct {
 // Run Index action
 func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Db: c.Super.Db}
+	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: &model.Giphys{Container: c.Super.Container.(*app.Container)}}
 	c.Journals = js.FetchAll()
 	query := request.URL.Query()
 	if query["saved"] != nil {

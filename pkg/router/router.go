@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/jamiefdhurst/journal/pkg/controller"
-	"github.com/jamiefdhurst/journal/pkg/database"
 )
 
 // Server Common interface for HTTP
@@ -25,7 +24,7 @@ type Route struct {
 
 // Router A router contains routes and links back to the application and implements the ServeHTTP interface
 type Router struct {
-	Db              database.Database
+	Container       interface{}
 	Routes          []Route
 	ErrorController controller.Controller
 }
@@ -81,7 +80,7 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 		matched, _ := regexp.MatchString(route.regexURI, request.URL.Path)
 		if matched && (request.Method == route.method || (request.Method == "" && route.method == "GET")) {
 			re := regexp.MustCompile(route.regexURI)
-			route.controller.Init(r.Db, re.FindStringSubmatch(request.URL.Path))
+			route.controller.Init(r.Container, re.FindStringSubmatch(request.URL.Path))
 			route.controller.Run(response, request)
 			return
 		}

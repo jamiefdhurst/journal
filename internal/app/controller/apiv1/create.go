@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
 	"github.com/jamiefdhurst/journal/pkg/controller"
 )
@@ -26,7 +27,7 @@ func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
 			response.WriteHeader(http.StatusBadRequest)
 		} else {
 			journal := model.Journal{ID: 0, Slug: model.Slugify(journalRequest.Title), Title: journalRequest.Title, Date: journalRequest.Date, Content: journalRequest.Content}
-			js := model.Journals{Db: c.Super.Db, Gs: &model.Giphys{Db: c.Super.Db}}
+			js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: &model.Giphys{Container: c.Super.Container.(*app.Container)}}
 			journal = js.Save(journal)
 			encoder := json.NewEncoder(response)
 			encoder.SetEscapeHTML(false)

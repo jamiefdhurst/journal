@@ -3,8 +3,6 @@ package controller
 import (
 	"net/http"
 	"strings"
-
-	"github.com/jamiefdhurst/journal/pkg/database"
 )
 
 // MockController Mock the controller interface
@@ -13,7 +11,7 @@ type MockController struct {
 }
 
 // Init Mock the init method
-func (m *MockController) Init(db database.Database, params []string) {}
+func (m *MockController) Init(app interface{}, params []string) {}
 
 // Run Mock the run method
 func (m *MockController) Run(response http.ResponseWriter, request *http.Request) {
