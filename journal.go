@@ -7,11 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/jamiefdhurst/journal/internal/app/controller/apiv1"
-	"github.com/jamiefdhurst/journal/internal/app/controller/web"
 	"github.com/jamiefdhurst/journal/internal/app/model"
+	"github.com/jamiefdhurst/journal/internal/app/router"
 	"github.com/jamiefdhurst/journal/pkg/database"
-	"github.com/jamiefdhurst/journal/pkg/router"
 )
 
 func main() {
@@ -30,7 +28,7 @@ func main() {
 
 	// Open database
 	db := &database.Sqlite{}
-	if err := db.Connect(); err != nil {
+	if err := db.Connect(os.Getenv("GOPATH") + "/data/journal.db"); err != nil {
 		log.Println("Database error - please verify that the $GOPATH/data folder is available.")
 		os.Exit(1)
 	}
@@ -58,19 +56,8 @@ func main() {
 
 	} else {
 
-		router := &router.Router{Db: db, ErrorController: &web.Error{}}
+		router := router.NewRouter(db)
 		server := &http.Server{Addr: ":" + *serverPort, Handler: router}
-
-		router.Get("/new", &web.New{})
-		router.Post("/new", &web.New{})
-		router.Get("/api/v1/post", &apiv1.List{})
-		router.Post("/api/v1/post", &apiv1.Create{})
-		router.Get("/api/v1/post/[%s]", &apiv1.Single{})
-		router.Put("/api/v1/post/[%s]", &apiv1.Update{})
-		router.Get("/[%s]/edit", &web.Edit{})
-		router.Post("/[%s]/edit", &web.Edit{})
-		router.Get("/[%s]", &web.View{})
-		router.Get("/", &web.Index{})
 
 		log.Printf("Listening on port %s\n", *serverPort)
 		err = router.StartAndServe(server)

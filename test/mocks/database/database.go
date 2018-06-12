@@ -14,7 +14,7 @@ type MockDatabase struct{}
 func (m *MockDatabase) Close() {}
 
 // Connect Mock the connect method
-func (m *MockDatabase) Connect() error {
+func (m *MockDatabase) Connect(dbFile string) error {
 	return nil
 }
 
@@ -177,7 +177,7 @@ func (m *MockSqlite) Close() {
 }
 
 // Connect Mark as connected
-func (m *MockSqlite) Connect() error {
+func (m *MockSqlite) Connect(dbFile string) error {
 	m.Connected = true
 	return nil
 }

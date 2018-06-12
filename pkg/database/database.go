@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"os"
 
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 	_ "github.com/mattn/go-sqlite3" // SQLite 3 driver
@@ -11,7 +10,7 @@ import (
 // Database Define a common interface for all database drivers
 type Database interface {
 	Close()
-	Connect() error
+	Connect(dbFile string) error
 	Exec(sql string, args ...interface{}) (sql.Result, error)
 	Query(sql string, args ...interface{}) (rows.Rows, error)
 }
@@ -28,8 +27,8 @@ func (s *Sqlite) Close() {
 }
 
 // Connect Connect/open the database
-func (s *Sqlite) Connect() error {
-	s.db, _ = sql.Open("sqlite3", os.Getenv("GOPATH")+"/data/journal.db")
+func (s *Sqlite) Connect(dbFile string) error {
+	s.db, _ = sql.Open("sqlite3", dbFile)
 	return s.db.Ping()
 }
 

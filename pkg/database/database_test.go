@@ -8,14 +8,14 @@ import (
 func TestSqliteClose(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 	sqlite := &Sqlite{}
-	_ = sqlite.Connect()
+	_ = sqlite.Connect("test/data/test.db")
 	sqlite.Close()
 }
 
 func TestSqliteConnect(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 	sqlite := &Sqlite{}
-	err := sqlite.Connect()
+	err := sqlite.Connect("test/data/test.db")
 	if err != nil {
 		t.Errorf("Expected database to have been connected and no error to have been returned")
 	}
@@ -24,7 +24,7 @@ func TestSqliteConnect(t *testing.T) {
 func TestSqliteExec(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 	sqlite := &Sqlite{}
-	_ = sqlite.Connect()
+	_ = sqlite.Connect("test/data/test.db")
 	result, err := sqlite.Exec("SELECT 1")
 	rows, _ := result.RowsAffected()
 	if err != nil || rows > 0 {
@@ -35,7 +35,7 @@ func TestSqliteExec(t *testing.T) {
 func TestSqliteQuery(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 	sqlite := &Sqlite{}
-	_ = sqlite.Connect()
+	_ = sqlite.Connect("test/data/test.db")
 	rows, err := sqlite.Query("SELECT 1 AS example")
 	if err != nil {
 		t.Errorf("Expected query to have been executed")
