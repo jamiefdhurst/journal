@@ -5,6 +5,8 @@ server driven blog with the ability to post new entries.
 
 It makes use of a SQLite database to store the journal entries.
 
+[API Documentation](api/README.md)
+
 ## Installation and Setup
 
 1. Clone the repository to `$GOPATH/src/github.com/jamiefdhurst/journal`.
