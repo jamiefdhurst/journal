@@ -45,6 +45,8 @@ Contains all current post reources in reverse date order.
 ```
 **Error Responses:** *None*
 
+--
+
 ### Retrieve a single post
 
 **Method/URL:** `GET /api/v1/post/{slug}`
@@ -69,6 +71,8 @@ Contains the single post.
 **Error Responses:** 
 
 `404` - Post with provided slug could not be found.
+
+--
 
 ### Create a post
 
@@ -105,6 +109,8 @@ The date can be provided in the following formats:
 
 * `400` - Incorrect parameters supplied - the date, title and content must be
 provided.
+
+--
 
 ### Update a post
 
