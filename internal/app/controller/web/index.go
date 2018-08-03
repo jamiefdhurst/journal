@@ -22,6 +22,7 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: &model.Giphys{Container: c.Super.Container.(*app.Container)}}
 	c.Journals = js.FetchAll()
 	query := request.URL.Query()
+	c.Saved = false
 	if query["saved"] != nil {
 		c.Saved = true
 	}

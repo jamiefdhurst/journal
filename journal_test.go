@@ -126,7 +126,7 @@ func TestApiV1Single_NotFound(t *testing.T) {
 func TestApiV1Create(t *testing.T) {
 	fixtures(t)
 
-	request, err := http.NewRequest("POST", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Test 4","date":"2018-06-01T00:00:00Z","content":"<p>Test 4!</p>"}`))
+	request, err := http.NewRequest("PUT", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Test 4","date":"2018-06-01T00:00:00Z","content":"<p>Test 4!</p>"}`))
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -151,7 +151,7 @@ func TestApiV1Create(t *testing.T) {
 func TestApiV1Create_InvalidRequest(t *testing.T) {
 	fixtures(t)
 
-	request, err := http.NewRequest("POST", server.URL+"/api/v1/post", nil)
+	request, err := http.NewRequest("PUT", server.URL+"/api/v1/post", nil)
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -167,7 +167,7 @@ func TestApiV1Create_InvalidRequest(t *testing.T) {
 func TestApiV1Create_MissingData(t *testing.T) {
 	fixtures(t)
 
-	request, err := http.NewRequest("POST", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Test 4"}`))
+	request, err := http.NewRequest("PUT", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Test 4"}`))
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -183,7 +183,7 @@ func TestApiV1Create_MissingData(t *testing.T) {
 func TestApiV1Update(t *testing.T) {
 	fixtures(t)
 
-	request, err := http.NewRequest("PUT", server.URL+"/api/v1/post/test", strings.NewReader(`{"title":"A different title"}`))
+	request, err := http.NewRequest("POST", server.URL+"/api/v1/post/test", strings.NewReader(`{"title":"A different title"}`))
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -208,7 +208,7 @@ func TestApiV1Update(t *testing.T) {
 func TestApiV1Update_NotFound(t *testing.T) {
 	fixtures(t)
 
-	request, err := http.NewRequest("PUT", server.URL+"/api/v1/post/random", strings.NewReader(`{"title":"A different title"}`))
+	request, err := http.NewRequest("POST", server.URL+"/api/v1/post/random", strings.NewReader(`{"title":"A different title"}`))
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -224,7 +224,7 @@ func TestApiV1Update_NotFound(t *testing.T) {
 func TestApiV1Update_InvalidRequest(t *testing.T) {
 	fixtures(t)
 
-	request, err := http.NewRequest("PUT", server.URL+"/api/v1/post/test", nil)
+	request, err := http.NewRequest("POST", server.URL+"/api/v1/post/test", nil)
 
 	res, err := http.DefaultClient.Do(request)
 

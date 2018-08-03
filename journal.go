@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	const version = "0.2"
+	const version = "0.2.1"
 
 	// Command line flags
 	var (

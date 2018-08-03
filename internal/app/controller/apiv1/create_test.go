@@ -13,6 +13,8 @@ import (
 
 func TestCreate_Run(t *testing.T) {
 	db := &database.MockSqlite{}
+	db.Result = &database.MockResult{}
+	db.Rows = &database.MockRowsEmpty{}
 	container := &app.Container{Db: db}
 	response := controller.NewMockResponse()
 	response.Reset()
