@@ -62,6 +62,21 @@ func (js *Journals) CreateTable() error {
 	return err
 }
 
+// EnsureUniqueSlug Make sure the current slug is unique
+func (js *Journals) EnsureUniqueSlug(slug string, addition int) string {
+	newSlug := slug
+	if addition > 0 {
+		newSlug = strings.Join([]string{slug, "-", strconv.Itoa(addition)}, "")
+	}
+	exists := js.FindBySlug(newSlug)
+	if exists.ID > 0 {
+		addition++
+		return js.EnsureUniqueSlug(slug, addition)
+	}
+
+	return newSlug
+}
+
 // FetchAll Get all journals
 func (js *Journals) FetchAll() []Journal {
 	rows, err := js.Container.Db.Query("SELECT * FROM `" + journalTable + "` ORDER BY `date` DESC")
@@ -94,8 +109,12 @@ func (js *Journals) Save(j Journal) Journal {
 
 	// Convert content for saving
 	j.Content = js.Gs.ExtractContentsAndSearchAPI(j.Content)
+	if j.Slug == "" {
+		j.Slug = Slugify(j.Title)
+	}
 
 	if j.ID == 0 {
+		j.Slug = js.EnsureUniqueSlug(j.Slug, 0)
 		res, _ = js.Container.Db.Exec("INSERT INTO `"+journalTable+"` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)", j.Slug, j.Title, j.Date, j.Content)
 	} else {
 		res, _ = js.Container.Db.Exec("UPDATE `"+journalTable+"` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ? WHERE `id` = ?", j.Slug, j.Title, j.Date, j.Content, strconv.Itoa(j.ID))

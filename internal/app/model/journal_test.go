@@ -58,6 +58,35 @@ func TestJournals_CreateTable(t *testing.T) {
 	}
 }
 
+func TestJournals_EnsureUniqueSlug(t *testing.T) {
+	db := &database.MockSqlite{}
+	db.ErrorMode = false
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
+
+	// Test no result
+	db.Rows = &database.MockRowsEmpty{}
+	actual := js.EnsureUniqueSlug("test", 0)
+	if actual != "test" {
+		t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test", actual)
+	}
+
+	// Test simple
+	db.Rows = &database.MockJournal_SingleRow{}
+	db.ExpectedArgument = "test"
+	actual = js.EnsureUniqueSlug("test", 0)
+	if actual != "test-1" {
+		t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test-1", actual)
+	}
+
+	db.Rows = &database.MockJournal_SingleRow{}
+	db.ExpectedArgument = "test-2"
+	actual = js.EnsureUniqueSlug("test", 2)
+	if actual != "test-3" {
+		t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test-3", actual)
+	}
+}
+
 func TestJournals_FetchAll(t *testing.T) {
 
 	// Test error
@@ -123,6 +152,7 @@ func TestJournals_FindBySlug(t *testing.T) {
 
 func TestJournals_Save(t *testing.T) {
 	db := &database.MockSqlite{Result: &database.MockResult{}}
+	db.Rows = &database.MockRowsEmpty{}
 	gs := &database.MockGiphyExtractor{}
 	container := &app.Container{Db: db}
 	js := Journals{Container: container, Gs: gs}
