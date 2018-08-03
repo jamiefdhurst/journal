@@ -34,4 +34,10 @@ func TestIndex_Run(t *testing.T) {
 	if !strings.Contains(response.Content, "Journal saved") {
 		t.Error("Expected saved banner to be displayed on screen")
 	}
+	response.Reset()
+	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
+	controller.Run(response, request)
+	if strings.Contains(response.Content, "Journal saved") {
+		t.Error("Expected saved banner to be hidden, but it is showing")
+	}
 }
