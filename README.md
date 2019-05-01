@@ -2,14 +2,14 @@
 
 [![Build Status](https://travis-ci.org/jamiefdhurst/journal.svg?branch=master)](https://travis-ci.org/jamiefdhurst/journal)
 
-Written as a first attempt of a web-based project in Go, this is a simple web-
-server driven blog with the ability to post new entries.
+A simple web-based journal written in Go. You can post, edit and view entries,
+witht he addition of an API.
 
 It makes use of a SQLite database to store the journal entries.
 
 [API Documentation](api/README.md)
 
-## Installation and Setup
+## Installation and Setup (local method)
 
 1. Clone the repository to `$GOPATH/src/github.com/jamiefdhurst/journal`.
 2. Make sure the `$GOPATH/data` directory exists.
@@ -20,6 +20,25 @@ It makes use of a SQLite database to store the journal entries.
 7. Run `./journal` to load the application on port 3000. You should now be able
     to fully access it at [](http://localhost:3000)
 
+## Installation and Setup (Docker method)
+
+_Please note: you will need Docker installed on your local machine._
+
+1. Clone the repository to your chosen folder.
+2. Build the container with `docker build -t journal:latest .`
+3. Initialise a database using:
+
+    ```bash
+    docker run --rm -v ./data:/go/data -p 3000:3000 -it journal:latest journal -mode=createdb
+    ```
+
+4. Run the following to load the application and serve it on port 3000. You
+    should now be able to fully access it at [](http://localhost:3000)
+
+    ```bash
+    docker run --rm -v ./data:/go/data -p 3000:3000 -it journal:latest
+    ```
+
 ## Options
 
 * `-mode=createdb` - Use to create the database within the data directory.
@@ -29,10 +48,16 @@ It makes use of a SQLite database to store the journal entries.
 
 * `GIPHY_API_KEY` - Must be set to the GIPHY API key to use
 
+To use the API key within your Docker setup, include it as follows:
+
+```bash
+docker run --rm -e GIPHY_API_KEY=... -v ./data:/go/data -p 3000:3000 -it journal:latest
+```
+
 ## Layout
 
 The project layout follows the standard set out in the following document:
-https://github.com/golang-standards/project-layout
+[](https://github.com/golang-standards/project-layout)
 
 * `/api` - API documentation
 * `/cmd/journal` - Main Journal executable folder

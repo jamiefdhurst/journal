@@ -22,6 +22,7 @@ _testmain.go
 *.exe
 *.test
 *.prof
+data
 node_modules
 test/data/test.db
 .vscode
