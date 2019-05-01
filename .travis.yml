@@ -1,6 +1,6 @@
 sudo: required
 
-language: go
+language: generic
 
 services:
   - docker
@@ -9,7 +9,7 @@ before_install:
   - docker build -t journal .
 
 script:
-  - docker run--name journal -it journal go test
+  - docker run --name journal -it journal go test
 
 after_install:
   - docker rm -f journal
