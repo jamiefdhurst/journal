@@ -47,9 +47,6 @@ func fixtures(t *testing.T) {
 	db.Exec("DROP TABLE journal")
 	js.CreateTable()
 
-	// Clear database
-	db.Exec("DELETE FROM journal")
-
 	// Set up data
 	db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?)", "test", "Test", "<p>Test!</p>", "2018-01-01")
 	db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?)", "test-2", "Another Test", "<p>Test again!</p>", "2018-02-01")
@@ -134,8 +131,8 @@ func TestApiV1Create(t *testing.T) {
 		t.Errorf("Unexpected error: %s", err)
 	}
 
-	if res.StatusCode != 200 {
-		t.Error("Expected 200 status code")
+	if res.StatusCode != 201 {
+		t.Error("Expected 201 status code")
 	}
 
 	defer res.Body.Close()
@@ -177,6 +174,45 @@ func TestApiV1Create_MissingData(t *testing.T) {
 
 	if res.StatusCode != 400 {
 		t.Error("Expected 400 status code")
+	}
+}
+
+func TestApiV1Create_RepeatTitles(t *testing.T) {
+	fixtures(t)
+
+	request, err := http.NewRequest("PUT", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Repeated","date":"2018-02-01T00:00:00Z","content":"<p>Repeated content test!</p>"}`))
+	res, err := http.DefaultClient.Do(request)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	if res.StatusCode != 201 {
+		t.Error("Expected 201 status code")
+	}
+
+	request, err = http.NewRequest("PUT", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Repeated","date":"2019-02-01T00:00:00Z","content":"<p>Repeated content test again!</p>"}`))
+	res, err = http.DefaultClient.Do(request)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	if res.StatusCode != 201 {
+		t.Error("Expected 201 status code")
+	}
+
+	request, err = http.NewRequest("GET", server.URL+"/api/v1/post/repeated-1", nil)
+	res, err = http.DefaultClient.Do(request)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	if res.StatusCode != 200 {
+		t.Error("Expected 200 status code")
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	expected := `{"id":5,"slug":"repeated-1","title":"Repeated","date":"2019-02-01T00:00:00Z","content":"<p>Repeated content test again!</p>"}`
+
+	// Use contains to get rid of any extra whitespace that we can discount
+	if !strings.Contains(string(body[:]), expected) {
+		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
 	}
 }
 

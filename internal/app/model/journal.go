@@ -51,7 +51,7 @@ type Journals struct {
 
 // CreateTable Create the actual table
 func (js *Journals) CreateTable() error {
-	_, err := js.Container.Db.Exec("CREATE TABLE `" + journalTable + "` (" +
+	_, err := js.Container.Db.Exec("CREATE TABLE IF NOT EXISTS `" + journalTable + "` (" +
 		"`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		"`slug` VARCHAR(255) NOT NULL, " +
 		"`title` VARCHAR(255) NOT NULL, " +

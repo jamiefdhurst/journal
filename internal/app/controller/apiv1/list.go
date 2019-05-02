@@ -17,7 +17,7 @@ type List struct {
 // Run List action
 func (c *List) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: &model.Giphys{Container: c.Super.Container.(*app.Container)}}
+	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
 	journals := js.FetchAll()
 	response.Header().Add("Content-Type", "application/json")
 	encoder := json.NewEncoder(response)
