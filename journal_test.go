@@ -177,6 +177,45 @@ func TestApiV1Create_MissingData(t *testing.T) {
 	}
 }
 
+func TestApiV1Create_RepeatTitles(t *testing.T) {
+	fixtures(t)
+
+	request, err := http.NewRequest("PUT", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Repeated","date":"2018-02-01T00:00:00Z","content":"<p>Repeated content test!</p>"}`))
+	res, err := http.DefaultClient.Do(request)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	if res.StatusCode != 200 {
+		t.Error("Expected 200 status code")
+	}
+
+	request, err = http.NewRequest("PUT", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Repeated","date":"2019-02-01T00:00:00Z","content":"<p>Repeated content test again!</p>"}`))
+	res, err = http.DefaultClient.Do(request)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	if res.StatusCode != 200 {
+		t.Error("Expected 200 status code")
+	}
+
+	request, err = http.NewRequest("GET", server.URL+"/api/v1/post/repeated-1", nil)
+	res, err = http.DefaultClient.Do(request)
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+	if res.StatusCode != 200 {
+		t.Error("Expected 200 status code")
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	expected := `{"id":5,"slug":"repeated-1","title":"Repeated","date":"2019-02-01T00:00:00Z","content":"<p>Repeated content test again!</p>"}`
+
+	// Use contains to get rid of any extra whitespace that we can discount
+	if !strings.Contains(string(body[:]), expected) {
+		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
+	}
+}
+
 func TestApiV1Update(t *testing.T) {
 	fixtures(t)
 
