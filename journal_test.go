@@ -131,8 +131,8 @@ func TestApiV1Create(t *testing.T) {
 		t.Errorf("Unexpected error: %s", err)
 	}
 
-	if res.StatusCode != 200 {
-		t.Error("Expected 200 status code")
+	if res.StatusCode != 201 {
+		t.Error("Expected 201 status code")
 	}
 
 	defer res.Body.Close()
@@ -185,8 +185,8 @@ func TestApiV1Create_RepeatTitles(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
 	}
-	if res.StatusCode != 200 {
-		t.Error("Expected 200 status code")
+	if res.StatusCode != 201 {
+		t.Error("Expected 201 status code")
 	}
 
 	request, err = http.NewRequest("PUT", server.URL+"/api/v1/post", strings.NewReader(`{"title":"Repeated","date":"2019-02-01T00:00:00Z","content":"<p>Repeated content test again!</p>"}`))
@@ -194,8 +194,8 @@ func TestApiV1Create_RepeatTitles(t *testing.T) {
 	if err != nil {
 		t.Errorf("Unexpected error: %s", err)
 	}
-	if res.StatusCode != 200 {
-		t.Error("Expected 200 status code")
+	if res.StatusCode != 201 {
+		t.Error("Expected 201 status code")
 	}
 
 	request, err = http.NewRequest("GET", server.URL+"/api/v1/post/repeated-1", nil)
