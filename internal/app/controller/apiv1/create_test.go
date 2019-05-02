@@ -45,7 +45,7 @@ func TestCreate_Run(t *testing.T) {
 	request.Header.Add("Content-Type", "application/json")
 	db.Result = &database.MockResult{}
 	controller.Run(response, request)
-	if response.StatusCode != 200 || !strings.Contains(response.Content, "Something New") {
+	if response.StatusCode != 201 || !strings.Contains(response.Content, "Something New") {
 		t.Error("Expected new title to be within content")
 	}
 }
