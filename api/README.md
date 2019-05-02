@@ -20,7 +20,7 @@ and editing.
 ### URL Parameters
 
 When specified within endpoints, URL parameters are shown within `{}` curly
-brackets. URLs are parameterised to include post slugs, as opposed to IDs. 
+brackets. URLs are parameterised to include post slugs, as opposed to IDs.
 
 ## Available Endpoints
 
@@ -43,6 +43,7 @@ Contains all current post reources in reverse date order.
     }
 ]
 ```
+
 **Error Responses:** *None*
 
 --
@@ -68,7 +69,8 @@ Contains the single post.
     "content": "<p>TEST</p><p>:gif:id:cE1qRt8nl6Neo:</p>"
 }
 ```
-**Error Responses:** 
+
+**Error Responses:**
 
 `404` - Post with provided slug could not be found.
 
