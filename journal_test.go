@@ -47,9 +47,6 @@ func fixtures(t *testing.T) {
 	db.Exec("DROP TABLE journal")
 	js.CreateTable()
 
-	// Clear database
-	db.Exec("DELETE FROM journal")
-
 	// Set up data
 	db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?)", "test", "Test", "<p>Test!</p>", "2018-01-01")
 	db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?)", "test-2", "Another Test", "<p>Test again!</p>", "2018-02-01")

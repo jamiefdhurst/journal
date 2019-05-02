@@ -21,7 +21,6 @@ func main() {
 
 	// Command line flags
 	var (
-		mode       = flag.String("mode", "run", "Run or perform a maintenance action (e.g. createdb for creating the database)")
 		serverPort = flag.String("port", "3000", "Port to run web server on")
 	)
 	flag.Parse()
@@ -41,31 +40,24 @@ func main() {
 	}
 
 	// Create Giphy adapter
-	adapter := &giphy.Client{APIKey: os.Getenv("GIPHY_API_KEY"), Client: &json.Client{}}
-
-	container.Db = db
-	container.Giphy = adapter
-
-	// Handle mode
-	var err error
-	if *mode == "createdb" {
-
-		js := model.Journals{Container: container}
-		if err := js.CreateTable(); err != nil {
-			log.Panicln(err)
-		}
-
-		log.Println("Database created")
-
-	} else {
-
-		router := router.NewRouter(container)
-		server := &http.Server{Addr: ":" + *serverPort, Handler: router}
-
-		log.Printf("Listening on port %s\n", *serverPort)
-		err = router.StartAndServe(server)
-
+	giphyAPIKey := os.Getenv("GIPHY_API_KEY")
+	if giphyAPIKey != "" {
+		container.Giphy = &giphy.Client{APIKey: giphyAPIKey, Client: &json.Client{}}
 	}
+
+	// Create table if required
+	container.Db = db
+	var err error
+	js := model.Journals{Container: container}
+	if err = js.CreateTable(); err != nil {
+		log.Panicln(err)
+	}
+
+	router := router.NewRouter(container)
+	server := &http.Server{Addr: ":" + *serverPort, Handler: router}
+
+	log.Printf("Listening on port %s\n", *serverPort)
+	err = router.StartAndServe(server)
 
 	// Close cleanly
 	db.Close()
