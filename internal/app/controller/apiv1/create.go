@@ -27,8 +27,9 @@ func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
 			response.WriteHeader(http.StatusBadRequest)
 		} else {
 			journal := model.Journal{ID: 0, Slug: model.Slugify(journalRequest.Title), Title: journalRequest.Title, Date: journalRequest.Date, Content: journalRequest.Content}
-			js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: &model.Giphys{Container: c.Super.Container.(*app.Container)}}
+			js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
 			journal = js.Save(journal)
+			response.WriteHeader(http.StatusCreated)
 			encoder := json.NewEncoder(response)
 			encoder.SetEscapeHTML(false)
 			encoder.Encode(journal)

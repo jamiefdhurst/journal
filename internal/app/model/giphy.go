@@ -12,14 +12,32 @@ type giphyContent struct {
 	searches []string
 }
 
-// Giphys Common resource link for Giphy actions
-type Giphys struct {
-	Container *app.Container
-}
-
 // GiphysExtractor Interface for extracting a Giphy search
 type GiphysExtractor interface {
 	ExtractContentsAndSearchAPI(s string) string
+}
+
+// GiphyAdapter Get the correct adapter to use depending on wither an API key is available
+func GiphyAdapter(c *app.Container) GiphysExtractor {
+	if c.Giphy == nil {
+		return &GiphysDisabled{Container: c}
+	}
+	return &Giphys{Container: c}
+}
+
+// GiphysDisabled Whne no API key available, perform no action
+type GiphysDisabled struct {
+	Container *app.Container
+}
+
+// ExtractContentsAndSearchAPI Perform no action without an API key
+func (gs *GiphysDisabled) ExtractContentsAndSearchAPI(s string) string {
+	return s
+}
+
+// Giphys Common resource link for Giphy actions
+type Giphys struct {
+	Container *app.Container
 }
 
 // ConvertIDsToIframes Convert any IDs in the content into <iframe> embeds

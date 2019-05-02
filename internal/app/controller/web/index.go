@@ -19,7 +19,7 @@ type Index struct {
 // Run Index action
 func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: &model.Giphys{Container: c.Super.Container.(*app.Container)}}
+	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
 	c.Journals = js.FetchAll()
 	query := request.URL.Query()
 	c.Saved = false

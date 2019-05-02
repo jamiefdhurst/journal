@@ -16,8 +16,7 @@ It makes use of a SQLite database to store the journal entries.
 3. Change directory to `$GOPATH/src/github.com/jamiefdhurst/journal`.
 4. Run `go get` to install dependencies
 5. Run `go build journal` to create the executable.
-6. Run `./journal -mode=createdb` to create the database.
-7. Run `./journal` to load the application on port 3000. You should now be able
+6. Run `./journal` to load the application on port 3000. You should now be able
     to fully access it at [](http://localhost:3000)
 
 ## Installation and Setup (Docker method)
@@ -26,13 +25,7 @@ _Please note: you will need Docker installed on your local machine._
 
 1. Clone the repository to your chosen folder.
 2. Build the container with `docker build -t journal:latest .`
-3. Initialise a database using:
-
-    ```bash
-    docker run --rm -v ./data:/go/data -p 3000:3000 -it journal:latest journal -mode=createdb
-    ```
-
-4. Run the following to load the application and serve it on port 3000. You
+3. Run the following to load the application and serve it on port 3000. You
     should now be able to fully access it at [](http://localhost:3000)
 
     ```bash
@@ -41,12 +34,11 @@ _Please note: you will need Docker installed on your local machine._
 
 ## Options
 
-* `-mode=createdb` - Use to create the database within the data directory.
 * `-port=3000` - Use to set the port to serve on for HTTP, defaults to 3000.
 
 ## Environment Variables
 
-* `GIPHY_API_KEY` - Must be set to the GIPHY API key to use
+* `GIPHY_API_KEY` - Set to a GIPHY API key to use, or ignore to disable GIPHY.
 
 To use the API key within your Docker setup, include it as follows:
 
