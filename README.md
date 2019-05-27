@@ -1,7 +1,7 @@
 # Journal
 
 ![License](https://img.shields.io/github/license/jamiefdhurst/journal.svg)
-[![Build Status](https://travis-ci.org/jamiefdhurst/journal.svg?branch=master)](https://travis-ci.org/jamiefdhurst/journal)
+[![Build Status](https://ci.jamiehurst.co.uk/job/journal/job/master/badge/icon)](https://ci.jamiehurst.co.uk/job/journal)
 [![Latest Version](https://img.shields.io/github/release/jamiefdhurst/journal.svg)](https://github.com/jamiefdhurst/journal/releases)
 
 A simple web-based journal written in Go. You can post, edit and view entries,
