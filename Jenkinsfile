@@ -11,10 +11,6 @@ node {
     }
 
     stage('Test') {
-        sh "docker run --name $CONTAINER_NAME -it $CONTAINER_NAME go test ./..."
-    }
-
-    stage('Cleanup') {
-        sh "docker rm -f $CONTAINER_NAME"
+        sh "docker run --rm $CONTAINER_NAME go test ./..."
     }
 }
