@@ -1,7 +1,7 @@
-CONTAINER_NAME="journal"
+/* groovylint-disable CompileStatic */
+CONTAINER_NAME = 'journal'
 
 node {
-
     stage('Checkout') {
         checkout scm
     }
