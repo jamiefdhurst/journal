@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
@@ -35,6 +36,50 @@ func (j Journal) GetDate() string {
 	}
 
 	return strings.Join(dateArr, "/")
+}
+
+// GetDay returns the day of the journal's date
+func (j Journal) GetDay() string {
+	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
+	date := re.FindString(j.Date)
+	timeObj, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return ""
+	}
+	return timeObj.Format("2")
+}
+
+// GetDayOfWeek returns the weekday of the journal's date (e.g. Mon)
+func (j Journal) GetDayOfWeek() string {
+	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
+	date := re.FindString(j.Date)
+	timeObj, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return ""
+	}
+	return timeObj.Format("Mon")
+}
+
+// GetMonth returns the month of the journal's date
+func (j Journal) GetMonth() string {
+	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
+	date := re.FindString(j.Date)
+	timeObj, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return ""
+	}
+	return timeObj.Format("Jan")
+}
+
+// GetYear returns the year of the journal's date
+func (j Journal) GetYear() string {
+	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
+	date := re.FindString(j.Date)
+	timeObj, err := time.Parse("2006-01-02", date)
+	if err != nil {
+		return ""
+	}
+	return timeObj.Format("2006")
 }
 
 // GetEditableDate Get the date string for editing

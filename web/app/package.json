@@ -1,6 +1,6 @@
 {
   "name": "journal",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Journal",
   "main": "gulpfile.js",
   "scripts": {
@@ -20,16 +20,16 @@
   },
   "homepage": "https://github.com/jamiefdhurst/journal#readme",
   "devDependencies": {
-    "bourbon": "^5.0.0",
-    "gulp": "^3.9.1",
-    "gulp-load-plugins": "^1.2.0",
-    "gulp-rename": "^1.2.3",
-    "gulp-sass": "^4.0.1",
-    "gulp-uglify": "^3.0.0",
-    "medium-editor": "^5.14.4",
-    "normalize-css": "^2.3.1",
-    "susy": "^3.0.5",
-    "webpack": "^4.8.3",
-    "webpack-stream": "^4.0.3"
+    "bourbon": "^7.0.0",
+    "gulp": "^4.0.2",
+    "gulp-load-plugins": "^1.6.0",
+    "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.1.0",
+    "gulp-uglify": "^3.0.2",
+    "medium-editor": "^5.23.3",
+    "milligram": "^1.4.1",
+    "normalize.css": "^8.0.1",
+    "webpack": "^5.24.3",
+    "webpack-stream": "^6.1.2"
   }
 }

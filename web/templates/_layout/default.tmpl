@@ -3,20 +3,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Jamie's Journal</title>
+    <title>{{.Container.Title}}</title>
     <meta name="viewport" content="device-width" />
 
     <link rel="stylesheet" type="text/css" href="/css/default.min.css" />
 </head>
 <body>
-    <div id="container">
-        <header role="banner">
-            <h1>Jamie's Journal</h1>
-        </header>
+    <div class="container">
+        <div class="row">
+            <div class="column">
+                <header role="banner">
+                    <h1>{{.Container.Title}}</h1>
+                </header>
+            </div>
+        </div>
 
-        {{template "content" .}}
+        <div class="row">
+            <div class="column">
+                {{template "content" .}}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="column">
+                <footer>Journal v{{.Container.Version}}</footer>
+            </div>
+        </div>
 
     </div>
+
     <script src="/js/default.min.js"></script>
 </body>
 </html>

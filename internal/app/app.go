@@ -21,6 +21,8 @@ type GiphyAdapter interface {
 
 // Container Define the main container for the application
 type Container struct {
-	Db    Database
-	Giphy GiphyAdapter
+	Db      Database
+	Giphy   GiphyAdapter
+	Title   string
+	Version string
 }

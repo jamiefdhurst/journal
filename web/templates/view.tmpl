@@ -1,10 +1,17 @@
 {{define "content"}}
-<article>
+<article class="view">
+    <div class="date">
+        <span class="weekday">{{.Journal.GetDayOfWeek}}</span>
+        <span class="day">{{.Journal.GetDay}}</span>
+        <span class="month">{{.Journal.GetMonth}}</span>
+        <span class="year">{{.Journal.GetYear}}</span>
+    </div>
     <h2>{{.Journal.Title}}</h2>
-    <p>Posted on: <strong>{{.Journal.GetDate}}</strong></p>
-    {{.Journal.Content}}
+    <div class="clearfix"></div>
+    <div class="content">
+        {{.Journal.Content}}
+    </div>
 </article>
 
-<p><a href="/{{.Journal.Slug}}/edit">Edit</a></p>
-<p><a href="/">Back</a></p>
+<p><a href="/" class="button button-outline">Back</a> <a href="/{{.Journal.Slug}}/edit" class="button">Edit</a></p>
 {{end}}

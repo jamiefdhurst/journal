@@ -4,16 +4,20 @@
     <div class="saved">Journal saved.</div>
 {{end}}
 
-<p><a class="button" href="/new">Create New Post</a></p>
+<p class="float-right"><a class="button" href="/new">Create New Post</a></p>
 
 {{range .Journals}}
     <article>
-        <h2>{{.Title}}</h2>
+        <div class="date">
+            <span class="weekday">{{.GetDayOfWeek}}</span>
+            <span class="day">{{.GetDay}}</span>
+            <span class="month">{{.GetMonth}}</span>
+            <span class="year">{{.GetYear}}</span>
+        </div>
+        <h2><a href="/{{.Slug}}">{{.Title}}</a></h2>
         <p>
-            Posted on <strong>{{.GetDate}}</strong><br />
-            <a href="/{{.Slug}}">View</a>
-            |
-            <a href="/{{.Slug}}/edit">Edit</a>
+            <a href="/{{.Slug}}" class="button">View</a>
+            <a href="/{{.Slug}}/edit" class="button button-outline">Edit</a>
         </p>
     </article>
 {{end}}

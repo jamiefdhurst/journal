@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 	"text/template"
+	"time"
 
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
@@ -20,9 +21,12 @@ type New struct {
 func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 	if request.Method == "GET" {
 		query := request.URL.Query()
+		c.Error = false
 		if query["error"] != nil {
 			c.Error = true
 		}
+
+		c.Journal.Date = time.Now().Format("2006-01-02")
 
 		template, _ := template.ParseFiles(
 			"./web/templates/_layout/default.tmpl",

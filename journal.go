@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	const version = "0.2.2"
+	const version = "0.3.0"
 
 	// Command line flags
 	var (
@@ -30,7 +30,10 @@ func main() {
 	fmt.Printf("Journal v%s...\n-------------------\n\n", version)
 
 	// Create/define container
-	container := &app.Container{}
+	container := &app.Container{
+		Title:   "Jamie's Journal",
+		Version: version,
+	}
 
 	// Open database
 	db := &database.Sqlite{}

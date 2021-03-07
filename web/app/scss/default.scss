@@ -1,15 +1,11 @@
-@import "../node_modules/susy/sass/susy";
-@import "../node_modules/bourbon/app/assets/stylesheets/bourbon";
-@import "../node_modules/normalize-css/normalize";
+@import "../node_modules/normalize.css/normalize";
+@import "../node_modules/milligram/dist/milligram.min";
+@import "../node_modules/bourbon/core/bourbon";
 @import "../node_modules/medium-editor/dist/css/medium-editor";
 @import "variables";
 
 body {
     color: $textColour;
-    font-family: Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    margin: 0;
-    padding: 1rem;
 }
 
 h1, h2, h3, h4 {
@@ -23,19 +19,21 @@ a, a:link, a:visited, a:active {
 }
 
 a:hover {
-    color: inherit;
+    color: $linkColour;
     text-decoration: underline;
-}
-
-#container {
-    margin: 0 auto;
-    max-width: 60rem;
 }
 
 header[role=banner] {
     background: $headingBgColour;
     border-radius: 10px;
+    margin: 1rem 0;
     padding: 1rem 1.5rem;
+}
+
+footer {
+    border-top: 1px solid $borderColour;
+    font-size: 1.25rem;
+    text-align: center;
 }
 
 h1 {
@@ -43,58 +41,128 @@ h1 {
     text-align: center;
 }
 
-h2:before {
-    background: $headingBgColour;
-    border-radius: 5px;
-    content: "";
-    display: block;
-    float: left;
-    height: 1rem;
-    margin: .25rem .5rem 0 0;
-    width: 1rem;
-}
-
 article {
     border-bottom: 1px solid $borderColour;
+    padding: 1rem 0;
+
+    h2 {
+        margin-bottom: 0;
+
+        a, a:link, a:visited, a:active {
+            font-weight: normal;
+        }
+    }
+
+    p:last-child {
+        margin-bottom: 0;
+    }
+
+    .date {
+        margin-top: .5rem;
+    }
+
+    &.view {
+        border-bottom: none;
+
+        .date {
+            margin-top: 0;
+        }
+
+        h2 {
+            font-weight: 400;
+            margin-top: 3.5rem;
+        }
+
+        .content {
+            margin-bottom: 3rem;
+            margin-left: 6rem;
+        }
+    }
+}
+
+.date {
+    background: $dateBgColour;
+    border-radius: 5px;
+    color: #fff;
+    float: left;
+    font-size: 0;
+    margin-right: 1rem;
+    text-align: center;
+    width: 5rem;
+
+    > * {
+        display: block;
+        margin-top: 0;
+    }
+
+    .weekday {
+        font-size: 1.5rem;
+        line-height: 1.75rem;
+    }
+
+    .day {
+        font-size: 2.75rem;
+        font-weight: bold;
+        line-height: 2.75rem;
+    }
+
+    .month {
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.75rem;
+    }
+
+    .year {
+        font-size: 1.25rem;
+        font-style: italic;
+        line-height: 1.5rem;
+    }
 }
 
 .saved {
     background-color: #cfc;
     border: 1px solid #090;
+    border-radius: 5px;
     color: #060;
-    margin: 15px 0;
-    padding: 8px 12px;
+    margin: 1rem 0;
+    padding: 1rem 1.5rem;
 }
 
 .error {
     background-color: #fcc;
     border: 1px solid #f00;
+    border-radius: 5px;
     color: #c00;
-    margin: 15px 0;
-    padding: 8px 12px;
+    margin: 1rem 0;
+    padding: 1rem 1.5rem;
 }
 
 .button, button {
     background-color: $linkColour;
-    border-radius: 5px;
-    border: none;
-    color: #fff !important;
-    font-weight: bold;
-    padding: .5rem .75rem;
+    border-color: $linkColour;
 
-    &:hover {
-        background-color: lighten($linkColour, 10);
-        text-decoration: none;
+    &:link, &:visited, &:active, &:hover {
+        color: #fff;
+    }
+
+    &.button-outline {
+        &:link, &:visited, &:active, &:hover {
+            color: $linkColour;
+        }
     }
 
     &.medium-editor-action {
         border-right: 1px solid lighten($linkColour, 10);
         border-radius: 0;
+        height: auto;
     }
 }
 
-p > .button {
-    float: right;
+.medium-editor-toolbar-form {
+    background-color: #fff;
+    border: 1px solid $linkColour;
+    border-radius: 4px;
+    padding: .625rem 1rem;
 }
 
 fieldset {
@@ -106,36 +174,22 @@ fieldset {
         margin: 0 0 1rem;
     }
 
-    label {
-        display: inline-block;
-        font-weight: bold;
-        padding-top: .5rem;
-        vertical-align: top;
-        width: 6.25rem;
-    }
-
-    input[type=text], input[type=date], textarea, [data-medium-editor-element] {
-        border: 1px solid $borderColour;
-        color: $textColour;
-        display: inline-block;
-        outline: none;
-        padding: .5rem .75rem;
-        width: 31.25rem;
-
-        &:focus {
-            border-color: $linkColour;
-        }
-    }
-
     textarea, [data-medium-editor-element] {
+        border: 0.1rem solid #d1d1d1;
+        border-radius: .4rem;
         min-height: 10rem;
+        padding: .6rem 1rem .7rem;
 
         p:first-child {
             margin-top: 0;
         }
+
+        &:after {
+            padding: 0;
+        }
     }
 
-    button {
-        margin-left: 6.5rem;
+    input[type=text]:focus, textarea:focus {
+        border-color: $linkColour;
     }
 }
