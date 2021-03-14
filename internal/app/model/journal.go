@@ -2,12 +2,15 @@ package model
 
 import (
 	"database/sql"
+	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/jamiefdhurst/journal/internal/app"
+	"github.com/jamiefdhurst/journal/pkg/database"
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 )
 
@@ -130,6 +133,30 @@ func (js *Journals) FetchAll() []Journal {
 	}
 
 	return js.loadFromRows(rows)
+}
+
+// FetchPaginated returns a set of paginated journal entries
+func (js *Journals) FetchPaginated(query database.PaginationQuery) ([]Journal, database.PaginationInformation) {
+	pagination := database.PaginationInformation{
+		Page:           query.Page,
+		ResultsPerPage: query.ResultsPerPage,
+	}
+
+	countResult, err := js.Container.Db.Query("SELECT COUNT(*) AS `total` FROM `" + journalTable + "`")
+	if err != nil {
+		return []Journal{}, pagination
+	}
+	countResult.Next()
+	countResult.Scan(&pagination.TotalResults)
+	countResult.Close()
+	pagination.TotalPages = int(math.Ceil(float64(pagination.TotalResults) / float64(query.ResultsPerPage)))
+
+	if query.Page > pagination.TotalPages {
+		return []Journal{}, pagination
+	}
+
+	rows, _ := js.Container.Db.Query(fmt.Sprintf("SELECT * FROM `"+journalTable+"` ORDER BY `date` DESC LIMIT %d OFFSET %d", query.ResultsPerPage, (query.Page-1)*query.ResultsPerPage))
+	return js.loadFromRows(rows), pagination
 }
 
 // FindBySlug Find a journal by slug

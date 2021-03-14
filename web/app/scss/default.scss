@@ -131,7 +131,7 @@ article {
 .error {
     background-color: #fcc;
     border: 1px solid #f00;
-    border-radius: 5px;
+    border-radius: .4rem;
     color: #c00;
     margin: 1rem 0;
     padding: 1rem 1.5rem;
@@ -158,10 +158,32 @@ article {
     }
 }
 
+.pagination {
+    ol {
+        list-style: none;
+        margin: 1rem 0;
+        text-align: center;
+    }
+
+    li {
+        border-radius: .4rem;
+        display: inline-block;
+        padding: 0 1rem;
+
+        &.current {
+            background-color: $linkColour;
+            
+            a:link, a:visited, a:active, a:hover {
+                color: #fff;
+            }
+        }
+    }
+}
+
 .medium-editor-toolbar-form {
     background-color: #fff;
     border: 1px solid $linkColour;
-    border-radius: 4px;
+    border-radius: .4rem;
     padding: .625rem 1rem;
 }
 

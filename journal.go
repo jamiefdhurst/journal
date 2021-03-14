@@ -31,8 +31,9 @@ func main() {
 
 	// Create/define container
 	container := &app.Container{
-		Title:   "Jamie's Journal",
-		Version: version,
+		ArticlesPerPage: 20,
+		Title:           "Jamie's Journal",
+		Version:         version,
 	}
 
 	// Open database

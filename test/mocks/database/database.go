@@ -123,6 +123,30 @@ func (m *MockJournal_SingleRow) Scan(dest ...interface{}) error {
 	return nil
 }
 
+// MockPagination_Result mocks a pagination result with custom pages
+type MockPagination_Result struct {
+	MockRowsEmpty
+	RowNumber    int
+	TotalResults int
+}
+
+// Next Mock 1 row
+func (m *MockPagination_Result) Next() bool {
+	m.RowNumber++
+	if m.RowNumber < 2 {
+		return true
+	}
+	return false
+}
+
+// Scan Return the data
+func (m *MockPagination_Result) Scan(dest ...interface{}) error {
+	if m.RowNumber == 1 {
+		*dest[0].(*int) = m.TotalResults
+	}
+	return nil
+}
+
 // MockResult Mock the result for a saved Journal
 type MockResult struct{}
 
@@ -166,9 +190,16 @@ type MockSqlite struct {
 	ErrorAtQuery     int
 	ErrorMode        bool
 	ExpectedArgument string
+	MultiMode        bool
+	multiResults     []rows.Rows
 	Queries          int
 	Result           sql.Result
 	Rows             rows.Rows
+}
+
+// AppendResult adds one more result
+func (m *MockSqlite) AppendResult(rows rows.Rows) {
+	m.multiResults = append(m.multiResults, rows)
 }
 
 // Close Mark as closed
@@ -180,6 +211,12 @@ func (m *MockSqlite) Close() {
 func (m *MockSqlite) Connect(dbFile string) error {
 	m.Connected = true
 	return nil
+}
+
+// EnableMultiMode turns on multi mode
+func (m *MockSqlite) EnableMultiMode() {
+	m.multiResults = make([]rows.Rows, 0)
+	m.MultiMode = true
 }
 
 // Exec Test arguments and errors
@@ -203,6 +240,9 @@ func (m *MockSqlite) Query(sql string, args ...interface{}) (rows.Rows, error) {
 	if m.ExpectedArgument != "" && !m.inArgs(args) {
 		return nil, errors.New("Expected " + m.ExpectedArgument + " in query")
 	}
+	if m.MultiMode {
+		return m.popResult(), nil
+	}
 	return m.Rows, nil
 }
 
@@ -213,4 +253,15 @@ func (m *MockSqlite) inArgs(slice []interface{}) bool {
 		}
 	}
 	return false
+}
+
+func (m *MockSqlite) popResult() rows.Rows {
+	result := m.multiResults[0]
+	if len(m.multiResults) > 1 {
+		m.multiResults = m.multiResults[1:]
+	} else {
+		m.multiResults = make([]rows.Rows, 0)
+	}
+
+	return result
 }

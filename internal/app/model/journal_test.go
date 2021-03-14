@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/jamiefdhurst/journal/internal/app"
+	pkgDb "github.com/jamiefdhurst/journal/pkg/database"
 	"github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
@@ -195,6 +196,43 @@ func TestJournals_FetchAll(t *testing.T) {
 	db.Rows = &database.MockJournal_MultipleRows{}
 	journals = js.FetchAll()
 	if len(journals) < 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" {
+		t.Errorf("Expected 2 rows returned and with correct data")
+	}
+}
+
+func TestJournals_FetchPaginated(t *testing.T) {
+
+	// Test error
+	db := &database.MockSqlite{}
+	db.ErrorMode = true
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
+	journals, pagination := js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
+	if len(journals) > 0 || pagination.TotalPages > 0 {
+		t.Error("Expected empty result set returned when error received")
+	}
+
+	// Test empty result
+	db.ErrorMode = false
+	db.Rows = &database.MockPagination_Result{TotalResults: 0}
+	journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
+	if len(journals) > 0 || pagination.TotalPages > 0 {
+		t.Error("Expected empty result set returned when no pages received")
+	}
+
+	// Test pages out of bounds
+	db.Rows = &database.MockPagination_Result{TotalResults: 2}
+	journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 4, ResultsPerPage: 2})
+	if len(journals) > 0 || pagination.TotalPages != 1 {
+		t.Errorf("Expected empty result set with correct pages returned, instead received +%v", pagination)
+	}
+
+	// Test successful result
+	db.EnableMultiMode()
+	db.AppendResult(&database.MockPagination_Result{TotalResults: 4})
+	db.AppendResult(&database.MockJournal_MultipleRows{})
+	journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
+	if len(journals) != 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" || pagination.TotalPages != 2 || pagination.TotalResults != 4 {
 		t.Errorf("Expected 2 rows returned and with correct data")
 	}
 }

@@ -68,3 +68,13 @@ The project layout follows the standard set out in the following document:
 * `/web/app` - CSS/JS source files
 * `/web/static` - Compiled static public assets
 * `/web/templates` - View templates
+
+## Development
+
+### Back-end
+
+...
+
+### Front-end
+
+...

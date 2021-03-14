@@ -21,4 +21,18 @@
         </p>
     </article>
 {{end}}
+
+{{if gt .Pagination.TotalPages 1}}
+    <nav class="pagination">
+        <ol>
+            {{$currentPage := .Pagination.Page}}
+            {{range .Pages}}
+                <li class="{{if eq . $currentPage}}current{{end}}">
+                    <a href="/?page={{.}}">{{.}}</a>
+                </li>
+            {{end}}
+        </ol>
+    </nav>
+{{end}}
+
 {{end}}
