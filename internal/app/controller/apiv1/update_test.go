@@ -13,7 +13,7 @@ import (
 
 func TestUpdate_Run(t *testing.T) {
 	db := &database.MockSqlite{}
-	container := &app.Container{Db: db}
+	container := &app.Container{Configuration: app.DefaultConfiguration(), Db: db}
 	response := &controller.MockResponse{}
 	response.Reset()
 	controller := &Update{}
