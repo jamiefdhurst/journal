@@ -51,3 +51,11 @@ func DefaultConfiguration() Configuration {
 		Title:           "Jamie's Journal",
 	}
 }
+
+// ApplyEnvConfiguration applys the env variables on top of existing config
+func ApplyEnvConfiguration(config *Configuration) {
+	port := os.Getenv("J_PORT")
+	if port != "" {
+		config.Port = port
+	}
+}

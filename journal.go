@@ -24,6 +24,7 @@ func main() {
 
 	// Define default configuration
 	configuration := app.DefaultConfiguration()
+	app.ApplyEnvConfiguration(&configuration)
 
 	// Create/define container
 	container := &app.Container{
