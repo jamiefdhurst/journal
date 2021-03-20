@@ -14,4 +14,17 @@
 </article>
 
 <p><a href="/" class="button button-outline">Back</a> <a href="/{{.Journal.Slug}}/edit" class="button">Edit</a></p>
+
+{{if or .Next.ID .Prev.ID}}
+    <nav class="pagination">
+        <ol>
+            {{if .Prev.ID}}
+                <li><a href="/{{.Prev.Slug}}">Previous</a></li>
+            {{end}}
+            {{if .Next.ID}}
+                <li><a href="/{{.Next.Slug}}">Next</a></li>
+            {{end}}
+        </ol>
+    </nav>
+{{end}}
 {{end}}

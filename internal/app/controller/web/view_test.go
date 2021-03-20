@@ -33,6 +33,18 @@ func TestView_Run(t *testing.T) {
 	db.Rows = &database.MockJournal_SingleRow{}
 	controller.Run(response, request)
 	if strings.Contains(response.Content, "div class=\"error\"") || !strings.Contains(response.Content, "Content") {
-		t.Error("Expected no error to be shown in form")
+		t.Error("Expected no error to be shown in page")
+	}
+
+	// Display prev & next strings
+	response.Reset()
+	request, _ = http.NewRequest("GET", "/slug", strings.NewReader(""))
+	db.EnableMultiMode()
+	db.AppendResult(&database.MockJournal_SingleRow{})
+	db.AppendResult(&database.MockJournal_SingleRow{})
+	db.AppendResult(&database.MockJournal_SingleRow{})
+	controller.Run(response, request)
+	if !strings.Contains(response.Content, ">Previous<") || !strings.Contains(response.Content, ">Next<") {
+		t.Error("Expected previous and next links to be shown in page")
 	}
 }

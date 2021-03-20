@@ -13,6 +13,8 @@ import (
 type View struct {
 	controller.Super
 	Journal model.Journal
+	Next    model.Journal
+	Prev    model.Journal
 }
 
 // Run View action
@@ -25,6 +27,8 @@ func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 		errorController := Error{}
 		errorController.Run(response, request)
 	} else {
+		c.Next = js.FindNext(c.Journal.ID)
+		c.Prev = js.FindPrev(c.Journal.ID)
 		gs := model.Giphys{}
 		c.Journal.Content = gs.ConvertIDsToIframes(c.Journal.Content)
 		template, _ := template.ParseFiles(

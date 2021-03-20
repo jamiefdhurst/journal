@@ -161,18 +161,17 @@ func (js *Journals) FetchPaginated(query database.PaginationQuery) ([]Journal, d
 
 // FindBySlug Find a journal by slug
 func (js *Journals) FindBySlug(slug string) Journal {
-	// Attempt to find the entry
-	rows, err := js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `slug` = ? LIMIT 1", slug)
-	if err != nil {
-		return Journal{}
-	}
-	journals := js.loadFromRows(rows)
+	return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `slug` = ? LIMIT 1", slug))
+}
 
-	if len(journals) == 1 {
-		return journals[0]
-	}
+// FindNext returns the next entry after an ID
+func (js *Journals) FindNext(id int) Journal {
+	return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `id` > ? ORDER BY `id` LIMIT 1", strconv.Itoa(id)))
+}
 
-	return Journal{}
+// FindNext returns the previous entry before an ID
+func (js *Journals) FindPrev(id int) Journal {
+	return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `id` < ? ORDER BY `id` DESC LIMIT 1", strconv.Itoa(id)))
 }
 
 // Save Save a journal entry, either inserting it or updating it in the database
@@ -211,6 +210,19 @@ func (js Journals) loadFromRows(rows rows.Rows) []Journal {
 	}
 
 	return journals
+}
+
+func (js *Journals) loadSingle(rows rows.Rows, err error) Journal {
+	if err != nil {
+		return Journal{}
+	}
+	journals := js.loadFromRows(rows)
+
+	if len(journals) == 1 {
+		return journals[0]
+	}
+
+	return Journal{}
 }
 
 // Slugify Utility to convert a string into a slug

@@ -272,6 +272,76 @@ func TestJournals_FindBySlug(t *testing.T) {
 	}
 }
 
+func TestJournals_FindNext(t *testing.T) {
+	// Test error
+	db := &database.MockSqlite{}
+	db.ErrorMode = true
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
+	journal := js.FindNext(100)
+	if journal.ID > 0 {
+		t.Error("Expected empty result set returned when error received")
+	}
+
+	// Test empty result
+	db.ErrorMode = false
+	db.Rows = &database.MockRowsEmpty{}
+	journal = js.FindNext(100)
+	if journal.ID > 0 {
+		t.Error("Expected empty result set returned")
+	}
+
+	// Test successful result
+	db.Rows = &database.MockJournal_SingleRow{}
+	db.ExpectedArgument = "0"
+	journal = js.FindNext(0)
+	if journal.ID != 1 || journal.Content != "Content" {
+		t.Error("Expected 1 row returned and with correct data")
+	}
+
+	// Test unexpected amount of rows
+	db.Rows = &database.MockJournal_MultipleRows{}
+	journal = js.FindNext(0)
+	if journal.ID > 0 {
+		t.Error("Expected no rows when query returns more than one result")
+	}
+}
+
+func TestJournals_FindPrev(t *testing.T) {
+	// Test error
+	db := &database.MockSqlite{}
+	db.ErrorMode = true
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
+	journal := js.FindPrev(100)
+	if journal.ID > 0 {
+		t.Error("Expected empty result set returned when error received")
+	}
+
+	// Test empty result
+	db.ErrorMode = false
+	db.Rows = &database.MockRowsEmpty{}
+	journal = js.FindPrev(100)
+	if journal.ID > 0 {
+		t.Error("Expected empty result set returned")
+	}
+
+	// Test successful result
+	db.Rows = &database.MockJournal_SingleRow{}
+	db.ExpectedArgument = "2"
+	journal = js.FindPrev(2)
+	if journal.ID != 1 || journal.Content != "Content" {
+		t.Error("Expected 1 row returned and with correct data")
+	}
+
+	// Test unexpected amount of rows
+	db.Rows = &database.MockJournal_MultipleRows{}
+	journal = js.FindPrev(0)
+	if journal.ID > 0 {
+		t.Error("Expected no rows when query returns more than one result")
+	}
+}
+
 func TestJournals_Save(t *testing.T) {
 	db := &database.MockSqlite{Result: &database.MockResult{}}
 	db.Rows = &database.MockRowsEmpty{}
