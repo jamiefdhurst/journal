@@ -8,7 +8,11 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-ENV GIPHY_API_KEY ""
+ENV J_ARTICLES_PER_PAGE ""
+ENV J_DB_PATH ""
+ENV J_GIPHY_API_KEY ""
+ENV J_PORT ""
+ENV J_TITLE ""
 
 VOLUME /go/data
 EXPOSE 3000

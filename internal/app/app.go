@@ -55,14 +55,6 @@ func DefaultConfiguration() Configuration {
 
 // ApplyEnvConfiguration applys the env variables on top of existing config
 func ApplyEnvConfiguration(config *Configuration) {
-	port := os.Getenv("J_PORT")
-	if port != "" {
-		config.Port = port
-	}
-	title := os.Getenv("J_TITLE")
-	if title != "" {
-		config.Title = title
-	}
 	articles, _ := strconv.Atoi(os.Getenv("J_ARTICLES_PER_PAGE"))
 	if articles > 0 {
 		config.ArticlesPerPage = articles
@@ -70,5 +62,13 @@ func ApplyEnvConfiguration(config *Configuration) {
 	database := os.Getenv("J_DB_PATH")
 	if database != "" {
 		config.DatabasePath = database
+	}
+	port := os.Getenv("J_PORT")
+	if port != "" {
+		config.Port = port
+	}
+	title := os.Getenv("J_TITLE")
+	if title != "" {
+		config.Title = title
 	}
 }

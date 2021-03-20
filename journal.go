@@ -40,7 +40,7 @@ func main() {
 	}
 
 	// Create Giphy adapter
-	giphyAPIKey := os.Getenv("GIPHY_API_KEY")
+	giphyAPIKey := os.Getenv("J_GIPHY_API_KEY")
 	if giphyAPIKey != "" {
 		container.Giphy = &giphy.Client{APIKey: giphyAPIKey, Client: &json.Client{}}
 	}

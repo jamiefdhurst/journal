@@ -34,18 +34,18 @@ _Please note: you will need Docker installed on your local machine._
     docker run --rm -v ./data:/go/data -p 3000:3000 -it journal:latest
     ```
 
-## Options
-
-* `-port=3000` - Use to set the port to serve on for HTTP, defaults to 3000.
-
 ## Environment Variables
 
-* `GIPHY_API_KEY` - Set to a GIPHY API key to use, or ignore to disable GIPHY.
+* `J_ARTICLES_PER_PAGE` - Articles to display per page, default `20`
+* `J_DB_PATH` - Path to SQLite DB - default is `$GOPATH/data/journal.db`
+* `J_GIPHY_API_KEY` - Set to a GIPHY API key to use, or ignore to disable GIPHY
+* `J_PORT` - Port to expose over HTTP, default is `3000`
+* `J_TITLE` - Set the title of the Journal
 
 To use the API key within your Docker setup, include it as follows:
 
 ```bash
-docker run --rm -e GIPHY_API_KEY=... -v ./data:/go/data -p 3000:3000 -it journal:latest
+docker run --rm -e J_GIPHY_API_KEY=... -v ./data:/go/data -p 3000:3000 -it journal:latest
 ```
 
 ## Layout
