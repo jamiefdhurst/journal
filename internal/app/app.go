@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"os"
+	"strconv"
 
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 )
@@ -57,5 +58,13 @@ func ApplyEnvConfiguration(config *Configuration) {
 	port := os.Getenv("J_PORT")
 	if port != "" {
 		config.Port = port
+	}
+	title := os.Getenv("J_TITLE")
+	if title != "" {
+		config.Title = title
+	}
+	articles, _ := strconv.Atoi(os.Getenv("J_ARTICLES_PER_PAGE"))
+	if articles > 0 {
+		config.ArticlesPerPage = articles
 	}
 }
