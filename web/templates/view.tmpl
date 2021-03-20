@@ -13,7 +13,7 @@
     </div>
 </article>
 
-<p><a href="/" class="button button-outline">Back</a> <a href="/{{.Journal.Slug}}/edit" class="button">Edit</a></p>
+<p><a href="/" class="button button-outline">Back</a> {{if .Container.Configuration.EnableEdit}}<a href="/{{.Journal.Slug}}/edit" class="button">Edit</a>{{end}}</p>
 
 {{if or .Next.ID .Prev.ID}}
     <nav class="pagination">

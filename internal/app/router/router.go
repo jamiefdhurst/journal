@@ -11,7 +11,7 @@ import (
 func NewRouter(app *app.Container) *pkgrouter.Router {
 	rtr := pkgrouter.Router{}
 	rtr.Container = app
-	rtr.ErrorController = &web.Error{}
+	rtr.ErrorController = &web.BadRequest{}
 
 	rtr.Get("/new", &web.New{})
 	rtr.Post("/new", &web.New{})

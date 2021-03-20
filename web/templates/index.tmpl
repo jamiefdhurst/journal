@@ -4,8 +4,11 @@
     <div class="saved">Journal saved.</div>
 {{end}}
 
+{{if .Container.Configuration.EnableCreate}}
 <p class="float-right"><a class="button" href="/new">Create New Post</a></p>
+{{end}}
 
+{{$enableEdit := .Container.Configuration.EnableEdit}}
 {{range .Journals}}
     <article>
         <div class="date">
@@ -17,7 +20,7 @@
         <h2><a href="/{{.Slug}}">{{.Title}}</a></h2>
         <p>
             <a href="/{{.Slug}}" class="button">View</a>
-            <a href="/{{.Slug}}/edit" class="button button-outline">Edit</a>
+            {{if $enableEdit}}<a href="/{{.Slug}}/edit" class="button button-outline">Edit</a>{{end}}
         </p>
     </article>
 {{end}}

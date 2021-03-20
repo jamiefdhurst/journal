@@ -34,7 +34,6 @@ type Configuration struct {
 	ArticlesPerPage int
 	DatabasePath    string
 	EnableCreate    bool
-	EnableDelete    bool
 	EnableEdit      bool
 	Port            string
 	Title           string
@@ -46,7 +45,6 @@ func DefaultConfiguration() Configuration {
 		ArticlesPerPage: 20,
 		DatabasePath:    os.Getenv("GOPATH") + "/data/journal.db",
 		EnableCreate:    true,
-		EnableDelete:    true,
 		EnableEdit:      true,
 		Port:            "3000",
 		Title:           "Jamie's Journal",
@@ -62,6 +60,14 @@ func ApplyEnvConfiguration(config *Configuration) {
 	database := os.Getenv("J_DB_PATH")
 	if database != "" {
 		config.DatabasePath = database
+	}
+	enableCreate := os.Getenv("J_CREATE")
+	if enableCreate == "0" {
+		config.EnableCreate = false
+	}
+	enableEdit := os.Getenv("J_EDIT")
+	if enableEdit == "0" {
+		config.EnableEdit = false
 	}
 	port := os.Getenv("J_PORT")
 	if port != "" {

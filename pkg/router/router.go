@@ -86,6 +86,7 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 		}
 	}
 
+	r.ErrorController.Init(r.Container, []string{})
 	r.ErrorController.Run(response, request)
 }
 

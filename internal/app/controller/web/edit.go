@@ -18,13 +18,16 @@ type Edit struct {
 
 // Run Edit action
 func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
+	container := c.Super.Container.(*app.Container)
+	if !container.Configuration.EnableCreate {
+		RunBadRequest(response, request, c.Super.Container)
+	}
 
 	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
 	c.Journal = js.FindBySlug(c.Params[1])
 
 	if c.Journal.ID == 0 {
-		errorController := Error{}
-		errorController.Run(response, request)
+		RunBadRequest(response, request, c.Super.Container)
 	} else {
 
 		if request.Method == "GET" {

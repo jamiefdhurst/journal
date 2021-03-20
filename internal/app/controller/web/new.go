@@ -19,6 +19,11 @@ type New struct {
 
 // Run New action
 func (c *New) Run(response http.ResponseWriter, request *http.Request) {
+	container := c.Super.Container.(*app.Container)
+	if !container.Configuration.EnableCreate {
+		RunBadRequest(response, request, c.Super.Container)
+	}
+
 	if request.Method == "GET" {
 		query := request.URL.Query()
 		c.Error = false
@@ -39,7 +44,7 @@ func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
+		js := model.Journals{Container: container, Gs: model.GiphyAdapter(container)}
 		journal := model.Journal{ID: 0, Slug: model.Slugify(request.FormValue("title")), Title: request.FormValue("title"), Date: request.FormValue("date"), Content: request.FormValue("content")}
 		js.Save(journal)
 

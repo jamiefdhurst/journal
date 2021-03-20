@@ -37,7 +37,9 @@ _Please note: you will need Docker installed on your local machine._
 ## Environment Variables
 
 * `J_ARTICLES_PER_PAGE` - Articles to display per page, default `20`
+* `J_CREATE` - Set to `0` to disable article creation
 * `J_DB_PATH` - Path to SQLite DB - default is `$GOPATH/data/journal.db`
+* `J_EDIT` - Set to `0` to disable article modification
 * `J_GIPHY_API_KEY` - Set to a GIPHY API key to use, or ignore to disable GIPHY
 * `J_PORT` - Port to expose over HTTP, default is `3000`
 * `J_TITLE` - Set the title of the Journal

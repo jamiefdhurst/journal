@@ -16,8 +16,12 @@ type Update struct {
 
 // Run Update action
 func (c *Update) Run(response http.ResponseWriter, request *http.Request) {
+	container := c.Super.Container.(*app.Container)
+	if !container.Configuration.EnableEdit {
+		response.WriteHeader(http.StatusForbidden)
+	}
 
-	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
+	js := model.Journals{Container: container, Gs: model.GiphyAdapter(container)}
 	journal := js.FindBySlug(c.Params[1])
 
 	response.Header().Add("Content-Type", "application/json")

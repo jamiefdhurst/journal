@@ -20,7 +20,7 @@ func main() {
 
 	// Set CWD
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
-	fmt.Printf("Journal v%s...\n-------------------\n\n", version)
+	fmt.Printf("Journal v%s\n-------------------\n\n", version)
 
 	// Define default configuration
 	configuration := app.DefaultConfiguration()
@@ -34,14 +34,16 @@ func main() {
 
 	// Open database
 	db := &database.Sqlite{}
+	log.Printf("Loading DB from %s...\n", configuration.DatabasePath)
 	if err := db.Connect(configuration.DatabasePath); err != nil {
-		log.Println("Database error - please verify that the $GOPATH/data folder is available.")
+		log.Printf("Database error - please verify that the %s path is available and writable.\n", configuration.DatabasePath)
 		os.Exit(1)
 	}
 
 	// Create Giphy adapter
 	giphyAPIKey := os.Getenv("J_GIPHY_API_KEY")
 	if giphyAPIKey != "" {
+		log.Println("Enabling GIPHY client...")
 		container.Giphy = &giphy.Client{APIKey: giphyAPIKey, Client: &json.Client{}}
 	}
 
@@ -56,7 +58,14 @@ func main() {
 	router := router.NewRouter(container)
 	server := &http.Server{Addr: ":" + configuration.Port, Handler: router}
 
-	log.Printf("Listening on port %s\n", configuration.Port)
+	if !configuration.EnableCreate {
+		log.Println("Article creating is disabled...")
+	}
+	if !configuration.EnableEdit {
+		log.Println("Article editing is disabled...")
+	}
+
+	log.Printf("Ready and listening on port %s...\n", configuration.Port)
 	err = router.StartAndServe(server)
 
 	// Close cleanly
