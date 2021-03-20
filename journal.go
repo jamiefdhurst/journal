@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -19,26 +18,22 @@ import (
 func main() {
 	const version = "0.3.0"
 
-	// Command line flags
-	var (
-		serverPort = flag.String("port", "3000", "Port to run web server on")
-	)
-	flag.Parse()
-
 	// Set CWD
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 	fmt.Printf("Journal v%s...\n-------------------\n\n", version)
 
+	// Define default configuration
+	configuration := app.DefaultConfiguration()
+
 	// Create/define container
 	container := &app.Container{
-		ArticlesPerPage: 20,
-		Title:           "Jamie's Journal",
-		Version:         version,
+		Configuration: configuration,
+		Version:       version,
 	}
 
 	// Open database
 	db := &database.Sqlite{}
-	if err := db.Connect(os.Getenv("GOPATH") + "/data/journal.db"); err != nil {
+	if err := db.Connect(configuration.DatabasePath); err != nil {
 		log.Println("Database error - please verify that the $GOPATH/data folder is available.")
 		os.Exit(1)
 	}
@@ -58,9 +53,9 @@ func main() {
 	}
 
 	router := router.NewRouter(container)
-	server := &http.Server{Addr: ":" + *serverPort, Handler: router}
+	server := &http.Server{Addr: ":" + configuration.Port, Handler: router}
 
-	log.Printf("Listening on port %s\n", *serverPort)
+	log.Printf("Listening on port %s\n", configuration.Port)
 	err = router.StartAndServe(server)
 
 	// Close cleanly

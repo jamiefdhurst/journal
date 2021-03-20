@@ -13,7 +13,9 @@ import (
 
 func TestIndex_Run(t *testing.T) {
 	db := &database.MockSqlite{}
-	container := &app.Container{ArticlesPerPage: 2, Db: db}
+	configuration := app.DefaultConfiguration()
+	configuration.ArticlesPerPage = 2
+	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Index{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")

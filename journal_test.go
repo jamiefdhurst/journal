@@ -31,7 +31,7 @@ func init() {
 }
 
 func fixtures(t *testing.T) {
-	container := &app.Container{}
+	container := &app.Container{Configuration: app.DefaultConfiguration()}
 	adapter := giphy.Client{Client: &json.Client{}}
 	db := &database.Sqlite{}
 	if err := db.Connect("test/data/test.db"); err != nil {

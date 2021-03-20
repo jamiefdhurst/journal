@@ -26,7 +26,7 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 	container := c.Super.Container.(*app.Container)
 	js := model.Journals{Container: container, Gs: model.GiphyAdapter(container)}
 
-	pagination := database.PaginationQuery{Page: 1, ResultsPerPage: container.ArticlesPerPage}
+	pagination := database.PaginationQuery{Page: 1, ResultsPerPage: container.Configuration.ArticlesPerPage}
 	query := request.URL.Query()
 	if query["page"] != nil {
 		page, err := strconv.Atoi(query["page"][0])
