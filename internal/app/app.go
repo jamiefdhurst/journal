@@ -67,4 +67,8 @@ func ApplyEnvConfiguration(config *Configuration) {
 	if articles > 0 {
 		config.ArticlesPerPage = articles
 	}
+	database := os.Getenv("J_DB_PATH")
+	if database != "" {
+		config.DatabasePath = database
+	}
 }
