@@ -15,15 +15,26 @@ func TestCreate_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	db.Result = &database.MockResult{}
 	db.Rows = &database.MockRowsEmpty{}
-	container := &app.Container{Db: db}
+	container := &app.Container{Configuration: app.DefaultConfiguration(), Db: db}
 	response := controller.NewMockResponse()
 	response.Reset()
 	controller := &Create{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
+	// Test forbidden
+	controller.Init(container, []string{"", "0"})
+	container.Configuration.EnableCreate = false
+	request, _ := http.NewRequest("POST", "/new", strings.NewReader("{\"not\":\"valid\":\"json\"}"))
+	request.Header.Add("Content-Type", "application/json")
+	controller.Run(response, request)
+	if response.StatusCode != 403 {
+		t.Error("Expected 403 error when creation is disabled")
+	}
+
 	// Test invalid JSON
 	controller.Init(container, []string{"", "0"})
-	request, _ := http.NewRequest("POST", "/new", strings.NewReader("{\"not\":\"valid\":\"json\"}"))
+	container.Configuration.EnableCreate = true
+	request, _ = http.NewRequest("POST", "/new", strings.NewReader("{\"not\":\"valid\":\"json\"}"))
 	request.Header.Add("Content-Type", "application/json")
 	controller.Run(response, request)
 	if response.StatusCode != 400 {

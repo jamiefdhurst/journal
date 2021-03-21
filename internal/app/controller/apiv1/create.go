@@ -19,6 +19,7 @@ func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
 	container := c.Super.Container.(*app.Container)
 	if !container.Configuration.EnableCreate {
 		response.WriteHeader(http.StatusForbidden)
+		return
 	}
 
 	decoder := json.NewDecoder(request.Body)

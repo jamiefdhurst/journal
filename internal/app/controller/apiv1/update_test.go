@@ -19,10 +19,21 @@ func TestUpdate_Run(t *testing.T) {
 	controller := &Update{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
+	// Test forbidden
+	controller.Init(container, []string{"", "0"})
+	container.Configuration.EnableEdit = false
+	request, _ := http.NewRequest("POST", "/slug/edit", strings.NewReader("{\"not\":\"valid\":\"json\"}"))
+	request.Header.Add("Content-Type", "application/json")
+	controller.Run(response, request)
+	if response.StatusCode != 403 {
+		t.Error("Expected 403 error when creation is disabled")
+	}
+
 	// Test not found/error with GET/POST
 	controller.Init(container, []string{"", "0"})
+	container.Configuration.EnableEdit = true
 	db.Rows = &database.MockRowsEmpty{}
-	request := &http.Request{Method: "POST"}
+	request = &http.Request{Method: "POST"}
 	controller.Run(response, request)
 	if response.StatusCode != 404 {
 		t.Error("Expected 404 error when journal not found")
