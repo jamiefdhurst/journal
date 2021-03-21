@@ -1,30 +1,29 @@
 {{define "content"}}
 <article class="view">
-    <div class="date">
-        <span class="weekday">{{.Journal.GetDayOfWeek}}</span>
-        <span class="day">{{.Journal.GetDay}}</span>
-        <span class="month">{{.Journal.GetMonth}}</span>
-        <span class="year">{{.Journal.GetYear}}</span>
-    </div>
     <h2>{{.Journal.Title}}</h2>
-    <div class="clearfix"></div>
+    <h3>
+        Posted on {{.Journal.GetDate}}
+        {{if .Container.Configuration.EnableEdit}}<p class="float-right"><a href="/{{.Journal.Slug}}/edit" class="button button-outline">Edit</a></p>{{end}}
+    </h3>
     <div class="content">
         {{.Journal.Content}}
     </div>
 </article>
 
-<p><a href="/" class="button button-outline">Back</a> {{if .Container.Configuration.EnableEdit}}<a href="/{{.Journal.Slug}}/edit" class="button">Edit</a>{{end}}</p>
-
 {{if or .Next.ID .Prev.ID}}
-    <nav class="pagination">
-        <ol>
-            {{if .Prev.ID}}
-                <li><a href="/{{.Prev.Slug}}">Previous</a></li>
-            {{end}}
-            {{if .Next.ID}}
-                <li><a href="/{{.Next.Slug}}">Next</a></li>
-            {{end}}
-        </ol>
+    <nav class="prev-next">
+        {{if .Prev.ID}}
+            <div class="prev">
+                <span>Previous</span>
+                <a href="/{{.Prev.Slug}}">{{.Prev.Title}}</a>
+            </div>
+        {{end}}
+        {{if .Next.ID}}
+            <div class="next">
+                <span>Next</span>
+                <a href="/{{.Next.Slug}}">{{.Next.Title}}</a>
+            </div>
+        {{end}}
     </nav>
 {{end}}
 {{end}}

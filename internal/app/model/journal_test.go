@@ -8,99 +8,15 @@ import (
 	"github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
-func TestJournal_GetDay(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"2018-05-10", "10"},
-		{"2018-05-02", "2"},
-		{"200-00-00", ""},
-		{"", ""},
-		{"0000-00-00", ""},
-	}
-
-	for _, table := range tables {
-		j := Journal{Date: table.input}
-		actual := j.GetDay()
-		if actual != table.output {
-			t.Errorf("Expected GetDay() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
-}
-
-func TestJournal_GetDayOfWeek(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"2018-05-10", "Thu"},
-		{"2018-05-02", "Wed"},
-		{"200-00-00", ""},
-		{"", ""},
-		{"0000-00-00", ""},
-	}
-
-	for _, table := range tables {
-		j := Journal{Date: table.input}
-		actual := j.GetDayOfWeek()
-		if actual != table.output {
-			t.Errorf("Expected GetDayOfWeek() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
-}
-
-func TestJournal_GetMonth(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"2018-05-10", "May"},
-		{"2018-09-01", "Sep"},
-		{"200-00-00", ""},
-		{"", ""},
-		{"0000-00-00", ""},
-	}
-
-	for _, table := range tables {
-		j := Journal{Date: table.input}
-		actual := j.GetMonth()
-		if actual != table.output {
-			t.Errorf("Expected GetMonth() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
-}
-
-func TestJournal_GetYear(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"2018-05-10", "2018"},
-		{"2021-09-01", "2021"},
-		{"200-00-00", ""},
-		{"", ""},
-		{"0000-00-00", ""},
-	}
-
-	for _, table := range tables {
-		j := Journal{Date: table.input}
-		actual := j.GetYear()
-		if actual != table.output {
-			t.Errorf("Expected GetYear() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
-}
-
 func TestJournal_GetDate(t *testing.T) {
 	tables := []struct {
 		input  string
 		output string
 	}{
-		{"2018-05-10", "10/05/2018"},
+		{"2018-05-10", "Thursday May 10, 2018"},
 		{"200-00-00", ""},
 		{"", ""},
-		{"0000-00-00", "00/00/0000"},
+		{"0000-00-00", ""},
 	}
 
 	for _, table := range tables {
@@ -129,6 +45,27 @@ func TestJournal_GetEditableDate(t *testing.T) {
 		actual := j.GetEditableDate()
 		if actual != table.output {
 			t.Errorf("Expected GetEditableDate() to produce result of '%s', got '%s'", table.output, actual)
+		}
+	}
+}
+
+func TestJournal_GetExcerpt(t *testing.T) {
+	tables := []struct {
+		input  string
+		output string
+	}{
+		{"<p>Some simple text</p>", "Some simple text"},
+		{"<p>Multiple</p><p>paragraphs, some with</p><p>multiple words</p>", "Multiple paragraphs, some with multiple words"},
+		{"", ""},
+		{"<p></p><p></p>", " "},
+		{"<p>a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z</p>", "a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x..."},
+	}
+
+	for _, table := range tables {
+		j := Journal{Content: table.input}
+		actual := j.GetExcerpt()
+		if actual != table.output {
+			t.Errorf("Expected GetExcerpt() to produce result of '%s', got '%s'", table.output, actual)
 		}
 	}
 }

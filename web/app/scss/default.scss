@@ -1,11 +1,24 @@
+@import "https://fonts.googleapis.com/css?family=Roboto%3A300%2C400%2C400i%2C700%2C900%7CRoboto%3A100%2C100italic%2C300%2C300italic%2Cregular%2Citalic%2C500%2C500italic%2C700%2C700italic%2C900%2C900italic&subset=cyrillic";
 @import "../node_modules/normalize.css/normalize";
-@import "../node_modules/milligram/dist/milligram.min";
 @import "../node_modules/bourbon/core/bourbon";
 @import "../node_modules/medium-editor/dist/css/medium-editor";
 @import "variables";
 
+html, body {
+    height: 100%;
+    margin: 0;
+    min-height: 100%;
+    padding: 0;
+}
+
+html {
+    line-height: 1.15;
+}
+
 body {
     color: $textColour;
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
 }
 
 h1, h2, h3, h4 {
@@ -14,140 +27,160 @@ h1, h2, h3, h4 {
 
 a, a:link, a:visited, a:active {
     color: $linkColour;
-    font-weight: bold;
     text-decoration: none;
 }
 
 a:hover {
     color: $linkColour;
-    text-decoration: underline;
 }
 
 header[role=banner] {
-    background: $headingBgColour;
-    border-radius: 10px;
-    margin: 1rem 0;
-    padding: 1rem 1.5rem;
+    margin: 0 auto;
+    max-width: 1240px;
+    padding: 1em 0;
+    width: 90%;
+
+    p {
+        margin: 0;
+        padding-top: .5em;
+    }
 }
 
-footer {
-    border-top: 1px solid $borderColour;
-    font-size: 1.25rem;
-    text-align: center;
+main {
+    margin: 0 auto;
+    max-width: 1240px;
+    padding: 1em 0;
+    width: 90%;
+}
+
+footer[role=contentinfo] {
+    color: $footerColour;
+    font-size: .9em;
+    font-weight: 400;
+    margin: 0 auto;
+    max-width: 1240px;
+    padding: 2em 0;
+    width: 90%;
 }
 
 h1 {
+    display: inline-block;
+    font-size: .9em;
+    font-weight: 400;
     margin: 0;
-    text-align: center;
+    padding: 1em 0;
+    vertical-align: top;
+}
+
+.float-right {
+    float: right;
 }
 
 article {
-    border-bottom: 1px solid $borderColour;
+    margin-bottom: 7em;
     padding: 1rem 0;
 
     h2 {
-        margin-bottom: 0;
+        font-size: 2em;
+        font-weight: 900;
+        margin: 0 auto;
+        max-width: 700px;
+        padding: 1em 0 .75em;
 
         a, a:link, a:visited, a:active {
-            font-weight: normal;
+            font-weight: 900;
         }
     }
 
-    p:last-child {
-        margin-bottom: 0;
+    h3 {
+        color: $footerColour;
+        font-size: .9em;
+        font-weight: 400;
+        margin: 0 auto;
+        max-width: 700px;
+        padding: 0 0 1em;
     }
 
-    .date {
-        margin-top: .5rem;
+    .summary, .content {
+        margin: 0 auto;
+        max-width: 700px;
+
+        &.content {
+            margin-top: 2.5em;
+        }
+
+        p {
+            line-height: 1.75;
+            margin: 0 0 1.5em;
+        }
+
+        a, a:link, a:visited, a:active, a:hover {
+            box-shadow: inset 0 -2px 0 currentColor;
+            transition: .3s;
+        }
+
+        a:hover {
+            box-shadow: none;
+        }
     }
 
-    &.view {
-        border-bottom: none;
-
-        .date {
-            margin-top: 0;
-        }
-
-        h2 {
-            font-weight: 400;
-            margin-top: 3.5rem;
-        }
-
-        .content {
-            margin-bottom: 3rem;
-            margin-left: 6rem;
-        }
+    .float-right {
+        margin: 0;
     }
 }
 
-.date {
-    background: $dateBgColour;
-    border-radius: 5px;
-    color: #fff;
-    float: left;
-    font-size: 0;
-    margin-right: 1rem;
-    text-align: center;
-    width: 5rem;
-
-    > * {
-        display: block;
-        margin-top: 0;
-    }
-
-    .weekday {
-        font-size: 1.5rem;
-        line-height: 1.75rem;
-    }
-
-    .day {
-        font-size: 2.75rem;
-        font-weight: bold;
-        line-height: 2.75rem;
-    }
-
-    .month {
-        font-size: 1.5rem;
-        font-weight: bold;
-        line-height: 1.75rem;
-    }
-
-    .year {
-        font-size: 1.25rem;
-        font-style: italic;
-        line-height: 1.5rem;
-    }
+.saved, .error {
+    margin: 1rem auto;
+    max-width: 700px;
+    padding: 1rem;
 }
 
 .saved {
     background-color: #cfc;
-    border: 1px solid #090;
-    border-radius: 5px;
+    border-bottom: 2px solid #090;
     color: #060;
-    margin: 1rem 0;
-    padding: 1rem 1.5rem;
 }
 
 .error {
     background-color: #fcc;
-    border: 1px solid #f00;
-    border-radius: .4rem;
+    border-bottom: 2px solid #f00;
     color: #c00;
-    margin: 1rem 0;
-    padding: 1rem 1.5rem;
 }
 
 .button, button {
-    background-color: $linkColour;
-    border-color: $linkColour;
+    background-color: $buttonColour;
+    border: 1px solid $buttonColour;
+    border-radius: 2px;
+    box-shadow: none;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 16px;
+    padding: 0.75em 2em;
+    text-decoration: none;
+    text-shadow: none;
+    transition: .2s;
 
     &:link, &:visited, &:active, &:hover {
         color: #fff;
     }
 
+    &:hover {
+        background-color: $buttonHoverColour;
+        border-color: $buttonHoverColour;
+    }
+
     &.button-outline {
+        background-color: #fff;
+        border: 1px solid $buttonColour;
+        color: $linkColour;
+
         &:link, &:visited, &:active, &:hover {
             color: $linkColour;
+        }
+
+        &:hover {
+            background-color: $buttonLightColour;
         }
     }
 
@@ -166,25 +199,73 @@ article {
     }
 
     li {
-        border-radius: .4rem;
         display: inline-block;
-        padding: 0 1rem;
+
+        a:link, a:visited, a:active, a:hover {
+            background-color: $buttonLightColour;
+            border-radius: 3px;
+            color: $linkColour;
+            font-weight: 300;
+            padding: 6px 12px;
+            transition: .3s;
+        }
+
+        a:hover {
+            background-color: #fff;
+        }
 
         &.current {
-            background-color: $linkColour;
-            
             a:link, a:visited, a:active, a:hover {
+                background-color: $buttonColour;
                 color: #fff;
+            }
+
+            a:hover {
+                background-color: $buttonColour;
             }
         }
     }
 }
 
+.prev-next {
+    border-top: 2px solid $borderColour;
+    padding: 10px 0;
+    display: flex;
+    line-height: 1.5;
+    margin: 2em auto;
+    max-width: 700px;
+
+    > div {
+        display: inline-block;
+        width: 50%;
+
+        &.next {
+            text-align: right;
+        }
+    }
+
+    span {
+        color: $footerColour;
+        display: block;
+        font-size: 14px;
+    }
+}
+
+.form-title {
+    margin: 0 auto 1em;
+    max-width: 700px;
+}
+
+form {
+    margin: 0 auto;
+    max-width: 700px;
+}
+
 .medium-editor-toolbar-form {
     background-color: #fff;
     border: 1px solid $linkColour;
-    border-radius: .4rem;
-    padding: .625rem 1rem;
+    border-radius: 3px;
+    padding: 0.25em;
 }
 
 fieldset {
@@ -193,14 +274,40 @@ fieldset {
     padding: 0;
 
     > div {
-        margin: 0 0 1rem;
+        margin: 0 0 1em;
+    }
+
+    label {
+        color: $formColour;
+        display: block;
+        margin-bottom: .5em;
+    }
+
+    input[type=text], input[type=date], textarea {
+        background: #fff;
+        border: 1px solid $buttonLightColour;
+        border-radius: 3px;
+        box-sizing: border-box;
+        color: $formColour;
+        font-family: 'Roboto', sans-serif;
+        font-size: 16px;
+        font-weight: normal;
+        display: block;
+        line-height: 1.66;
+        padding: 0.7em;
+        transition: .3s;
+        width: 100%;
     }
 
     textarea, [data-medium-editor-element] {
-        border: 0.1rem solid #d1d1d1;
-        border-radius: .4rem;
+        border: 1px solid $buttonLightColour;
+        border-radius: 3px;
+        font-size: 16px;
+        font-weight: normal;
+        line-height: 1.66;
         min-height: 10rem;
         padding: .6rem 1rem .7rem;
+        transition: .3s;
 
         p:first-child {
             margin-top: 0;
@@ -211,7 +318,12 @@ fieldset {
         }
     }
 
-    input[type=text]:focus, textarea:focus {
-        border-color: $linkColour;
+    input[type=text]:focus, input[type=date]:focus, textarea:focus {
+        border-color: $formColour;
+        outline: none;
+    }
+
+    p {
+        margin: 2em 0;
     }
 }

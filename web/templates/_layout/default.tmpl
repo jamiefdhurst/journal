@@ -9,29 +9,18 @@
     <link rel="stylesheet" type="text/css" href="/css/default.min.css" />
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="column">
-                <header role="banner">
-                    <h1>{{.Container.Configuration.Title}}</h1>
-                </header>
-            </div>
+    <header role="banner">
+        <h1><a href="/">{{.Container.Configuration.Title}}</a></h1>
+        {{if .Container.Configuration.EnableCreate}}
+            <p class="float-right"><a class="button" href="/new">Create New Post</a></p>
+        {{end}}
+    </header>
+    <main role="main">
+        <div id="content">
+            {{template "content" .}}
         </div>
-
-        <div class="row">
-            <div class="column">
-                {{template "content" .}}
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                <footer>Journal v{{.Container.Version}}</footer>
-            </div>
-        </div>
-
-    </div>
-
+    </main>
+    <footer role="contentinfo">Journal v{{.Container.Version}}</footer>
     <script src="/js/default.min.js"></script>
 </body>
 </html>

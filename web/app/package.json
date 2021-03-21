@@ -27,7 +27,6 @@
     "gulp-sass": "^4.1.0",
     "gulp-uglify": "^3.0.2",
     "medium-editor": "^5.23.3",
-    "milligram": "^1.4.1",
     "normalize.css": "^8.0.1",
     "webpack": "^5.24.3",
     "webpack-stream": "^6.1.2"

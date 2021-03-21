@@ -29,66 +29,31 @@ type Journal struct {
 func (j Journal) GetDate() string {
 	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
 	date := re.FindString(j.Date)
-	dateArr := strings.Split(date, "-")
-	if len(dateArr) != 3 {
-		return ""
-	}
-	for i := 0; i < len(dateArr)/2; i++ {
-		k := len(dateArr) - i - 1
-		dateArr[i], dateArr[k] = dateArr[k], dateArr[i]
-	}
-
-	return strings.Join(dateArr, "/")
-}
-
-// GetDay returns the day of the journal's date
-func (j Journal) GetDay() string {
-	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
-	date := re.FindString(j.Date)
 	timeObj, err := time.Parse("2006-01-02", date)
 	if err != nil {
 		return ""
 	}
-	return timeObj.Format("2")
-}
-
-// GetDayOfWeek returns the weekday of the journal's date (e.g. Mon)
-func (j Journal) GetDayOfWeek() string {
-	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
-	date := re.FindString(j.Date)
-	timeObj, err := time.Parse("2006-01-02", date)
-	if err != nil {
-		return ""
-	}
-	return timeObj.Format("Mon")
-}
-
-// GetMonth returns the month of the journal's date
-func (j Journal) GetMonth() string {
-	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
-	date := re.FindString(j.Date)
-	timeObj, err := time.Parse("2006-01-02", date)
-	if err != nil {
-		return ""
-	}
-	return timeObj.Format("Jan")
-}
-
-// GetYear returns the year of the journal's date
-func (j Journal) GetYear() string {
-	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
-	date := re.FindString(j.Date)
-	timeObj, err := time.Parse("2006-01-02", date)
-	if err != nil {
-		return ""
-	}
-	return timeObj.Format("2006")
+	return timeObj.Format("Monday January 2, 2006")
 }
 
 // GetEditableDate Get the date string for editing
 func (j Journal) GetEditableDate() string {
 	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
 	return re.FindString(j.Date)
+}
+
+// GetExcerpt returns a small extract of the entry
+func (j Journal) GetExcerpt() string {
+	strip := regexp.MustCompile("\b+")
+	text := strings.ReplaceAll(j.Content, "<p>", "")
+	text = strings.ReplaceAll(text, "</p>", " ")
+	text = strip.ReplaceAllString(text, " ")
+	words := strings.Split(text, " ")
+
+	if len(words) > 50 {
+		return strings.Join(words[:50], " ") + "..."
+	}
+	return strings.TrimSuffix(strings.Join(words, " "), " ")
 }
 
 // Journals Common database resource link for Journal actions

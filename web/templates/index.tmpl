@@ -4,24 +4,18 @@
     <div class="saved">Journal saved.</div>
 {{end}}
 
-{{if .Container.Configuration.EnableCreate}}
-<p class="float-right"><a class="button" href="/new">Create New Post</a></p>
-{{end}}
-
 {{$enableEdit := .Container.Configuration.EnableEdit}}
 {{range .Journals}}
     <article>
-        <div class="date">
-            <span class="weekday">{{.GetDayOfWeek}}</span>
-            <span class="day">{{.GetDay}}</span>
-            <span class="month">{{.GetMonth}}</span>
-            <span class="year">{{.GetYear}}</span>
-        </div>
         <h2><a href="/{{.Slug}}">{{.Title}}</a></h2>
-        <p>
-            <a href="/{{.Slug}}" class="button">View</a>
-            {{if $enableEdit}}<a href="/{{.Slug}}/edit" class="button button-outline">Edit</a>{{end}}
-        </p>
+        <h3>
+            Posted on {{.GetDate}}
+            {{if $enableEdit}}<p class="float-right"><a href="/{{.Slug}}/edit" class="button button-outline">Edit</a></p>{{end}}
+        </h3>
+        <div class="summary">
+            <p>{{.GetExcerpt}}</p>
+            <p><a href="/{{.Slug}}">Read More</a></p>
+        </div>
     </article>
 {{end}}
 
