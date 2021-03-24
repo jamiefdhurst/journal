@@ -11,6 +11,16 @@ It makes use of a SQLite database to store the journal entries.
 
 [API Documentation](api/README.md)
 
+## Purpose
+
+Journal serves as an easy-to-read and simple Golang program for new developers 
+to try their hand at modifying, extending and playing with. It deliberately has 
+only one dependency to ensure that the full end-to-end flow of the system can 
+be udnerstood through standard Golang libraries.
+
+It's also a nice little Journal that you can use to keep your thoughts in, or 
+as a basic blog platform.
+
 ## Installation and Setup (local method)
 
 1. Clone the repository to `$GOPATH/src/github.com/jamiefdhurst/journal`.
