@@ -21,6 +21,7 @@ _testmain.go
 
 *.exe
 *.test
+!Dockerfile.test
 *.prof
 data
 node_modules
