@@ -10,7 +10,7 @@ node {
         sh "docker build -t $CONTAINER_NAME -f Dockerfile.test ."
     }
 
-    stage('Test - latest') {
+    stage('Test') {
         sh """
         docker run --name $CONTAINER_NAME $CONTAINER_NAME make test > journal-test.xml
         docker cp $CONTAINER_NAME:/go/src/github.com/jamiefdhurst/journal/coverage.xml journal-coverage.xml
