@@ -7,10 +7,17 @@ node {
     }
 
     stage('Build') {
-        sh "docker build -t $CONTAINER_NAME ."
+        sh "docker build -t $CONTAINER_NAME -f Dockerfile.test ."
     }
 
-    stage('Test') {
-        sh "docker run --rm $CONTAINER_NAME go test ./..."
+    stage('Test - Latest Go') {
+        sh """
+        docker run --name $CONTAINER_NAME $CONTAINER_NAME make test > journal-test.xml
+        docker cp $CONTAINER_NAME:/go/src/github.com/jamiefdhurst/journal/coverage.xml journal-coverage.xml
+        docker stop $CONTAINER_NAME
+        docker rm $CONTAINER_NAME
+        """
+        junit 'journal-test.xml'
+        step([$class: 'CoberturaPublisher', coberturaReportFile: 'journal-coverage.xml'])
     }
 }
