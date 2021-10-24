@@ -1,6 +1,6 @@
 FROM golang:latest
 
-RUN apt-get update -y && apt-get install -y sqlite
+RUN apt-get update -y && apt-get install -y sqlite3
 
 WORKDIR /go/src/github.com/jamiefdhurst/journal
 COPY . .
