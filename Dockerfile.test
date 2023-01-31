@@ -7,8 +7,8 @@ COPY . .
 
 RUN go get -d -v ./...
 RUN go install -v ./...
-RUN go get github.com/tebeka/go2xunit
-RUN go get github.com/t-yuki/gocover-cobertura
+RUN go install github.com/tebeka/go2xunit@latest
+RUN go install github.com/t-yuki/gocover-cobertura@latest
 
 ENV J_ARTICLES_PER_PAGE ""
 ENV J_DB_PATH ""
