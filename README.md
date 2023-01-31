@@ -102,7 +102,7 @@ the binary itself.
 
 The application currently only has one dependency:
 
-* [https://github.com/mattn/go-sqlite3](github.com/mattn/go-sqlite3)
+* [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3)
 
 This can be installed using the following commands from the journal folder:
 
