@@ -5,7 +5,7 @@ repository:
   topics: golang, unit-testing, rest-api, sqlite
   private: false
   has_issues: true
-  has_projects: true
+  has_projects: false
   has_wiki: false
   has_downloads: true
   default_branch: main
@@ -52,6 +52,9 @@ labels:
 milestones:
   - title: Core Feature Improvements
     description: Improve some of the core features of the Journal system for now.
+    state: open
+  - title: Re-brand
+    description: Re-brand the application and make it more accessible for others to try
     state: open
 branches:
   - name: main
