@@ -1,11 +1,11 @@
 const gulp = require('gulp');
 const plugins = require('gulp-load-plugins')();
-const webpack = require('webpack');
+const sass = require('gulp-sass')(require('node-sass'));
 const webpackStream = require('webpack-stream');
 
 gulp.task('sass', function () {
     return gulp.src('./scss/default.scss')
-        .pipe(plugins.sass({outputStyle: 'compressed'}).on('error', plugins.sass.logError))
+        .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
         .pipe(plugins.rename('default.min.css'))
         .pipe(gulp.dest('./../static/css'));
 });
