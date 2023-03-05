@@ -7,6 +7,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                scmSkip(deleteBuild: true, skipPattern: '^Skip CI.*')
                 sh "docker build -t $CONTAINER_NAME -f Dockerfile.test ."
             }
         }
@@ -21,6 +22,27 @@ pipeline {
                 step([$class: 'CoberturaPublisher', coberturaReportFile: 'journal-coverage.xml'])
             }
         }
+
+        stage('Package and Release') {
+            when {
+                branch 'main'
+            }
+            steps {
+                build job: '/github/journal-folder/release', wait: true
+            }
+        }
+
+        // stage('Deploy') {
+        //     when {
+        //         branch 'main'
+        //     }
+        //     steps {
+        //         library identifier: 'jenkins@main'
+        //         build job: '/github/journal-folder/deploy', wait: true, parameters: [
+        //             string(name: 'targetVersion', value: getVersion(repo: 'jamiefdhurst/journal').full)
+        //         ]
+        //     }
+        // }
     }
 
     post {
