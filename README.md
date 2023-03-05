@@ -16,19 +16,18 @@ It makes use of a SQLite database to store the journal entries.
 Journal serves as an easy-to-read and simple Golang program for new developers 
 to try their hand at modifying, extending and playing with. It deliberately has 
 only one dependency to ensure that the full end-to-end flow of the system can 
-be udnerstood through standard Golang libraries.
+be understood through standard Golang libraries.
 
 It's also a nice little Journal that you can use to keep your thoughts in, or 
 as a basic blog platform.
 
 ## Installation and Setup (local method)
 
-1. Clone the repository to `$GOPATH/src/github.com/jamiefdhurst/journal`.
+1. Clone the repository.
 2. Make sure the `$GOPATH/data` directory exists.
-3. Change directory to `$GOPATH/src/github.com/jamiefdhurst/journal`.
-4. Run `go get` to install dependencies
-5. Run `go build journal` to create the executable.
-6. Run `./journal` to load the application on port 3000. You should now be able
+3. Run `go get ./...` to install dependencies
+4. Run `go build journal.go` to create the executable.
+5. Run `./journal` to load the application on port 3000. You should now be able
     to fully access it at [http://localhost:3000](http://localhost:3000)
 
 ## Installation and Setup (Docker method)
@@ -107,7 +106,7 @@ The application currently only has one dependency:
 This can be installed using the following commands from the journal folder:
 
 ```bash
-go get -d -v ./...
+go get -v ./...
 go install -v ./...
 ```
 
