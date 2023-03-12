@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.20
 
 RUN apt-get update -y && apt-get install -y sqlite3
 
