@@ -28,7 +28,6 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh "docker build -t $CONTAINER_NAME -f Dockerfile ."
                 build job: '/github/journal-folder/release', wait: true
             }
         }
