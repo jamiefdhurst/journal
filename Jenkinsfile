@@ -7,7 +7,6 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                scmSkip(deleteBuild: false, skipPattern: '^Skip CI.*')
                 sh "docker build -t $CONTAINER_NAME-test -f Dockerfile.test ."
             }
         }
