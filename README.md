@@ -1,7 +1,7 @@
 # Journal
 
 ![License](https://img.shields.io/github/license/jamiefdhurst/journal.svg)
-[![Build Status](https://ci.jamiehurst.co.uk/buildStatus/icon?job=github%2Fjournal%2Fmaster)](https://ci.jamiehurst.co.uk/job/github/job/journal/job/master/)
+[![Build Status](https://ci.jamiehurst.co.uk/job/github/job/journal-folder/job/build/job/main/badge/icon)](https://ci.jamiehurst.co.uk/job/github/job/journal-folder/job/build/job/main/)
 [![Latest Version](https://img.shields.io/github/release/jamiefdhurst/journal.svg)](https://github.com/jamiefdhurst/journal/releases)
 
 A simple web-based journal written in Go. You can post, edit and view entries,
