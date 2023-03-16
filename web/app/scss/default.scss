@@ -61,6 +61,10 @@ footer[role=contentinfo] {
     max-width: 1240px;
     padding: 2em 0;
     width: 90%;
+
+    .github {
+        float: right;
+    }
 }
 
 h1 {
