@@ -76,18 +76,20 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 	}
 
 	// Go through each route and attempt to match
+	var matchedController controller.Controller = r.ErrorController
+	var matchedParams []string = []string{}
 	for _, route := range r.Routes {
 		matched, _ := regexp.MatchString(route.regexURI, request.URL.Path)
 		if matched && (request.Method == route.method || (request.Method == "" && route.method == "GET")) {
 			re := regexp.MustCompile(route.regexURI)
-			route.controller.Init(r.Container, re.FindStringSubmatch(request.URL.Path))
-			route.controller.Run(response, request)
-			return
+			matchedParams = re.FindStringSubmatch(request.URL.Path)
+			matchedController = route.controller
+			break
 		}
 	}
 
-	r.ErrorController.Init(r.Container, []string{})
-	r.ErrorController.Run(response, request)
+	matchedController.Init(r.Container, matchedParams, request)
+	matchedController.Run(response, request)
 }
 
 // StartAndServe Start the HTTP server and listen for connections

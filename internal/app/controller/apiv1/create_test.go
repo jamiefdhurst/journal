@@ -22,29 +22,29 @@ func TestCreate_Run(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test forbidden
-	controller.Init(container, []string{"", "0"})
 	container.Configuration.EnableCreate = false
 	request, _ := http.NewRequest("POST", "/new", strings.NewReader("{\"not\":\"valid\":\"json\"}"))
 	request.Header.Add("Content-Type", "application/json")
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if response.StatusCode != 403 {
 		t.Error("Expected 403 error when creation is disabled")
 	}
 
 	// Test invalid JSON
-	controller.Init(container, []string{"", "0"})
 	container.Configuration.EnableCreate = true
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("{\"not\":\"valid\":\"json\"}"))
 	request.Header.Add("Content-Type", "application/json")
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if response.StatusCode != 400 {
 		t.Error("Expected 400 error when invalid JSON provided")
 	}
 
 	// Test missing JSON
-	controller.Init(container, []string{"", "0"})
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("{\"title\":\"only\"}"))
 	request.Header.Add("Content-Type", "application/json")
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if response.StatusCode != 400 {
 		t.Error("Expected 400 error when missing JSON provided")

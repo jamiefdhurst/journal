@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -12,7 +14,8 @@ func TestInit(t *testing.T) {
 		"param1", "param2", "param3", "param4",
 	}
 	controller := Super{}
-	controller.Init(container, params)
+	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
+	controller.Init(container, params, request)
 	if controller.Container != container || controller.Params[2] != "param3" {
 		t.Error("Expected values were not passed into struct")
 	}

@@ -19,9 +19,9 @@ func TestView_Run(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test not found/error with GET/POST
-	controller.Init(container, []string{"", "0"})
 	db.Rows = &database.MockRowsEmpty{}
 	request := &http.Request{Method: "GET"}
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
 		t.Error("Expected 404 error when journal not found")

@@ -16,6 +16,7 @@ type BadRequest struct {
 func (c *BadRequest) Run(response http.ResponseWriter, request *http.Request) {
 	response.WriteHeader(http.StatusNotFound)
 
+	c.SessionStore.Save(response)
 	template, _ := template.ParseFiles(
 		"./web/templates/_layout/default.tmpl",
 		"./web/templates/error.tmpl")
@@ -25,6 +26,6 @@ func (c *BadRequest) Run(response http.ResponseWriter, request *http.Request) {
 // RunBadRequest calls the bad request from an existing controller
 func RunBadRequest(response http.ResponseWriter, request *http.Request, container interface{}) {
 	errorController := BadRequest{}
-	errorController.Init(container, []string{})
+	errorController.Init(container, []string{}, request)
 	errorController.Run(response, request)
 }

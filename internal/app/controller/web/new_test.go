@@ -21,8 +21,8 @@ func TestNew_Run(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Display form
-	controller.Init(container, []string{"", "0"})
 	request, _ := http.NewRequest("GET", "/new", strings.NewReader(""))
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if controller.Error || !strings.Contains(response.Content, "<form") {
 		t.Error("Expected form to be shown")

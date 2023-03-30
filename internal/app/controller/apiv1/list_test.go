@@ -20,9 +20,9 @@ func TestList_Run(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test showing all Journals
-	controller.Init(container, []string{"", "0"})
 	db.Rows = &database.MockJournal_MultipleRows{}
 	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if !strings.Contains(response.Content, "Title 2") {
 		t.Error("Expected all journals to be returned")

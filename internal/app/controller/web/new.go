@@ -25,14 +25,15 @@ func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 	}
 
 	if request.Method == "GET" {
-		query := request.URL.Query()
 		c.Error = false
-		if query["error"] != nil {
+		flash := c.Session.GetFlash()
+		if flash != nil && flash[0] == "error" {
 			c.Error = true
 		}
 
 		c.Journal.Date = time.Now().Format("2006-01-02")
 
+		c.SessionStore.Save(response)
 		template, _ := template.ParseFiles(
 			"./web/templates/_layout/default.tmpl",
 			"./web/templates/new.tmpl",
@@ -40,7 +41,9 @@ func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 		template.ExecuteTemplate(response, "layout", c)
 	} else {
 		if request.FormValue("title") == "" || request.FormValue("date") == "" || request.FormValue("content") == "" {
-			http.Redirect(response, request, "/new?error=1", 302)
+			c.Session.AddFlash("error")
+			c.SessionStore.Save(response)
+			http.Redirect(response, request, "/new", http.StatusFound)
 			return
 		}
 
@@ -48,6 +51,8 @@ func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 		journal := model.Journal{ID: 0, Slug: model.Slugify(request.FormValue("title")), Title: request.FormValue("title"), Date: request.FormValue("date"), Content: request.FormValue("content")}
 		js.Save(journal)
 
-		http.Redirect(response, request, "/?saved=1", 302)
+		c.Session.AddFlash("saved")
+		c.SessionStore.Save(response)
+		http.Redirect(response, request, "/", http.StatusFound)
 	}
 }

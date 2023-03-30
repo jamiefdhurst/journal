@@ -24,9 +24,7 @@ func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 	c.Journal = js.FindBySlug(c.Params[1])
 
 	if c.Journal.ID == 0 {
-		errorController := BadRequest{}
-		errorController.Init(c.Super.Container, []string{})
-		errorController.Run(response, request)
+		RunBadRequest(response, request, c.Super.Container)
 	} else {
 		c.Next = js.FindNext(c.Journal.ID)
 		c.Prev = js.FindPrev(c.Journal.ID)
