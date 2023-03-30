@@ -37,7 +37,8 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 
 	c.Journals, c.Pagination = js.FetchPaginated(pagination)
 	c.Saved = false
-	if query["saved"] != nil {
+	flash := c.Session.GetFlash()
+	if flash != nil && flash[0] == "saved" {
 		c.Saved = true
 	}
 
@@ -46,6 +47,7 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 		c.Pages[i] = i + 1
 	}
 
+	c.SessionStore.Save(response)
 	template, _ := template.ParseFiles(
 		"./web/templates/_layout/default.tmpl",
 		"./web/templates/index.tmpl")

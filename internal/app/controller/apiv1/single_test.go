@@ -20,9 +20,9 @@ func TestSingle_Run(t *testing.T) {
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test not found/error with GET
-	controller.Init(container, []string{"", "0"})
 	db.Rows = &database.MockRowsEmpty{}
 	request := &http.Request{Method: "GET"}
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if response.StatusCode != 404 {
 		t.Error("Expected 404 error when journal not found")
@@ -32,6 +32,7 @@ func TestSingle_Run(t *testing.T) {
 	response.Reset()
 	request, _ = http.NewRequest("GET", "/slug", strings.NewReader(""))
 	db.Rows = &database.MockJournal_SingleRow{}
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if !strings.Contains(response.Content, "Title") {
 		t.Error("Expected content to be returned")

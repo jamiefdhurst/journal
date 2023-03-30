@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/jamiefdhurst/journal/test/mocks/controller"
-	mockrouter "github.com/jamiefdhurst/journal/test/mocks/router"
+	mockRouter "github.com/jamiefdhurst/journal/test/mocks/router"
 )
 
 type BlankContainer struct{}
@@ -22,7 +22,7 @@ func TestGet(t *testing.T) {
 		t.Errorf("GET Route added was not as expected")
 	}
 
-	// Test paramterised route
+	// Test param route
 	router.Get("/[%s]/[%d]/[%a]", ctrl)
 	if router.Routes[1].regexURI != "^\\/([\\w\\-]+)\\/(\\d+)\\/(.+?)$" {
 		t.Errorf("GET Route added was not as expected")
@@ -39,7 +39,7 @@ func TestPost(t *testing.T) {
 		t.Errorf("GET Route added was not as expected")
 	}
 
-	// Test paramterised route
+	// Test param route
 	router.Post("/[%s]/[%d]/[%a]", ctrl)
 	if router.Routes[1].regexURI != "^\\/([\\w\\-]+)\\/(\\d+)\\/(.+?)$" {
 		t.Errorf("GET Route added was not as expected")
@@ -56,7 +56,7 @@ func TestPut(t *testing.T) {
 		t.Errorf("GET Route added was not as expected")
 	}
 
-	// Test paramterised route
+	// Test param route
 	router.Put("/[%s]/[%d]/[%a]", ctrl)
 	if router.Routes[1].regexURI != "^\\/([\\w\\-]+)\\/(\\d+)\\/(.+?)$" {
 		t.Errorf("GET Route added was not as expected")
@@ -83,6 +83,7 @@ func TestServeHTTP(t *testing.T) {
 	router.ServeHTTP(response, staticRequest)
 	if errorController.HasRun {
 		t.Errorf("Expected static file to have been served but error controller was run")
+		errorController.HasRun = false
 	}
 
 	// Index
@@ -91,6 +92,7 @@ func TestServeHTTP(t *testing.T) {
 	router.ServeHTTP(response, indexRequest)
 	if !indexController.HasRun || errorController.HasRun {
 		t.Errorf("Expected index controller to have been served but error controller was run")
+		errorController.HasRun = false
 	}
 
 	// Standard route
@@ -99,14 +101,16 @@ func TestServeHTTP(t *testing.T) {
 	router.ServeHTTP(response, standardRequest)
 	if !standardController.HasRun || errorController.HasRun {
 		t.Errorf("Expected standard controller to have been served but error controller was run")
+		errorController.HasRun = false
 	}
 
-	// Parameterised route
+	// Param route
 	paramURL := &url.URL{Path: "/param/test1"}
 	paramRequest := &http.Request{URL: paramURL, Method: "GET"}
 	router.ServeHTTP(response, paramRequest)
 	if !paramController.HasRun || errorController.HasRun {
 		t.Errorf("Expected param controller to have been served but error controller was run")
+		errorController.HasRun = false
 	}
 
 	// Not found route
@@ -121,7 +125,7 @@ func TestServeHTTP(t *testing.T) {
 func TestStartAndServe(t *testing.T) {
 	ctrl := &controller.MockController{}
 	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
-	server := &mockrouter.MockServer{}
+	server := &mockRouter.MockServer{}
 	router.StartAndServe(server)
 
 	if !server.Listening {

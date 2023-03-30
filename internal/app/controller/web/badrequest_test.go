@@ -13,7 +13,8 @@ import (
 func TestError_Run(t *testing.T) {
 	response := &controller.MockResponse{}
 	controller := &BadRequest{}
-	controller.Init(&app.Container{}, []string{})
+	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
+	controller.Init(&app.Container{}, []string{}, request)
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test header and response

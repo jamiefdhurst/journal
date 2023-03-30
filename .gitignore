@@ -24,6 +24,7 @@ _testmain.go
 !Dockerfile.test
 *.prof
 data
+journal
 node_modules
 test/data/test.db
 .vscode

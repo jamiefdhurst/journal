@@ -31,10 +31,13 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 	} else {
 
 		if request.Method == "GET" {
-			query := request.URL.Query()
-			if query["error"] != nil {
+			c.Error = false
+			flash := c.Session.GetFlash()
+			if flash != nil && flash[0] == "error" {
 				c.Error = true
 			}
+
+			c.SessionStore.Save(response)
 			template, _ := template.ParseFiles(
 				"./web/templates/_layout/default.tmpl",
 				"./web/templates/edit.tmpl",
@@ -42,7 +45,9 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 			template.ExecuteTemplate(response, "layout", c)
 		} else {
 			if request.FormValue("title") == "" || request.FormValue("date") == "" || request.FormValue("content") == "" {
-				http.Redirect(response, request, "/"+c.Journal.Slug+"/edit?error=1", 302)
+				c.Session.AddFlash("error")
+				c.SessionStore.Save(response)
+				http.Redirect(response, request, "/"+c.Journal.Slug+"/edit", http.StatusFound)
 				return
 			}
 
@@ -51,7 +56,9 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 			c.Journal.Content = request.FormValue("content")
 			js.Save(c.Journal)
 
-			http.Redirect(response, request, "/?saved=1", 302)
+			c.Session.AddFlash("saved")
+			c.SessionStore.Save(response)
+			http.Redirect(response, request, "/", http.StatusFound)
 		}
 	}
 
