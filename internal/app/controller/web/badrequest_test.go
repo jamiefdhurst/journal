@@ -11,14 +11,14 @@ import (
 )
 
 func TestError_Run(t *testing.T) {
-	response := &controller.MockResponse{}
+	response := controller.NewMockResponse()
 	controller := &BadRequest{}
 	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
-	controller.Init(&app.Container{}, []string{}, request)
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test header and response
-	controller.Run(response, &http.Request{})
+	controller.Init(&app.Container{}, []string{}, request)
+	controller.Run(response, request)
 	if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
 		t.Error("Expected 404 error when journal not found")
 	}
