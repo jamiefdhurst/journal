@@ -15,7 +15,7 @@ func TestNew_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	db.Result = &database.MockResult{}
 	db.Rows = &database.MockRowsEmpty{}
-	container := &app.Container{Db: db}
+	container := &app.Container{Configuration: app.Configuration{EnableCreate: true}, Db: db}
 	response := controller.NewMockResponse()
 	controller := &New{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
@@ -28,11 +28,17 @@ func TestNew_Run(t *testing.T) {
 		t.Error("Expected form to be shown")
 	}
 
-	// Display error
+	// Display error when cookie was set
 	response.Reset()
-	request, _ = http.NewRequest("GET", "/new?error=1", strings.NewReader(""))
+	controller.Init(container, []string{"", "0"}, request)
+	controller.Session.AddFlash("error")
+	controller.SessionStore.Save(response)
+	request, _ = http.NewRequest("GET", "/new", strings.NewReader(""))
+	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
+	controller.Init(container, []string{"", "0"}, request)
+	response.Reset()
 	controller.Run(response, request)
-	if !strings.Contains(response.Content, "<form") || !strings.Contains(response.Content, "error") {
+	if !strings.Contains(response.Content, "<form") || !strings.Contains(response.Content, "div class=\"error\"") {
 		t.Error("Expected form and error to be shown")
 	}
 
@@ -40,9 +46,19 @@ func TestNew_Run(t *testing.T) {
 	response.Reset()
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("title=&date=&content="))
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
-	if response.StatusCode != 302 || response.Headers.Get("Location") != "/new?error=1" {
+	if response.StatusCode != 302 || response.Headers.Get("Location") != "/new" {
 		t.Error("Expected redirect back to same page")
+	}
+
+	// Validate error cookie on redirect
+	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
+	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
+	controller.Init(container, []string{"", "0"}, request)
+	flash := controller.Session.GetFlash()
+	if flash == nil || flash[0] != "error" {
+		t.Error("Expected cookie to contain error value")
 	}
 
 	// Redirect on success
@@ -50,8 +66,18 @@ func TestNew_Run(t *testing.T) {
 	db.Result = &database.MockResult{}
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("title=Title&date=2018-02-01&content=Test+again"))
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
-	if response.StatusCode != 302 || response.Headers.Get("Location") != "/?saved=1" {
-		t.Error("Expected redirect back to home with saved flag")
+	if response.StatusCode != 302 || response.Headers.Get("Location") != "/" {
+		t.Error("Expected redirect back to home with saved banner shown")
+	}
+
+	// Validate saved cookie on redirect
+	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
+	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
+	controller.Init(container, []string{"", "0"}, request)
+	flash = controller.Session.GetFlash()
+	if flash == nil || flash[0] != "saved" {
+		t.Error("Expected cookie to contain saved value")
 	}
 }

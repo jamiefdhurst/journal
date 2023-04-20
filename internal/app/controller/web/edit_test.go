@@ -13,7 +13,7 @@ import (
 
 func TestEdit_Run(t *testing.T) {
 	db := &database.MockSqlite{}
-	container := &app.Container{Db: db}
+	container := &app.Container{Configuration: app.Configuration{EnableEdit: true}, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Edit{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
@@ -29,15 +29,22 @@ func TestEdit_Run(t *testing.T) {
 
 	response.Reset()
 	request = &http.Request{Method: "POST"}
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
 		t.Error("Expected 404 error when journal not found")
 	}
 
-	// Display error when passed through
+	// Display error when cookie was set
 	response.Reset()
-	request, _ = http.NewRequest("GET", "/test/edit?error=1", strings.NewReader(""))
+	controller.Init(container, []string{"", "0"}, request)
+	controller.Session.AddFlash("error")
+	controller.SessionStore.Save(response)
+	request, _ = http.NewRequest("GET", "/test/edit", strings.NewReader(""))
+	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
+	response.Reset()
 	db.Rows = &database.MockJournal_SingleRow{}
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if !controller.Error || !strings.Contains(response.Content, "div class=\"error\"") {
 		t.Error("Expected error to be shown in form")
@@ -48,6 +55,7 @@ func TestEdit_Run(t *testing.T) {
 	request, _ = http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
 	db.Rows = &database.MockJournal_SingleRow{}
 	controller.Error = false
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if controller.Error || strings.Contains(response.Content, "div class=\"error\"") {
 		t.Error("Expected no error to be shown in form")
@@ -58,9 +66,19 @@ func TestEdit_Run(t *testing.T) {
 	request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("title=&date=&content="))
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	db.Rows = &database.MockJournal_SingleRow{}
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
-	if response.StatusCode != 302 || response.Headers.Get("Location") != "/slug/edit?error=1" {
+	if response.StatusCode != 302 || response.Headers.Get("Location") != "/slug/edit" {
 		t.Error("Expected redirect back to same page")
+	}
+
+	// Validate error cookie on redirect
+	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
+	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
+	controller.Init(container, []string{"", "0"}, request)
+	flash := controller.Session.GetFlash()
+	if flash == nil || flash[0] != "error" {
+		t.Error("Expected cookie to contain error value")
 	}
 
 	// Redirect on success
@@ -68,8 +86,18 @@ func TestEdit_Run(t *testing.T) {
 	request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("title=Title&date=2018-02-01&content=Test+again"))
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	db.Rows = &database.MockJournal_SingleRow{}
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
-	if response.StatusCode != 302 || response.Headers.Get("Location") != "/?saved=1" {
-		t.Error("Expected redirect back to home with saved flag")
+	if response.StatusCode != 302 || response.Headers.Get("Location") != "/" {
+		t.Error("Expected redirect back to home with saved banner shown")
+	}
+
+	// Validate saved cookie on redirect
+	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
+	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
+	controller.Init(container, []string{"", "0"}, request)
+	flash = controller.Session.GetFlash()
+	if flash == nil || flash[0] != "saved" {
+		t.Error("Expected cookie to contain saved value")
 	}
 }
