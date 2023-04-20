@@ -22,6 +22,7 @@ _testmain.go
 *.exe
 *.test
 !Dockerfile.test
+*.out
 *.prof
 data
 journal
