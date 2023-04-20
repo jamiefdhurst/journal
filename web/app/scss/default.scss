@@ -12,13 +12,18 @@ html, body {
 }
 
 html {
+    font-size: 12px;
     line-height: 1.15;
+
+    @media screen and (min-width: $tablet) {
+        font-size: 16px;
+    }
 }
 
 body {
     color: $textColour;
     font-family: 'Roboto', sans-serif;
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 
 h1, h2, h3, h4 {
@@ -36,30 +41,30 @@ a:hover {
 
 header[role=banner] {
     margin: 0 auto;
-    max-width: 1240px;
-    padding: 1em 0;
+    max-width: $max;
+    padding: 1rem 0;
     width: 90%;
 
     p {
         margin: 0;
-        padding-top: .5em;
+        padding-top: .5rem;
     }
 }
 
 main {
     margin: 0 auto;
-    max-width: 1240px;
-    padding: 1em 0;
+    max-width: $max;
+    padding: 1rem 0;
     width: 90%;
 }
 
 footer[role=contentinfo] {
     color: $footerColour;
-    font-size: .9em;
+    font-size: .9rem;
     font-weight: 400;
     margin: 0 auto;
-    max-width: 1240px;
-    padding: 2em 0;
+    max-width: $max;
+    padding: 2rem 0;
     width: 90%;
 
     .github {
@@ -69,10 +74,10 @@ footer[role=contentinfo] {
 
 h1 {
     display: inline-block;
-    font-size: .9em;
+    font-size: 1.25rem;
     font-weight: 400;
     margin: 0;
-    padding: 1em 0;
+    padding: 1rem 0;
     vertical-align: top;
 }
 
@@ -81,15 +86,15 @@ h1 {
 }
 
 article {
-    margin-bottom: 7em;
-    padding: 1rem 0;
+    margin-bottom: 7rem;
+    padding: 1rrem 0;
 
     h2 {
-        font-size: 2em;
+        font-size: 2rem;
         font-weight: 900;
         margin: 0 auto;
         max-width: 700px;
-        padding: 1em 0 .75em;
+        padding: 1rem 0 .75rem;
 
         a, a:link, a:visited, a:active {
             font-weight: 900;
@@ -98,11 +103,11 @@ article {
 
     h3 {
         color: $footerColour;
-        font-size: .9em;
+        font-size: .9rem;
         font-weight: 400;
-        margin: 0 auto 2em;
+        margin: 0 auto 2rem;
         max-width: 700px;
-        padding: 0 0 1em;
+        padding: 0 0 1rem;
     }
 
     .summary, .content {
@@ -110,12 +115,12 @@ article {
         max-width: 700px;
 
         &.content {
-            margin-top: 2.5em;
+            margin-top: 2.5rem;
         }
 
         p {
             line-height: 1.75;
-            margin: 0 0 1.5em;
+            margin: 0 0 1.5rem;
         }
 
         a, a:link, a:visited, a:active, a:hover {
@@ -159,8 +164,8 @@ article {
     color: #fff;
     cursor: pointer;
     display: inline-block;
-    font-size: 16px;
-    padding: 0.75em 2em;
+    font-size: 1rem;
+    padding: 0.75rem 2rem;
     text-decoration: none;
     text-shadow: none;
     transition: .2s;
@@ -210,7 +215,7 @@ article {
             border-radius: 3px;
             color: $linkColour;
             font-weight: 300;
-            padding: 6px 12px;
+            padding: .375rem .75rem;
             transition: .3s;
         }
 
@@ -233,10 +238,10 @@ article {
 
 .prev-next {
     border-top: 2px solid $borderColour;
-    padding: 10px 0;
+    padding: .625rem 0;
     display: flex;
     line-height: 1.5;
-    margin: 2em auto;
+    margin: 2rem auto;
     max-width: 700px;
 
     > div {
@@ -251,7 +256,7 @@ article {
     span {
         color: $footerColour;
         display: block;
-        font-size: 14px;
+        font-size: .875rem;
     }
 }
 
@@ -269,7 +274,7 @@ form {
     background-color: #fff;
     border: 1px solid $linkColour;
     border-radius: 3px;
-    padding: 0.25em;
+    padding: .25em;
 }
 
 fieldset {
@@ -278,13 +283,13 @@ fieldset {
     padding: 0;
 
     > div {
-        margin: 0 0 1em;
+        margin: 0 0 1rem;
     }
 
     label {
         color: $formColour;
         display: block;
-        margin-bottom: .5em;
+        margin-bottom: .5rem;
     }
 
     input[type=text], input[type=date], textarea {
@@ -294,11 +299,11 @@ fieldset {
         box-sizing: border-box;
         color: $formColour;
         font-family: 'Roboto', sans-serif;
-        font-size: 16px;
+        font-size: 1rem;
         font-weight: normal;
         display: block;
         line-height: 1.66;
-        padding: 0.7em;
+        padding: .7rem;
         transition: .3s;
         width: 100%;
     }
@@ -306,7 +311,7 @@ fieldset {
     textarea, [data-medium-editor-element] {
         border: 1px solid $buttonLightColour;
         border-radius: 3px;
-        font-size: 16px;
+        font-size: 1rem;
         font-weight: normal;
         line-height: 1.66;
         min-height: 10rem;
@@ -328,6 +333,6 @@ fieldset {
     }
 
     p {
-        margin: 2em 0;
+        margin: 2rem 0;
     }
 }

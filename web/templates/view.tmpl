@@ -12,18 +12,18 @@
 
 {{if or .Next.ID .Prev.ID}}
     <nav class="prev-next">
-        {{if .Prev.ID}}
-            <div class="prev">
+        <div class="prev">
+            {{if .Prev.ID}}
                 <span>Previous</span>
                 <a href="/{{.Prev.Slug}}">{{.Prev.Title}}</a>
-            </div>
-        {{end}}
-        {{if .Next.ID}}
-            <div class="next">
+            {{end}}
+        </div>
+        <div class="next">
+            {{if .Next.ID}}
                 <span>Next</span>
                 <a href="/{{.Next.Slug}}">{{.Next.Title}}</a>
-            </div>
-        {{end}}
+            {{end}}
+        </div>
     </nav>
 {{end}}
 {{end}}
