@@ -19,8 +19,9 @@ type Edit struct {
 // Run Edit action
 func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 	container := c.Super.Container.(*app.Container)
-	if !container.Configuration.EnableCreate {
+	if !container.Configuration.EnableEdit {
 		RunBadRequest(response, request, c.Super.Container)
+		return
 	}
 
 	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
@@ -28,38 +29,38 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 
 	if c.Journal.ID == 0 {
 		RunBadRequest(response, request, c.Super.Container)
-	} else {
+		return
+	}
 
-		if request.Method == "GET" {
-			c.Error = false
-			flash := c.Session.GetFlash()
-			if flash != nil && flash[0] == "error" {
-				c.Error = true
-			}
-
-			c.SessionStore.Save(response)
-			template, _ := template.ParseFiles(
-				"./web/templates/_layout/default.tmpl",
-				"./web/templates/edit.tmpl",
-				"./web/templates/_partial/form.tmpl")
-			template.ExecuteTemplate(response, "layout", c)
-		} else {
-			if request.FormValue("title") == "" || request.FormValue("date") == "" || request.FormValue("content") == "" {
-				c.Session.AddFlash("error")
-				c.SessionStore.Save(response)
-				http.Redirect(response, request, "/"+c.Journal.Slug+"/edit", http.StatusFound)
-				return
-			}
-
-			c.Journal.Title = request.FormValue("title")
-			c.Journal.Date = request.FormValue("date")
-			c.Journal.Content = request.FormValue("content")
-			js.Save(c.Journal)
-
-			c.Session.AddFlash("saved")
-			c.SessionStore.Save(response)
-			http.Redirect(response, request, "/", http.StatusFound)
+	if request.Method == "GET" {
+		c.Error = false
+		flash := c.Session.GetFlash()
+		if flash != nil && flash[0] == "error" {
+			c.Error = true
 		}
+
+		c.SessionStore.Save(response)
+		template, _ := template.ParseFiles(
+			"./web/templates/_layout/default.tmpl",
+			"./web/templates/edit.tmpl",
+			"./web/templates/_partial/form.tmpl")
+		template.ExecuteTemplate(response, "layout", c)
+	} else {
+		if request.FormValue("title") == "" || request.FormValue("date") == "" || request.FormValue("content") == "" {
+			c.Session.AddFlash("error")
+			c.SessionStore.Save(response)
+			http.Redirect(response, request, "/"+c.Journal.Slug+"/edit", http.StatusFound)
+			return
+		}
+
+		c.Journal.Title = request.FormValue("title")
+		c.Journal.Date = request.FormValue("date")
+		c.Journal.Content = request.FormValue("content")
+		js.Save(c.Journal)
+
+		c.Session.AddFlash("saved")
+		c.SessionStore.Save(response)
+		http.Redirect(response, request, "/", http.StatusFound)
 	}
 
 }

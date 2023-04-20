@@ -48,7 +48,12 @@ func TestIndex_Run(t *testing.T) {
 	response.Reset()
 	db.AppendResult(&database.MockPagination_Result{TotalResults: 2})
 	db.AppendResult(&database.MockJournal_MultipleRows{})
-	request, _ = http.NewRequest("GET", "/?saved=1", strings.NewReader(""))
+	controller.Init(container, []string{"", "0"}, request)
+	controller.Session.AddFlash("saved")
+	controller.SessionStore.Save(response)
+	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
+	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
+	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
 	if !strings.Contains(response.Content, "Journal saved") {
 		t.Error("Expected saved banner to be displayed on screen")
