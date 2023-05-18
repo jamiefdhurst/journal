@@ -18,8 +18,8 @@ func (c *BadRequest) Run(response http.ResponseWriter, request *http.Request) {
 
 	c.SessionStore.Save(response)
 	template, _ := template.ParseFiles(
-		"./web/templates/_layout/default.tmpl",
-		"./web/templates/error.tmpl")
+		"./web/templates/_layout/default.html.tmpl",
+		"./web/templates/error.html.tmpl")
 	template.ExecuteTemplate(response, "layout", c)
 }
 

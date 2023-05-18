@@ -15,7 +15,9 @@ func TestNew_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	db.Result = &database.MockResult{}
 	db.Rows = &database.MockRowsEmpty{}
-	container := &app.Container{Configuration: app.Configuration{EnableCreate: true}, Db: db}
+	configuration := app.DefaultConfiguration()
+	configuration.EnableCreate = true
+	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &New{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
@@ -26,6 +28,9 @@ func TestNew_Run(t *testing.T) {
 	controller.Run(response, request)
 	if controller.Error || !strings.Contains(response.Content, "<form") {
 		t.Error("Expected form to be shown")
+	}
+	if !strings.Contains(response.Content, "<title>Create New Post - Jamie's Journal</title>") {
+		t.Error("Expected HTML title to be in place")
 	}
 
 	// Display error when cookie was set

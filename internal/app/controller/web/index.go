@@ -49,7 +49,7 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 
 	c.SessionStore.Save(response)
 	template, _ := template.ParseFiles(
-		"./web/templates/_layout/default.tmpl",
-		"./web/templates/index.tmpl")
+		"./web/templates/_layout/default.html.tmpl",
+		"./web/templates/index.html.tmpl")
 	template.ExecuteTemplate(response, "layout", c)
 }

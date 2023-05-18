@@ -31,8 +31,8 @@ func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 		gs := model.Giphys{}
 		c.Journal.Content = gs.ConvertIDsToIframes(c.Journal.Content)
 		template, _ := template.ParseFiles(
-			"./web/templates/_layout/default.tmpl",
-			"./web/templates/view.tmpl")
+			"./web/templates/_layout/default.html.tmpl",
+			"./web/templates/view.html.tmpl")
 		template.ExecuteTemplate(response, "layout", c)
 	}
 }

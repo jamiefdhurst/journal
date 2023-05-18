@@ -13,7 +13,9 @@ import (
 
 func TestEdit_Run(t *testing.T) {
 	db := &database.MockSqlite{}
-	container := &app.Container{Configuration: app.Configuration{EnableEdit: true}, Db: db}
+	configuration := app.DefaultConfiguration()
+	configuration.EnableEdit = true
+	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Edit{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
@@ -59,6 +61,9 @@ func TestEdit_Run(t *testing.T) {
 	controller.Run(response, request)
 	if controller.Error || strings.Contains(response.Content, "div class=\"error\"") {
 		t.Error("Expected no error to be shown in form")
+	}
+	if !strings.Contains(response.Content, "<title>Edit Title - Jamie's Journal</title>") {
+		t.Error("Expected HTML title to be in place")
 	}
 
 	// Redirect if empty content on POST
