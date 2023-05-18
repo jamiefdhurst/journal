@@ -13,7 +13,8 @@ import (
 
 func TestView_Run(t *testing.T) {
 	db := &database.MockSqlite{}
-	container := &app.Container{Db: db}
+	configuration := app.DefaultConfiguration()
+	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &View{}
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
@@ -34,6 +35,9 @@ func TestView_Run(t *testing.T) {
 	controller.Run(response, request)
 	if strings.Contains(response.Content, "div class=\"error\"") || !strings.Contains(response.Content, "Content") {
 		t.Error("Expected no error to be shown in page")
+	}
+	if !strings.Contains(response.Content, "<title>Title - Jamie's Journal</title>") {
+		t.Error("Expected HTML title to be in place")
 	}
 
 	// Display prev & next strings

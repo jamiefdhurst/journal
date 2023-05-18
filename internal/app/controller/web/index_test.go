@@ -30,6 +30,12 @@ func TestIndex_Run(t *testing.T) {
 	if !strings.Contains(response.Content, "Title 2") {
 		t.Error("Expected all journals to be displayed on screen")
 	}
+	if !strings.Contains(response.Content, "<title>Jamie's Journal</title>") {
+		t.Error("Expected default HTML title to be in place")
+	}
+	if !strings.Contains(response.Content, "<meta name=\"description\" content=\"A private journal") {
+		t.Error("Expected default HTML description to be in place")
+	}
 
 	// Test pagination
 	db.EnableMultiMode()

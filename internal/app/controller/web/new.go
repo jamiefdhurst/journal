@@ -36,9 +36,9 @@ func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 
 		c.SessionStore.Save(response)
 		template, _ := template.ParseFiles(
-			"./web/templates/_layout/default.tmpl",
-			"./web/templates/new.tmpl",
-			"./web/templates/_partial/form.tmpl")
+			"./web/templates/_layout/default.html.tmpl",
+			"./web/templates/new.html.tmpl",
+			"./web/templates/_partial/form.html.tmpl")
 		template.ExecuteTemplate(response, "layout", c)
 	} else {
 		if request.FormValue("title") == "" || request.FormValue("date") == "" || request.FormValue("content") == "" {

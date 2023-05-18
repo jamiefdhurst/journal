@@ -33,6 +33,7 @@ type Container struct {
 type Configuration struct {
 	ArticlesPerPage int
 	DatabasePath    string
+	Description     string
 	EnableCreate    bool
 	EnableEdit      bool
 	Port            string
@@ -44,6 +45,7 @@ func DefaultConfiguration() Configuration {
 	return Configuration{
 		ArticlesPerPage: 20,
 		DatabasePath:    os.Getenv("GOPATH") + "/data/journal.db",
+		Description:     "A private journal containing Jamie's innermost thoughts",
 		EnableCreate:    true,
 		EnableEdit:      true,
 		Port:            "3000",
@@ -51,7 +53,7 @@ func DefaultConfiguration() Configuration {
 	}
 }
 
-// ApplyEnvConfiguration applys the env variables on top of existing config
+// ApplyEnvConfiguration applies the env variables on top of existing config
 func ApplyEnvConfiguration(config *Configuration) {
 	articles, _ := strconv.Atoi(os.Getenv("J_ARTICLES_PER_PAGE"))
 	if articles > 0 {
@@ -60,6 +62,10 @@ func ApplyEnvConfiguration(config *Configuration) {
 	database := os.Getenv("J_DB_PATH")
 	if database != "" {
 		config.DatabasePath = database
+	}
+	description := os.Getenv("J_DESCRIPTION")
+	if description != "" {
+		config.Description = description
 	}
 	enableCreate := os.Getenv("J_CREATE")
 	if enableCreate == "0" {
