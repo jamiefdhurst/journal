@@ -87,9 +87,8 @@ footer[role=contentinfo] {
 
 article {
     margin-bottom: 7rem;
-    padding: 1rrem 0;
 
-    h2 {
+    h1 {
         font-size: 2rem;
         font-weight: 900;
         margin: 0 auto;
@@ -101,7 +100,7 @@ article {
         }
     }
 
-    h3 {
+    p.date {
         color: $footerColour;
         font-size: .9rem;
         font-weight: 400;

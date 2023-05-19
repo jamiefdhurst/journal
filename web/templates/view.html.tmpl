@@ -1,11 +1,11 @@
 {{define "title"}}{{.Journal.Title}} - {{end}}
 {{define "content"}}
 <article class="view">
-    <h2>{{.Journal.Title}}</h2>
-    <h3>
+    <h1>{{.Journal.Title}}</h1>
+    <p class="date">
         Posted on {{.Journal.GetDate}}
         {{if .Container.Configuration.EnableEdit}}<p class="float-right"><a href="/{{.Journal.Slug}}/edit" class="button button-outline">Edit</a></p>{{end}}
-    </h3>
+    </p>
     <div class="content">
         {{.Journal.Content}}
     </div>
