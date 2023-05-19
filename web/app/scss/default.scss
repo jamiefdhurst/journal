@@ -45,6 +45,15 @@ header[role=banner] {
     padding: 1rem 0;
     width: 90%;
 
+    a {
+        display: inline-block;
+        font-size: 1.25rem;
+        font-weight: 400;
+        margin: 0;
+        padding: 1rem 0;
+        vertical-align: top;
+    }    
+
     p {
         margin: 0;
         padding-top: .5rem;
@@ -70,15 +79,6 @@ footer[role=contentinfo] {
     .github {
         float: right;
     }
-}
-
-h1 {
-    display: inline-block;
-    font-size: 1.25rem;
-    font-weight: 400;
-    margin: 0;
-    padding: 1rem 0;
-    vertical-align: top;
 }
 
 .float-right {
