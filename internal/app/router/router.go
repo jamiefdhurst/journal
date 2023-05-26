@@ -13,6 +13,7 @@ func NewRouter(app *app.Container) *pkgrouter.Router {
 	rtr.Container = app
 	rtr.ErrorController = &web.BadRequest{}
 
+	rtr.Get("/sitemap.xml", &web.Sitemap{})
 	rtr.Get("/new", &web.New{})
 	rtr.Post("/new", &web.New{})
 	rtr.Get("/api/v1/post", &apiv1.List{})
