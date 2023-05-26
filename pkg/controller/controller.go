@@ -16,6 +16,7 @@ type Controller interface {
 type Super struct {
 	Controller
 	Container    interface{}
+	Host         string
 	Params       []string
 	Session      *session.Session
 	SessionStore session.Store
@@ -24,6 +25,7 @@ type Super struct {
 // Init Initialise the controller
 func (c *Super) Init(app interface{}, params []string, request *http.Request) {
 	c.Container = app
+	c.Host = request.Host
 	c.Params = params
 	c.SessionStore = session.NewDefaultStore("defaultdefaultdefaultdefault1234")
 	c.Session, _ = c.SessionStore.Get(request)
