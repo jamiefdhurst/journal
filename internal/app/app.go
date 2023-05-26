@@ -31,25 +31,27 @@ type Container struct {
 
 // Configuration can be modified through environment variables
 type Configuration struct {
-	ArticlesPerPage int
-	DatabasePath    string
-	Description     string
-	EnableCreate    bool
-	EnableEdit      bool
-	Port            string
-	Title           string
+	ArticlesPerPage     int
+	DatabasePath        string
+	Description         string
+	EnableCreate        bool
+	EnableEdit          bool
+	GoogleAnalyticsCode string
+	Port                string
+	Title               string
 }
 
 // DefaultConfiguration returns the default settings for the app
 func DefaultConfiguration() Configuration {
 	return Configuration{
-		ArticlesPerPage: 20,
-		DatabasePath:    os.Getenv("GOPATH") + "/data/journal.db",
-		Description:     "A private journal containing Jamie's innermost thoughts",
-		EnableCreate:    true,
-		EnableEdit:      true,
-		Port:            "3000",
-		Title:           "Jamie's Journal",
+		ArticlesPerPage:     20,
+		DatabasePath:        os.Getenv("GOPATH") + "/data/journal.db",
+		Description:         "A private journal containing Jamie's innermost thoughts",
+		EnableCreate:        true,
+		EnableEdit:          true,
+		GoogleAnalyticsCode: "",
+		Port:                "3000",
+		Title:               "Jamie's Journal",
 	}
 }
 
@@ -75,6 +77,7 @@ func ApplyEnvConfiguration(config *Configuration) {
 	if enableEdit == "0" {
 		config.EnableEdit = false
 	}
+	config.GoogleAnalyticsCode = os.Getenv("J_GA_CODE")
 	port := os.Getenv("J_PORT")
 	if port != "" {
 		config.Port = port

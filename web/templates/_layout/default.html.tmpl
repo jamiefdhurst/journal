@@ -26,6 +26,16 @@
         <p>Journal v{{.Container.Version}}</p>
     </footer>
     <script src="/js/default.min.js"></script>
+    {{if ne .Container.Configuration.GoogleAnalyticsCode ""}}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{.Container.Configuration.GoogleAnalyticsCode}}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', '{{.Container.Configuration.GoogleAnalyticsCode}}');
+    </script>
+    {{end}}
 </body>
 </html>
 {{end}}

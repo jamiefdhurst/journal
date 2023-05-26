@@ -50,6 +50,7 @@ _Please note: you will need Docker installed on your local machine._
 * `J_DB_PATH` - Path to SQLite DB - default is `$GOPATH/data/journal.db`
 * `J_DESCRIPTION` - Set the HTML description of the Journal
 * `J_EDIT` - Set to `0` to disable article modification
+* `J_GA_CODE` - Google Analytics tag value, starts with `UA-`, or ignore to disable Google Analytics
 * `J_GIPHY_API_KEY` - Set to a GIPHY API key to use, or ignore to disable GIPHY
 * `J_PORT` - Port to expose over HTTP, default is `3000`
 * `J_TITLE` - Set the title of the Journal
