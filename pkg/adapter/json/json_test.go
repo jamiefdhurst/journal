@@ -3,13 +3,14 @@ package json
 import "testing"
 
 type TestResponse struct {
-	ID     int    `json:"id"`
-	UserID int    `json:"userId"`
-	Title  string `json:"title"`
-	Body   int    `json:"body"`
+	ID      int    `json:"id"`
+	Slug    string `json:"slug"`
+	Title   string `json:"title"`
+	Date    string `json:"date"`
+	Content int    `json:"content"`
 }
 
-const testURL = "https://jsonplaceholder.typicode.com/posts/1"
+const testURL = "https://journal.jamiehurst.co.uk/api/v1/post/welcome-back"
 
 func TestGet(t *testing.T) {
 	response := &TestResponse{}
@@ -18,7 +19,7 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Error("Expected no error from test API call")
 	}
-	if response.ID != 1 && response.Title != "sunt aut facere repellat provident occaecati excepturi optio reprehenderit" {
+	if response.ID != 1 && response.Title != "Welcome Back" {
 		t.Error("Expected result from JSON decode was not achieved")
 	}
 
