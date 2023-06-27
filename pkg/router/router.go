@@ -70,6 +70,7 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 		file := "web/static" + request.URL.Path
 		_, err := os.Stat(file)
 		if !os.IsNotExist(err) {
+			response.Header().Add("Cache-Control", "public, max-age=15552000")
 			http.ServeFile(response, request, file)
 			return
 		}
