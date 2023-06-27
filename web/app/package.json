@@ -1,6 +1,6 @@
 {
   "name": "journal",
-  "version": "0.6.1.1",
+  "version": "0.7",
   "description": "Journal",
   "main": "gulpfile.js",
   "scripts": {
