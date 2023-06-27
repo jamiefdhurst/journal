@@ -1,0 +1,13 @@
+/* TEAM */
+
+    Owner: Jamie Hurst
+    Contact: jamie@jamiehurst.co.uk
+    Twitter: @JamieFDHurst
+    Location: Newcastle upon Tyne, United Kingdom
+
+/* SITE */
+
+    Language: English
+    Standards: HTML5
+    Tooling: golang, gulp
+    Software: Visual Studio Code, Jenkins, GitHub
