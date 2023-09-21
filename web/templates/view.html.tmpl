@@ -4,7 +4,7 @@
     <h1 itemprop="title headline">{{.Journal.Title}}</h1>
     <p class="date">
         <span itemprop="dateCreated pubdate datePublished" content="{{.Journal.Date}}">Posted on {{.Journal.GetDate}}</span>
-        {{if .Container.Configuration.EnableEdit}}<p class="float-right"><a href="/{{.Journal.Slug}}/edit" class="button button-outline">Edit</a></p>{{end}}
+        {{if .Container.Configuration.EnableEdit}}<span class="float-right"><a href="/{{.Journal.Slug}}/edit" class="button button-outline">Edit</a></span>{{end}}
     </p>
     <div class="content" itemprop="mainEntityOfPage">
         {{.Journal.Content}}
