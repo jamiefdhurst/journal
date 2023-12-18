@@ -14,6 +14,7 @@ permissions:
   pull-requests: write
 
 env:
+  GOPATH: /home/runner/work/journal/go
   J_ARTICLES_PER_PAGE: ''
   J_DB_PATH: ''
   J_GIPHY_API_KEY: ''
@@ -25,6 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: go/src/github.com/jamiefdhurst/journal
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
