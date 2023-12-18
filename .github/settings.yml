@@ -10,8 +10,8 @@ repository:
   has_downloads: true
   default_branch: main
   allow_squash_merge: false
-  allow_merge_commit: false
-  allow_rebase_merge: true
+  allow_merge_commit: true
+  allow_rebase_merge: false
   delete_branch_on_merge: true
   enable_automated_security_fixes: true
   enable_vulnerability_alerts: true
@@ -49,13 +49,6 @@ labels:
   - name: "🔨 task"
     color: 4346cc
     description: Technical or build task
-milestones:
-  - title: Core Feature Improvements
-    description: Improve some of the core features of the Journal system for now.
-    state: open
-  - title: Re-brand
-    description: Re-brand the application and make it more accessible for others to try
-    state: open
 branches:
   - name: main
     protection:
