@@ -9,9 +9,9 @@ on:
 
 permissions:
   contents: read
-  contents: read
   issues: read
   checks: write
+  pull-requests: write
 
 env:
   J_ARTICLES_PER_PAGE: ''
