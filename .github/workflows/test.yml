@@ -33,6 +33,7 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.20'
+          cache-dependency-path: go/src/github.com/jamiefdhurst/journal/go.sum
       - name: Install Dependencies
         working-directory: go/src/github.com/jamiefdhurst/journal
         run: |
@@ -52,10 +53,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage
-          path: coverage.xml
+          path: go/src/github.com/jamiefdhurst/journal/coverage.xml
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           files: |
-            tests.xml
+            go/src/github.com/jamiefdhurst/journal/tests.xml
