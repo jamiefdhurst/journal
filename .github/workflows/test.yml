@@ -39,6 +39,7 @@ jobs:
         run: |
           go get -v ./...
           go install -v ./...
+          go install github.com/tebeka/go2xunit@latest
           go install github.com/axw/gocov/gocov@latest
           go install github.com/AlekSi/gocov-xml@latest
       - name: Test
