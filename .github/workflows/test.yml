@@ -39,11 +39,11 @@ jobs:
         run: |
           go get -v ./...
           go install -v ./...
-          go install github.com/tebeka/go2xunit@latest
-          go install github.com/t-yuki/gocover-cobertura@latest
+          go install github.com/axw/gocov/gocov@latest
+          go install github.com/AlekSi/gocov-xml@latest
       - name: Test
         working-directory: go/src/github.com/jamiefdhurst/journal
-        run: make test > tests.xml
+        run: make test
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
         with:
@@ -58,6 +58,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
+          action_fail: true
           files: |
             go/src/github.com/jamiefdhurst/journal/tests.xml
       - name: Publush Code Coverage
