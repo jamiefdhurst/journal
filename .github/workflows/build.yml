@@ -38,7 +38,7 @@ jobs:
           if_false: v0.0.1
       - name: Update Version in Files
         if: "contains(steps.latest.outputs.release, '.')"
-        uses: datamonsters/replace-action
+        uses: datamonsters/replace-action@v2
         with:
           files: 'journal.go,web/app/package.json'
           replacements: '${{ steps.latest.output.release }}=${{ steps.version.outputs.value }}'
