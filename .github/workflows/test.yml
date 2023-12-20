@@ -1,0 +1,82 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!main'
+  pull_request: {}
+
+permissions:
+  contents: read
+  issues: read
+  checks: write
+  pull-requests: write
+
+env:
+  GOPATH: /home/runner/work/journal/journal/go
+  J_ARTICLES_PER_PAGE: ''
+  J_DB_PATH: ''
+  J_GIPHY_API_KEY: ''
+  J_PORT: ''
+  J_TITLE: ''
+
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: go/src/github.com/jamiefdhurst/journal
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          cache-dependency-path: go/src/github.com/jamiefdhurst/journal/go.sum
+      - name: Install Dependencies
+        working-directory: go/src/github.com/jamiefdhurst/journal
+        run: |
+          go get -v ./...
+          go install -v ./...
+          go install github.com/tebeka/go2xunit@latest
+          go install github.com/axw/gocov/gocov@latest
+          go install github.com/AlekSi/gocov-xml@latest
+      - name: Test
+        working-directory: go/src/github.com/jamiefdhurst/journal
+        run: make test
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests
+          path: go/src/github.com/jamiefdhurst/journal/tests.xml
+      - name: Upload Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: go/src/github.com/jamiefdhurst/journal/coverage.xml
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          action_fail: true
+          files: |
+            go/src/github.com/jamiefdhurst/journal/tests.xml
+      - name: Publush Code Coverage
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: go/src/github.com/jamiefdhurst/journal/coverage.xml
+          badge: false
+          fail_below_min: true
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+          thresholds: '80 90'
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
