@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  ACTIONS_STEP_DEBUG: true
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -17,9 +20,7 @@ jobs:
           fetch-depth: 0
       - name: Get Latest Version
         id: latest
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          repository: ${{ github.repository }}
+        uses: gregziegan/fetch-latest-release@v2.0.0
       - name: Calculate Next Version
         id: calculate
         uses: paulhatch/semantic-version@v5.3.0
@@ -37,14 +38,15 @@ jobs:
       #     minorList: feature,new,add,update
       #     patchAll: true
       - name: Determine Next Version
+        if: "contains(steps.latest.outputs.name, '.')"
         id: version
         uses: haya14busa/action-cond@v1
         with:
-          cond: contains(steps.latest.outputs.release, '.')
-          if_true: ${{ steps.calculate.outputs.version_tag }}
-          if_false: v0.0.1
+          cond: contains(steps.latest.outputs.name, '.')
+          if_true: ${{ steps.calculate.outputs.version }}
+          if_false: '0.0.1'
       - name: Update Version in Files
-        if: "contains(steps.latest.outputs.release, '.')"
+        if: "contains(steps.latest.outputs.name, '.')"
         uses: datamonsters/replace-action@v2
         with:
           files: 'journal.go,web/app/package.json'
@@ -61,14 +63,14 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker build -t ghcr.io/jamiefdhurst/journal:latest .
-          docker tag ghcr.io/jamiefdhurst/journal:latest ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
+          docker tag ghcr.io/jamiefdhurst/journal:latest ghcr.io/jamiefdhurst/journal:v${{ steps.version.outputs.value }}
           docker push ghcr.io/jamiefdhurst/journal:latest
-          docker push ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
+          docker push ghcr.io/jamiefdhurst/journal:v${{ steps.version.outputs.value }}
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true
           draft: false
           makeLatest: true
-          tag: ${{ steps.version.outputs.value }}
-          name: Release ${{ steps.version.outputs.value }}
+          tag: v${{ steps.version.outputs.value }}
+          name: Release v${{ steps.version.outputs.value }}
