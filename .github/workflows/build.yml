@@ -1,0 +1,67 @@
+name: Build
+
+on:
+  workflow_run:
+    workflows: [Test]
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  Build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Latest Version
+        id: latest
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: ${{ github.repository }}
+      - name: Calculate Next Version
+        id: calculate
+        if: "contains(steps.latest.outputs.release, '.')"
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          majorList: break,release
+          minorList: feature,new,add,update
+          patchAll: true
+      - name: Determine Next Version
+        id: version
+        uses: haya14busa/action-cond@v1
+        with:
+          cond: contains(steps.latest.outputs.release, '.')
+          if_true: ${{ steps.calculate.outputs.next }}
+          if_false: v0.0.1
+      - name: Update Version in Files
+        if: "contains(steps.latest.outputs.release, '.')"
+        uses: datamonsters/replace-action
+        with:
+          files: 'journal.go,web/app/package.json'
+          replacements: '${{ steps.latest.output.release }}=${{ steps.version.outputs.value }}'
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update version to ${{ steps.version.outputs.value }}
+      - name: Docker Login
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ghcr.io/jamiefdhurst/journal:latest .
+          docker tag ghcr.io/jamiefdhurst/journal:latest ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
+          docker push ghcr.io/jamiefdhurst/journal:latest
+          docker push ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
+      - name: Create Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          allowUpdates: true
+          draft: false
+          makeLatest: true
+          tag: ${{ steps.version.outputs.value }}
+          name: Release ${{ steps.version.outputs.value }}
