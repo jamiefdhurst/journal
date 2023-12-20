@@ -38,19 +38,19 @@ jobs:
       #     minorList: feature,new,add,update
       #     patchAll: true
       - name: Determine Next Version
-        if: "contains(steps.latest.outputs.name, '.')"
+        if: ${{ contains(steps.latest.outputs.name, '.') }}
         id: version
         uses: haya14busa/action-cond@v1
         with:
-          cond: contains(steps.latest.outputs.name, '.')
+          cond: ${{ contains(steps.latest.outputs.name, '.') }}
           if_true: ${{ steps.calculate.outputs.version }}
           if_false: '0.0.1'
       - name: Update Version in Files
-        if: "contains(steps.latest.outputs.name, '.')"
+        if: ${{ contains(steps.latest.outputs.name, '.') }}
         uses: datamonsters/replace-action@v2
         with:
           files: 'journal.go,web/app/package.json'
-          replacements: '${{ steps.latest.output.release }}=${{ steps.version.outputs.value }}'
+          replacements: '${{ steps.latest.output.name }}=${{ steps.version.outputs.value }}'
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Update version to ${{ steps.version.outputs.value }}
