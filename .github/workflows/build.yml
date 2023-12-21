@@ -8,9 +8,6 @@ on:
 permissions:
   contents: write
 
-env:
-  ACTIONS_STEP_DEBUG: true
-
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -45,15 +42,22 @@ jobs:
           cond: ${{ contains(steps.latest.outputs.name, '.') }}
           if_true: ${{ steps.calculate.outputs.version }}
           if_false: '0.0.1'
+      - name: Remove Leading "v" from Latest Version
+        if: ${{ contains(steps.latest.outputs.name, '.') }}
+        id: latest_clean
+        run: |
+          export version=$(echo ${{ steps.latest.outputs.name }} | sed 's/^v//')
+          echo ::set-output name=name::$version
       - name: Update Version in Files
         if: ${{ contains(steps.latest.outputs.name, '.') }}
         uses: datamonsters/replace-action@v2
         with:
           files: 'journal.go,web/app/package.json'
-          replacements: '${{ steps.latest.output.name }}=${{ steps.version.outputs.value }}'
+          replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Update version to ${{ steps.version.outputs.value }}
+          commit_message: Update version to v${{ steps.version.outputs.value }}
+          token: ${{ secrets.PAT }}
       - name: Docker Login
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:

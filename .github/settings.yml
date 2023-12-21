@@ -52,11 +52,9 @@ labels:
 branches:
   - name: main
     protection:
+      required_pull_request_reviews: null
       required_status_checks:
         strict: true
         contexts: ['Test']
       enforce_admins: true
-      restrictions:
-        apps: []
-        users: []
-        teams: []
+      restrictions: null
