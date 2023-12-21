@@ -78,4 +78,4 @@ jobs:
           draft: false
           makeLatest: true
           tag: v${{ steps.version.outputs.value }}
-          name: Release v${{ steps.version.outputs.value }}
+          name: v${{ steps.version.outputs.value }}
