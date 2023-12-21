@@ -1,7 +1,7 @@
 # Journal
 
 ![License](https://img.shields.io/github/license/jamiefdhurst/journal.svg)
-[![Build Status](https://ci.jamiehurst.co.uk/job/github/job/journal-folder/job/build/job/main/badge/icon)](https://ci.jamiehurst.co.uk/job/github/job/journal-folder/job/build/job/main/)
+[![Build](https://github.com/jamiefdhurst/journal/actions/workflows/build.yml/badge.svg)](https://github.com/jamiefdhurst/journal/actions/workflows/build.yml)
 [![Latest Version](https://img.shields.io/github/release/jamiefdhurst/journal.svg)](https://github.com/jamiefdhurst/journal/releases)
 
 A simple web-based journal written in Go. You can post, edit and view entries,
@@ -131,9 +131,8 @@ use the following build targets:
 
 ### Building/Testing
 
-All pushed code is currently built using a private Jenkins instance that uses 
-the included Jenkinsfile to run the tests using multiple docker containers that 
-run versions of Go to check compatibility.
+All pushed code is currently built using GitHub Actions to test PRs, build 
+packages and create releases.
 
 To test locally, simply use:
 
