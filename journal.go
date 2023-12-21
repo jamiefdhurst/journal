@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	const version = "0.8"
+	const version = "0.7.4"
 
 	// Set CWD
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
