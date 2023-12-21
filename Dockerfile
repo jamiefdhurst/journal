@@ -1,3 +1,4 @@
+LABEL org.opencontainers.image.source=https://github.com/jamiefdhurst/journal
 FROM golang:1.20
 
 RUN apt-get update -y && apt-get install -y sqlite3
