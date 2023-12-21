@@ -10,11 +10,13 @@ permissions:
 
 jobs:
   Build:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT }}
       - name: Get Latest Version
         id: latest
         uses: gregziegan/fetch-latest-release@v2.0.0
@@ -56,14 +58,13 @@ jobs:
           replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: Update version to v${{ steps.version.outputs.value }}
-          token: ${{ secrets.PAT }}
+          commit_message: "[skip ci] Update version to v${{ steps.version.outputs.value }}"
       - name: Docker Login
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.PAT }}
       - name: Build and Push Docker Image
         run: |
           docker build -t ghcr.io/jamiefdhurst/journal:latest .
