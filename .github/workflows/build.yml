@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   Build:
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,16 +24,6 @@ jobs:
         uses: paulhatch/semantic-version@v5.3.0
         with:
           version_format: "${major}.${minor}.${patch}"
-          debug: true
-      # - name: Calculate Next Version
-      #   id: calculate
-      #   if: "contains(steps.latest.outputs.release, '.')"
-      #   uses: ietf-tools/semver-action@v1
-      #   with:
-      #     token: ${{ github.token }}
-      #     majorList: break,release
-      #     minorList: feature,new,add,update
-      #     patchAll: true
       - name: Determine Next Version
         if: ${{ contains(steps.latest.outputs.name, '.') }}
         id: version
@@ -55,7 +44,12 @@ jobs:
         with:
           files: 'journal.go,web/app/package.json'
           replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - name: File Save Delay
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '2s'
+      - name: Commit Version Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "[skip ci] Update version to v${{ steps.version.outputs.value }}"
       - name: Docker Login
