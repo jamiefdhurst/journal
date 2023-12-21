@@ -38,11 +38,17 @@ jobs:
         run: |
           export version=$(echo ${{ steps.latest.outputs.name }} | sed 's/^v//')
           echo ::set-output name=name::$version
-      - name: Update Version in Files
+      - name: Update Version in Files (1)
         if: ${{ contains(steps.latest.outputs.name, '.') }}
         uses: datamonsters/replace-action@v2
         with:
-          files: 'journal.go,web/app/package.json'
+          files: 'journal.go'
+          replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
+      - name: Update Version in Files (2)
+        if: ${{ contains(steps.latest.outputs.name, '.') }}
+        uses: datamonsters/replace-action@v2
+        with:
+          files: 'web/app/package.json'
           replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
       - name: File Save Delay
         uses: jakejarvis/wait-action@master
