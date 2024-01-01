@@ -70,7 +70,7 @@ func (gs *Giphys) ExtractContentsAndSearchAPI(s string) string {
 }
 
 func (gs Giphys) findIds(s string) []string {
-	reIDs := regexp.MustCompile(":gif:id:(\\w+)")
+	reIDs := regexp.MustCompile(`:gif:id:(\w+)`)
 	onlyIDs := []string{}
 	IDs := reIDs.FindAllStringSubmatch(s, -1)
 	for _, i := range IDs {
@@ -81,7 +81,7 @@ func (gs Giphys) findIds(s string) []string {
 }
 
 func (gs Giphys) findSearches(s string) []string {
-	reSearches := regexp.MustCompile("gif:([\\w\\-]+)")
+	reSearches := regexp.MustCompile(`gif:([\w\-]+)`)
 	onlySearches := []string{}
 	searches := reSearches.FindAllStringSubmatch(s, -1)
 	for _, j := range searches {

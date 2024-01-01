@@ -48,7 +48,7 @@ func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		js := model.Journals{Container: container, Gs: model.GiphyAdapter(container)}
+		js := model.NewJournalStore(container, model.GiphyAdapter(container))
 		journal := model.Journal{ID: 0, Slug: model.Slugify(request.FormValue("title")), Title: request.FormValue("title"), Date: request.FormValue("date"), Content: request.FormValue("content")}
 		js.Save(journal)
 

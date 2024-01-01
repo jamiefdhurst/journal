@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/jamiefdhurst/journal/pkg/database/result"
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 )
 
@@ -220,7 +221,7 @@ func (m *MockSqlite) EnableMultiMode() {
 }
 
 // Exec Test arguments and errors
-func (m *MockSqlite) Exec(sql string, args ...interface{}) (sql.Result, error) {
+func (m *MockSqlite) Exec(sql string, args ...interface{}) (result.Result, error) {
 	m.Queries++
 	if m.ErrorMode || m.ErrorAtQuery == m.Queries {
 		return nil, errors.New("Simulating error")
