@@ -33,10 +33,10 @@ func main() {
 	}
 
 	// Open database
-	db := &database.Sqlite{}
+	var db database.Database = app.GetDatabase(configuration)
 	log.Printf("Loading DB from %s...\n", configuration.DatabasePath)
 	if err := db.Connect(configuration.DatabasePath); err != nil {
-		log.Printf("Database error - please verify that the %s path is available and writable.\n", configuration.DatabasePath)
+		log.Printf("Database error - please verify that the %s path is available and writeable.\n", configuration.DatabasePath)
 		os.Exit(1)
 	}
 
@@ -50,7 +50,7 @@ func main() {
 	// Create table if required
 	container.Db = db
 	var err error
-	js := model.Journals{Container: container}
+	js := model.NewJournalStore(container, nil)
 	if err = js.CreateTable(); err != nil {
 		log.Panicln(err)
 	}

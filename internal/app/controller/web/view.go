@@ -20,7 +20,7 @@ type View struct {
 // Run View action
 func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
+	js := model.NewJournalStore(c.Super.Container.(*app.Container), model.GiphyAdapter(c.Super.Container.(*app.Container)))
 	c.Journal = js.FindBySlug(c.Params[1])
 
 	if c.Journal.ID == 0 {

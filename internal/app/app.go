@@ -1,20 +1,13 @@
 package app
 
 import (
-	"database/sql"
 	"os"
 	"strconv"
 
-	"github.com/jamiefdhurst/journal/pkg/database/rows"
+	"github.com/jamiefdhurst/journal/pkg/database"
+	"github.com/jamiefdhurst/journal/pkg/database/dynamodb"
+	"github.com/jamiefdhurst/journal/pkg/database/sqlite"
 )
-
-// Database Define same interface as database
-type Database interface {
-	Close()
-	Connect(dbFile string) error
-	Exec(sql string, args ...interface{}) (sql.Result, error)
-	Query(sql string, args ...interface{}) (rows.Rows, error)
-}
 
 // GiphyAdapter Interface for API
 type GiphyAdapter interface {
@@ -24,7 +17,7 @@ type GiphyAdapter interface {
 // Container Define the main container for the application
 type Container struct {
 	Configuration Configuration
-	Db            Database
+	Db            database.Database
 	Giphy         GiphyAdapter
 	Version       string
 }
@@ -32,6 +25,7 @@ type Container struct {
 // Configuration can be modified through environment variables
 type Configuration struct {
 	ArticlesPerPage     int
+	Database            string
 	DatabasePath        string
 	Description         string
 	EnableCreate        bool
@@ -45,6 +39,7 @@ type Configuration struct {
 func DefaultConfiguration() Configuration {
 	return Configuration{
 		ArticlesPerPage:     20,
+		Database:            database.Sqlite,
 		DatabasePath:        os.Getenv("GOPATH") + "/data/journal.db",
 		Description:         "A private journal containing Jamie's innermost thoughts",
 		EnableCreate:        true,
@@ -61,9 +56,13 @@ func ApplyEnvConfiguration(config *Configuration) {
 	if articles > 0 {
 		config.ArticlesPerPage = articles
 	}
-	database := os.Getenv("J_DB_PATH")
-	if database != "" {
-		config.DatabasePath = database
+	databaseType := os.Getenv("J_DB_TYPE")
+	if databaseType != database.Sqlite {
+		config.Database = database.Dynamodb
+	}
+	databasePath := os.Getenv("J_DB_PATH")
+	if databasePath != "" {
+		config.DatabasePath = databasePath
 	}
 	description := os.Getenv("J_DESCRIPTION")
 	if description != "" {
@@ -86,4 +85,12 @@ func ApplyEnvConfiguration(config *Configuration) {
 	if title != "" {
 		config.Title = title
 	}
+}
+
+// GetDatabase returns a new instance of the database engine
+func GetDatabase(config Configuration) database.Database {
+	if config.Database == database.Dynamodb {
+		return &dynamodb.Dynamodb{}
+	}
+	return &sqlite.Sqlite{}
 }
