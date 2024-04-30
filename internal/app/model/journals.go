@@ -7,8 +7,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/pkg/database"
+	"github.com/jamiefdhurst/journal/pkg/database/dynamodb"
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 	"github.com/jamiefdhurst/journal/pkg/database/sqlite"
 )
@@ -198,7 +201,14 @@ func (js *DynamoJournals) EnsureUniqueSlug(slug string, addition int) string {
 
 // FetchAll Get all journals
 func (js *DynamoJournals) FetchAll() []Journal {
-	return make([]Journal, 0)
+	db := js.Container.Db.(dynamodb.DynamodbLike)
+	expr, _ := expression.NewBuilder().Build()
+	journals := []Journal{}
+	err := db.Scan(expr, &journals)
+	if err != nil {
+		return []Journal{}
+	}
+	return journals
 }
 
 // FetchPaginated returns a set of paginated journal entries
@@ -208,26 +218,84 @@ func (js *DynamoJournals) FetchPaginated(query database.PaginationQuery) ([]Jour
 		ResultsPerPage: query.ResultsPerPage,
 	}
 
-	return make([]Journal, 0), pagination
+	db := js.Container.Db.(dynamodb.DynamodbLike)
+	expr, _ := expression.NewBuilder().Build()
+	count, _ := db.ScanCount(expr)
+	pagination.TotalResults = int(count)
+	pagination.TotalPages = int(math.Ceil(float64(pagination.TotalResults) / float64(query.ResultsPerPage)))
+
+	if query.Page > pagination.TotalPages {
+		return []Journal{}, pagination
+	}
+
+	journals := []Journal{}
+	err := db.ScanLimit(expr, (query.Page-1)*query.ResultsPerPage, query.ResultsPerPage, &journals)
+	if err != nil {
+		return []Journal{}, pagination
+	}
+
+	return journals, pagination
 }
 
 // FindBySlug Find a journal by slug
 func (js *DynamoJournals) FindBySlug(slug string) Journal {
-	return Journal{}
+	db := js.Container.Db.(dynamodb.DynamodbLike)
+	expr, _ := expression.NewBuilder().WithKeyCondition(
+		expression.Key("slug").Equal(expression.Value(slug))).Build()
+	journals := []Journal{}
+	err := db.Query(expr, true, &journals)
+	if err != nil || len(journals) < 1 {
+		return Journal{}
+	}
+	return journals[0]
 }
 
 // FindNext returns the next entry after an ID
 func (js *DynamoJournals) FindNext(id int) Journal {
-	return Journal{}
+	db := js.Container.Db.(dynamodb.DynamodbLike)
+	expr, _ := expression.NewBuilder().WithKeyCondition(
+		expression.Key("id").GreaterThan(expression.Value(id))).Build()
+	journals := []Journal{}
+	err := db.Query(expr, true, &journals)
+	if err != nil || len(journals) < 1 {
+		return Journal{}
+	}
+	return journals[0]
 }
 
 // FindNext returns the previous entry before an ID
 func (js *DynamoJournals) FindPrev(id int) Journal {
-	return Journal{}
+	db := js.Container.Db.(dynamodb.DynamodbLike)
+	expr, _ := expression.NewBuilder().WithKeyCondition(
+		expression.Key("id").LessThan(expression.Value(id))).Build()
+	journals := []Journal{}
+	err := db.Query(expr, false, &journals)
+	if err != nil || len(journals) < 1 {
+		return Journal{}
+	}
+	return journals[0]
 }
 
-// Save Save a journal entry, either inserting it or updating it in the database
+// Save a journal entry, either inserting it or updating it in the database
 func (js *DynamoJournals) Save(j Journal) Journal {
+	db := js.Container.Db.(dynamodb.DynamodbLike)
+	if j.ID == 0 {
+		lastJournal := js.FindPrev(math.MaxInt)
+		if lastJournal.ID == 0 {
+			j.ID = 1
+		} else {
+			j.ID = lastJournal.ID - 1
+		}
+	}
+
+	db.PutItem(map[string]types.AttributeValue{
+		"id":      &types.AttributeValueMemberN{Value: strconv.Itoa(j.ID)},
+		"slug":    &types.AttributeValueMemberS{Value: j.Slug},
+		"title":   &types.AttributeValueMemberS{Value: j.Title},
+		"date":    &types.AttributeValueMemberS{Value: j.Date},
+		"content": &types.AttributeValueMemberS{Value: j.Content},
+	})
+
 	return j
 }
 
