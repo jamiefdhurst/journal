@@ -149,3 +149,88 @@ func TestQuery(t *testing.T) {
 		t.Errorf("Expected row to be returned correctly but received Title: %s", row.Title)
 	}
 }
+
+func TestScan(t *testing.T) {
+	ep, tearDown := setupContainer(t)
+	defer tearDown(t)
+
+	db := &Dynamodb{}
+	connect(db, ep, t)
+	fill(db, t)
+
+	// Error scan (wrong unmarshall)
+	expr, _ := expression.NewBuilder().Build()
+	err := db.Scan(expr, &row{})
+	if err == nil {
+		t.Error("Expected error but received nothing")
+	}
+
+	// Correct scan
+	rows := []row{}
+	err = db.Scan(expr, &rows)
+	if err != nil {
+		t.Errorf("Expected rows to be returned but received error: %s", err)
+	}
+	if len(rows) != 3 {
+		t.Errorf("Expected 3 rows to be returned but received: %d", len(rows))
+	}
+	// if rows[0].ID != 1 {
+	// 	t.Errorf("Expected row to be returned correctly but received ID: %d", rows[0].ID)
+	// }
+	// if rows[0].Slug != "foobar" {
+	// 	t.Errorf("Expected row to be returned correctly but received Slug: %s", rows[0].Slug)
+	// }
+	// if rows[0].Title != "Foo Bar" {
+	// 	t.Errorf("Expected row to be returned correctly but received Title: %s", rows[0].Title)
+	// }
+}
+
+func TestScanCount(t *testing.T) {
+	ep, tearDown := setupContainer(t)
+	defer tearDown(t)
+
+	db := &Dynamodb{}
+	connect(db, ep, t)
+	fill(db, t)
+
+	expr, _ := expression.NewBuilder().Build()
+	rows, err := db.ScanCount(expr)
+	if err != nil {
+		t.Errorf("Expected rows to be returned but received error: %s", err)
+	}
+	if rows != 3 {
+		t.Errorf("Expected 3 rows to be returned but received: %d", rows)
+	}
+}
+
+func TestScanLimit(t *testing.T) {
+	ep, tearDown := setupContainer(t)
+	defer tearDown(t)
+
+	db := &Dynamodb{}
+	connect(db, ep, t)
+	fill(db, t)
+
+	expr, _ := expression.NewBuilder().WithFilter(
+		expression.And(
+			expression.AttributeNotExists(expression.Name("something-random")),
+			expression.Equal(expression.Name("slug"), expression.Value("foobar")),
+		)).Build()
+	rows := []row{}
+	err := db.ScanLimit(expr, 0, 1, &rows)
+	if err != nil {
+		t.Errorf("Expected rows to be returned but received error: %s", err)
+	}
+	if len(rows) != 1 {
+		t.Errorf("Expected 1 row to be returned but received: %d", len(rows))
+	}
+	if rows[0].ID != 1 {
+		t.Errorf("Expected row to be returned correctly but received ID: %d", rows[0].ID)
+	}
+	if rows[0].Slug != "foobar" {
+		t.Errorf("Expected row to be returned correctly but received Slug: %s", rows[0].Slug)
+	}
+	if rows[0].Title != "Foo Bar" {
+		t.Errorf("Expected row to be returned correctly but received Title: %s", rows[0].Title)
+	}
+}
