@@ -239,41 +239,47 @@ func (js *DynamoJournals) FetchPaginated(query database.PaginationQuery) ([]Jour
 
 // FindBySlug Find a journal by slug
 func (js *DynamoJournals) FindBySlug(slug string) Journal {
-	db := js.Container.Db.(dynamodb.DynamodbLike)
-	expr, _ := expression.NewBuilder().WithKeyCondition(
-		expression.Key("slug").Equal(expression.Value(slug))).Build()
-	journals := []Journal{}
-	err := db.Query(expr, true, &journals)
-	if err != nil || len(journals) < 1 {
-		return Journal{}
-	}
-	return journals[0]
+	return Journal{}
+	// TODO: Write this using scan so it works correctly
+	// db := js.Container.Db.(dynamodb.DynamodbLike)
+	// expr, _ := expression.NewBuilder().WithKeyCondition(
+	// 	expression.Key("slug").Equal(expression.Value(slug))).Build()
+	// journals := []Journal{}
+	// err := db.Query(expr, true, &journals)
+	// if err != nil || len(journals) < 1 {
+	// 	return Journal{}
+	// }
+	// return journals[0]
 }
 
 // FindNext returns the next entry after an ID
 func (js *DynamoJournals) FindNext(id int) Journal {
-	db := js.Container.Db.(dynamodb.DynamodbLike)
-	expr, _ := expression.NewBuilder().WithKeyCondition(
-		expression.Key("id").GreaterThan(expression.Value(id))).Build()
-	journals := []Journal{}
-	err := db.Query(expr, true, &journals)
-	if err != nil || len(journals) < 1 {
-		return Journal{}
-	}
-	return journals[0]
+	return Journal{}
+	// TODO: Write this using scan so it works correctly
+	// db := js.Container.Db.(dynamodb.DynamodbLike)
+	// expr, _ := expression.NewBuilder().WithKeyCondition(
+	// 	expression.Key("id").GreaterThan(expression.Value(id))).Build()
+	// journals := []Journal{}
+	// err := db.Query(expr, true, &journals)
+	// if err != nil || len(journals) < 1 {
+	// 	return Journal{}
+	// }
+	// return journals[0]
 }
 
 // FindNext returns the previous entry before an ID
 func (js *DynamoJournals) FindPrev(id int) Journal {
-	db := js.Container.Db.(dynamodb.DynamodbLike)
-	expr, _ := expression.NewBuilder().WithKeyCondition(
-		expression.Key("id").LessThan(expression.Value(id))).Build()
-	journals := []Journal{}
-	err := db.Query(expr, false, &journals)
-	if err != nil || len(journals) < 1 {
-		return Journal{}
-	}
-	return journals[0]
+	return Journal{}
+	// TODO: Write this using scan so it works correctly
+	// db := js.Container.Db.(dynamodb.DynamodbLike)
+	// expr, _ := expression.NewBuilder().WithKeyCondition(
+	// 	expression.Key("id").LessThan(expression.Value(id))).Build()
+	// journals := []Journal{}
+	// err := db.Query(expr, false, &journals)
+	// if err != nil || len(journals) < 1 {
+	// 	return Journal{}
+	// }
+	// return journals[0]
 }
 
 // Save a journal entry, either inserting it or updating it in the database

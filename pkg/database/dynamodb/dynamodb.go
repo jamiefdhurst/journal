@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
@@ -44,16 +45,33 @@ func (d *Dynamodb) Connect(dbFile string) error {
 		endpoint = dbFileParts[1]
 	}
 
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		return err
-	}
-
+	cfg, _ := config.LoadDefaultConfig(context.TODO())
 	d.db = dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
 		o.BaseEndpoint = &endpoint
 	})
 
 	return nil
+}
+
+func (d *Dynamodb) CreateTable(table string) error {
+	_, err := d.db.CreateTable(context.TODO(), &dynamodb.CreateTableInput{
+		TableName:   &d.tableName,
+		BillingMode: types.BillingModePayPerRequest,
+		AttributeDefinitions: []types.AttributeDefinition{
+			{
+				AttributeName: aws.String("id"),
+				AttributeType: types.ScalarAttributeTypeN,
+			},
+		},
+		KeySchema: []types.KeySchemaElement{
+			{
+				AttributeName: aws.String("id"),
+				KeyType:       types.KeyTypeHash,
+			},
+		},
+	})
+
+	return err
 }
 
 // PutItem save or replace an existing entry
