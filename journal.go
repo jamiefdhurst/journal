@@ -60,7 +60,7 @@ func loadGiphy() {
 }
 
 func main() {
-	const version = "0.9.1"
+	const version = "0.9.2"
 
 	// Set CWD
 	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
