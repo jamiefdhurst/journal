@@ -1,0 +1,75 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to deploy'
+        required: false
+        default: ''
+  workflow_run:
+    workflows: [Build]
+    types:
+      - completed
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest version
+        if: ${{ ! contains(inputs.version, '.') }}
+        id: latest
+        uses: gregziegan/fetch-latest-release@v2.0.0
+      - name: Resolve version
+        id: version
+        uses: haya14busa/action-cond@v1
+        with:
+          cond: ${{ ! contains(inputs.version, '.') }}
+          if_true: ${{ steps.latest.outputs.name }}
+          if_false: ${{ inputs.version }}
+      - uses: robinraju/release-downloader@v1.8
+        with:
+          tag: ${{ steps.version.outputs.value }}
+          fileName: "journal-lambda_al2023-*.zip"
+          tarBall: false
+          zipBall: false
+          extract: false
+      - uses: chrnorm/deployment-action@releases/v1
+        name: Create deployment for ${{ steps.version.outputs.value }}
+        id: deployment
+        with:
+          token: ${{ secrets.PAT }}
+          description: ${{ steps.version.outputs.value }}
+          environment: production
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ""
+          aws-region: eu-west-1
+          unset-current-credentials: true
+      - name: Upload ${{ steps.version.outputs.value }} to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name journal \
+            --zip-file fileb://journal-lambda_al2023-${{ steps.version.outputs.value }}.zip
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: ${{ secrets.PAT }}
+          environment-url: https://jamiehurst.co.uk
+          state: success
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@v2
+        with:
+          token: ${{ secrets.PAT }}
+          environment-url: https://jamiehurst.co.uk
+          state: failure
+          deployment-id: ${{ steps.deployment.outputs.deployment_id }}

@@ -79,9 +79,9 @@ jobs:
         run: |
           sudo apt-get install -y build-essential libsqlite3-dev
           go mod download
-          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal .
-          cp journal bootstrap
-          zip -r journal-lambda.zip bootstrap web -x web/app/\*
+          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal-bin_linux_x64-v${{ steps.version.outputs.value }} .
+          cp journal-bin_linux_x64-v${{ steps.version.outputs.value }} bootstrap
+          zip -r journal-lambda_al2023-v${{ steps.version.outputs.value }}.zip bootstrap web -x web/app/\*
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
         with:
@@ -90,4 +90,4 @@ jobs:
           makeLatest: true
           tag: v${{ steps.version.outputs.value }}
           name: v${{ steps.version.outputs.value }}
-          artifacts: "journal,journal-lambda.zip"
+          artifacts: "journal-bin_linux_x64-v${{ steps.version.outputs.value }},journal-lambda_al2023-v${{ steps.version.outputs.value }}.zip"
