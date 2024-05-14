@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to Private Instance
 
 on:
   workflow_dispatch:
@@ -62,7 +62,6 @@ jobs:
         uses: chrnorm/deployment-status@v2
         with:
           token: ${{ secrets.PAT }}
-          environment-url: https://jamiehurst.co.uk
           state: success
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
       - name: Update deployment status (failure)
@@ -70,6 +69,5 @@ jobs:
         uses: chrnorm/deployment-status@v2
         with:
           token: ${{ secrets.PAT }}
-          environment-url: https://jamiehurst.co.uk
           state: failure
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
