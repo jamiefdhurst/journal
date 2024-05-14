@@ -1,20 +1,22 @@
-FROM golang:1.20
-
-RUN apt-get update -y && apt-get install -y sqlite3
-
-WORKDIR /go/src/github.com/jamiefdhurst/journal
-COPY . .
-
-RUN go get -v ./...
-RUN go install -v ./...
-RUN go install github.com/tebeka/go2xunit@latest
-RUN go install github.com/t-yuki/gocover-cobertura@latest
+FROM golang:1.22-bookworm
+LABEL org.opencontainers.image.source=https://github.com/jamiefdhurst/journal
 
 ENV J_ARTICLES_PER_PAGE ""
 ENV J_DB_PATH ""
 ENV J_GIPHY_API_KEY ""
 ENV J_PORT ""
 ENV J_TITLE ""
+
+WORKDIR /go/src/github.com/jamiefdhurst/journal
+COPY . .
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --assume-yes build-essential libsqlite3-dev; \
+    go mod download; \
+    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal .; \
+    go install github.com/tebeka/go2xunit@latest;\
+    go install github.com/axw/gocov/gocov@latest; \
+    go install github.com/AlekSi/gocov-xml@latest; \
+    mv journal /go/bin/journal
 
 VOLUME /go/data
 EXPOSE 3000

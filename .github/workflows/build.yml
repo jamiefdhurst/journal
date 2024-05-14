@@ -70,6 +70,18 @@ jobs:
           docker tag ghcr.io/jamiefdhurst/journal:latest ghcr.io/jamiefdhurst/journal:v${{ steps.version.outputs.value }}
           docker push ghcr.io/jamiefdhurst/journal:latest
           docker push ghcr.io/jamiefdhurst/journal:v${{ steps.version.outputs.value }}
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.22'
+          cache-dependency-path: go.sum
+      - name: Build Binary
+        run: |
+          sudo apt-get install -y build-essential libsqlite3-dev
+          go mod download
+          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal .
+          cp journal bootstrap
+          zip -r journal-lambda.zip bootstrap web -x web/app/\*
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
         with:
@@ -78,3 +90,4 @@ jobs:
           makeLatest: true
           tag: v${{ steps.version.outputs.value }}
           name: v${{ steps.version.outputs.value }}
+          artifacts: "journal,journal-lambda.zip"

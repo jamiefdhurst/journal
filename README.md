@@ -139,3 +139,27 @@ To test locally, simply use:
 ```bash
 go test -v ./...
 ```
+
+### Building for Lambda
+
+The application is designed to run as a Lambda connected to an EFS for SQLite 
+storage. This requires a different method of building to ensure it includes the 
+appropriate libraries and is built for the correct architecture.
+
+To build for Lambda, you will need the x86_64-unknown-linux-gnu cross compiler
+(if you're on a Mac):
+
+```bash
+brew tap SergioBenitez/osxct
+brew install x86_64-unknown-linux-gnu
+```
+
+To build, simply run:
+
+```bash
+make build
+```
+
+This will produce a Lambda output: `lambda.zip`, that you can upload onto an 
+Amazon Linux 2023 (al2023) runtime Lambda, if you configure the appropriate 
+environment variables.

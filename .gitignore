@@ -31,3 +31,5 @@ test/data/test.db
 .vscode
 .DS_Store
 .history
+bootstrap
+*.zip
