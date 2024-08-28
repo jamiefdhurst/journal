@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 	_ "github.com/mattn/go-sqlite3" // SQLite 3 driver
@@ -28,6 +29,13 @@ func (s *Sqlite) Close() {
 
 // Connect Connect/open the database
 func (s *Sqlite) Connect(dbFile string) error {
+	if _, err := os.Stat(dbFile); err != nil {
+		file, err := os.Create(dbFile)
+		if err != nil {
+			return err
+		}
+		file.Close()
+	}
 	s.db, _ = sql.Open("sqlite3", dbFile)
 	return s.db.Ping()
 }
