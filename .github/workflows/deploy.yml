@@ -30,13 +30,6 @@ jobs:
           cond: ${{ ! contains(inputs.version, '.') }}
           if_true: ${{ steps.latest.outputs.name }}
           if_false: ${{ inputs.version }}
-      - uses: robinraju/release-downloader@v1.8
-        with:
-          tag: ${{ steps.version.outputs.value }}
-          fileName: "journal-lambda_al2023-*.zip"
-          tarBall: false
-          zipBall: false
-          extract: false
       - uses: chrnorm/deployment-action@releases/v1
         name: Create deployment for ${{ steps.version.outputs.value }}
         id: deployment
@@ -44,19 +37,19 @@ jobs:
           token: ${{ secrets.PAT }}
           description: ${{ steps.version.outputs.value }}
           environment: production
-      - name: Setup AWS CLI
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+      - name: Upload release ${{ steps.version.outputs.value }} to server
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ""
-          aws-region: eu-west-1
-          unset-current-credentials: true
-      - name: Upload ${{ steps.version.outputs.value }} to Lambda
-        run: |
-          aws lambda update-function-code \
-            --function-name journal \
-            --zip-file fileb://journal-lambda_al2023-${{ steps.version.outputs.value }}.zip
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            docker pull ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
+            docker rmi journal:latest
+            docker tag ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }} journal:latest
+            service supervisor stop
+            service supervisor start
       - name: Update deployment status (success)
         if: success()
         uses: chrnorm/deployment-status@v2

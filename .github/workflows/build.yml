@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - 'main'
+    paths:
+      - 'api/**'
+      - 'internal/**'
+      - 'pkg/**'
+      - 'test/**'
+      - 'web/**'
+      - '*.go'
+      - 'go.*'
+      - '*.md'
 
 permissions:
   contents: write
