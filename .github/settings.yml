@@ -58,3 +58,8 @@ branches:
         contexts: ['Test']
       enforce_admins: false
       restrictions: null
+milestones:
+  - title: Re-brand
+    description: Re-brand the application and make it more accessible for others to try
+    state: open
+
