@@ -59,7 +59,7 @@ branches:
       enforce_admins: false
       restrictions: null
 milestones:
-  - title: Re-brand
+  - title: Journal v1.0 Release
     description: Re-brand the application and make it more accessible for others to try
     state: open
 
