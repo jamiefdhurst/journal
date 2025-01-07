@@ -3,6 +3,8 @@ package web
 import (
 	"net/http"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -10,13 +12,21 @@ import (
 	"github.com/jamiefdhurst/journal/test/mocks/controller"
 )
 
+func init() {
+	_, filename, _, _ := runtime.Caller(0)
+	dir := path.Join(path.Dir(filename), "../../../..")
+	err := os.Chdir(dir)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func TestError_Run(t *testing.T) {
 	response := controller.NewMockResponse()
 	configuration := app.DefaultConfiguration()
 	container := &app.Container{Configuration: configuration}
 	controller := &BadRequest{}
 	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test header and response
 	controller.Init(container, []string{}, request)

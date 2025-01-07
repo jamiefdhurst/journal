@@ -3,6 +3,8 @@ package web
 import (
 	"net/http"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -11,6 +13,15 @@ import (
 	"github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
+func init() {
+	_, filename, _, _ := runtime.Caller(0)
+	dir := path.Join(path.Dir(filename), "../../../..")
+	err := os.Chdir(dir)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func TestIndex_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	configuration := app.DefaultConfiguration()
@@ -18,7 +29,6 @@ func TestIndex_Run(t *testing.T) {
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Index{}
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test showing all Journals
 	db.EnableMultiMode()

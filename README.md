@@ -53,6 +53,7 @@ _Please note: you will need Docker installed on your local machine._
 * `J_GA_CODE` - Google Analytics tag value, starts with `UA-`, or ignore to disable Google Analytics
 * `J_GIPHY_API_KEY` - Set to a GIPHY API key to use, or ignore to disable GIPHY
 * `J_PORT` - Port to expose over HTTP, default is `3000`
+* `J_THEME` - Theme to use from within the _web/themes_ folder, defaults to `default`
 * `J_TITLE` - Set the title of the Journal
 
 To use the API key within your Docker setup, include it as follows:
@@ -77,9 +78,9 @@ The project layout follows the standard set out in the following document:
 * `/test` - API tests
 * `/test/data` - Test data
 * `/test/mocks` - Mock files for testing
-* `/web/app` - CSS/JS source files
 * `/web/static` - Compiled static public assets
 * `/web/templates` - View templates
+* `/web/themes` - Front-end themes, a default theme is included
 
 ## Development
 
@@ -121,13 +122,11 @@ content.
 
 ### Front-end
 
-The front-end source files are in _web/app_ and require some tooling and 
-dependencies to be installed via `npm` such as gulp and webpack. You can then 
-use the following build targets:
+The front-end source files are intended to be divided into themes within the
+_web/themes_ folder. Each theme can include icons and a CSS stylesheet.
 
-* `gulp sass` - Compiles the SASS source into CSS
-* `gulp webpack` - Uglifies and minifies the JS
-* `gulp` - Watches for changes in SASS/JS files and immediately compiles
+A simple, basic and minimalist "default" theme is included, but any other 
+themes can be built and modified.
 
 ### Building/Testing
 

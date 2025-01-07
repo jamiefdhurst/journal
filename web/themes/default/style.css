@@ -1,0 +1,433 @@
+@import "https://fonts.googleapis.com/css?family=Roboto%3A300%2C400%2C400i%2C700%2C900%7CRoboto%3A100%2C100italic%2C300%2C300italic%2Cregular%2Citalic%2C500%2C500italic%2C700%2C700italic%2C900%2C900italic&subset=cyrillic";
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    min-height: 100%;
+    padding: 0;
+}
+
+html {
+    font-size: 12px;
+    line-height: 1.15;
+    -webkit-text-size-adjust: 100%;
+}
+
+@media screen and (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    color: #000;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    color: #000;
+}
+
+a,
+a:link,
+a:visited,
+a:active {
+    background-color: transparent;
+    color: #000;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+b,
+strong {
+    font-weight: bolder;
+}
+
+img {
+    border-style: none;
+}
+
+header[role=banner] {
+    margin: 0 auto;
+    max-width: 700px;
+    padding: 1rem 0;
+    width: 90%;
+}
+
+header[role=banner] > a {
+    display: inline-block;
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin: 0;
+    padding: 1rem 0;
+    vertical-align: top;
+}    
+
+header[role=banner] p {
+    margin: 0;
+    padding-top: .5rem;
+}
+
+main {
+    display: block;
+    margin: 0 auto;
+    max-width: 700px;
+    padding: 1rem 0;
+    width: 90%;
+}
+
+footer[role=contentinfo] {
+    color: #777;
+    font-size: .9rem;
+    font-weight: 400;
+    margin: 0 auto;
+    max-width: 700px;
+    padding: 2rem 0;
+    width: 90%;
+
+    .github {
+        float: right;
+    }
+}
+
+.float-right {
+    display: block;
+    float: right;
+}
+
+article {
+    margin-bottom: 7rem;
+}
+
+article h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    margin: 0 auto;
+    max-width: 700px;
+    padding: 1rem 0 .75rem;
+}
+
+article h1 a,
+article h1 a:link,
+article h1 a:visited,
+article h1 a:active {
+    font-weight: 900;
+}
+
+article p.date {
+    color: #777;
+    font-size: .9rem;
+    font-weight: 400;
+    margin: 0 auto 2rem;
+    max-width: 700px;
+    padding: 0 0 1rem;
+}
+
+article .summary,
+article .content {
+    margin: 0 auto;
+    max-width: 700px;
+}
+
+article .content {
+    margin-top: 2rem;
+}
+
+article p {
+    line-height: 1.75;
+    margin: 0 0 1.5rem;
+}
+
+article .summary a,
+article .summary a:link,
+article .summary a:visited,
+article .summary a:active,
+article .summary a:hover,
+article .content a,
+article .content a:link,
+article .content a:visited,
+article .content a:active,
+article .content a:hover, {
+    box-shadow: inset 0 -2px 0 currentColor;
+    transition: .3s;
+}
+
+article a:hover {
+    box-shadow: none;
+}
+
+article .float-right {
+    margin: 0;
+}
+
+.saved,
+.error {
+    margin: 1rem auto;
+    max-width: 700px;
+    padding: 1rem;
+}
+
+.saved {
+    background-color: #cfc;
+    border-bottom: 2px solid #090;
+    color: #060;
+}
+
+.error {
+    background-color: #fcc;
+    border-bottom: 2px solid #f00;
+    color: #c00;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+}
+  
+button,
+input {
+    overflow: visible;
+}
+
+button,
+select {
+    text-transform: none;
+}
+  
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+    appearance: button;
+    -webkit-appearance: button;
+}
+  
+button::-moz-focus-inner,
+[type="button"]::-moz-focus-inner,
+[type="reset"]::-moz-focus-inner,
+[type="submit"]::-moz-focus-inner {
+    border-style: none;
+    padding: 0;
+}
+  
+button:-moz-focusring,
+[type="button"]:-moz-focusring,
+[type="reset"]:-moz-focusring,
+[type="submit"]:-moz-focusring {
+    outline: 1px dotted ButtonText;
+}
+  
+fieldset {
+    padding: 0.35em 0.75em 0.625em;
+}
+
+textarea {
+    overflow: auto;
+}
+
+button,
+.button {
+    background-color: #222;
+    border: 1px solid #222;
+    border-radius: 2px;
+    box-shadow: none;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1rem;
+    padding: 0.75rem 2rem;
+    text-decoration: none;
+    text-shadow: none;
+    transition: background .2s;
+}
+
+button:link,
+button:visited,
+button:active,
+button:hover,
+.button:link,
+.button:visited,
+.button:active,
+.button:hover {
+    background-color: #222;
+    color: #fff;
+}
+
+button:hover,
+.button:hover {
+    background-color: #767676;
+    border-color: #767676;
+    text-decoration: none;
+}
+
+.button-outline {
+    background-color: #fff;
+    border: 1px solid #222;
+    color: #000;
+}
+
+.button-outline:link,
+.button-outline:visited,
+.button-outline:active,
+.button-outline:hover {
+    background-color: #fff;
+    color: #000;
+}
+
+.button-outline:hover {
+    background-color: #ddd;
+}
+
+.pagination ol {
+    list-style: none;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.pagination li {
+    display: inline-block;
+}
+
+.pagination li a:link,
+.pagination li a:visited,
+.pagination li a:active,
+.pagination li a:hover {
+    background-color: #ddd;
+    border-radius: 3px;
+    color: #000;
+    font-weight: 300;
+    padding: .375rem .75rem;
+    transition: .3s;
+}
+
+.pagination li a:hover {
+    background-color: #fff;
+}
+
+.pagination li.current a:link,
+.pagination li.current a:visited,
+.pagination li.current a:active,
+.pagination li.current a:hover {
+    background-color: #222;
+    color: #fff;
+}
+
+.pagination li.current a:hover {
+    background-color: #222;
+}
+
+.prev-next {
+    border-top: 2px solid #111;
+    padding: .625rem 0;
+    display: flex;
+    line-height: 1.5;
+    margin: 2rem auto;
+    max-width: 700px;
+}
+
+.prev-next > div {
+    display: inline-block;
+    width: 50%;
+}
+
+.prev-next.next > div {
+    text-align: right;
+}
+
+.prev-next span {
+    color: #777;
+    display: block;
+    font-size: .875rem;
+}
+
+.form-title {
+    margin: 0 auto 1em;
+    max-width: 700px;
+}
+
+form {
+    margin: 0 auto;
+    max-width: 700px;
+}
+
+fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+fieldset > div {
+    margin: 0 0 1rem;
+}
+
+fieldset label {
+    color: #333;
+    display: block;
+    margin-bottom: .5rem;
+}
+
+fieldset input[type=text],
+fieldset input[type=date],
+fieldset textarea {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    box-sizing: border-box;
+    color: #333;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    font-weight: normal;
+    display: block;
+    line-height: 1.66;
+    padding: .7rem;
+    transition: .3s;
+    width: 100%;
+}
+
+fieldset textarea {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 1rem;
+    font-weight: normal;
+    line-height: 1.66;
+    min-height: 10rem;
+    padding: .6rem 1rem .7rem;
+    transition: .3s;
+}
+
+fieldset textarea:after {
+    padding: 0;
+}
+
+
+fieldset input[type=text]:focus,
+fieldset input[type=date]:focus,
+fieldset textarea:focus {
+    border-color: 333;
+    outline: none;
+}
+
+fieldset p {
+    margin: 2rem 0;
+}

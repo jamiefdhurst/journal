@@ -12,6 +12,10 @@ func NewRouter(app *app.Container) *pkgrouter.Router {
 	rtr := pkgrouter.Router{}
 	rtr.Container = app
 	rtr.ErrorController = &web.BadRequest{}
+	rtr.StaticPaths = []string{
+		"web/themes/" + app.Configuration.Theme,
+		"web/static",
+	}
 
 	rtr.Get("/sitemap.xml", &web.Sitemap{})
 	rtr.Get("/new", &web.New{})
