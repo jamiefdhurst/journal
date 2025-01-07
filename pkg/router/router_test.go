@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
+	"runtime"
 	"testing"
 
 	"github.com/jamiefdhurst/journal/test/mocks/controller"
@@ -11,6 +13,15 @@ import (
 )
 
 type BlankContainer struct{}
+
+func init() {
+	_, filename, _, _ := runtime.Caller(0)
+	dir := path.Join(path.Dir(filename), "../..")
+	err := os.Chdir(dir)
+	if err != nil {
+		panic(err)
+	}
+}
 
 func TestGet(t *testing.T) {
 	ctrl := &controller.MockController{}
@@ -69,16 +80,13 @@ func TestServeHTTP(t *testing.T) {
 	standardController := &controller.MockController{}
 	paramController := &controller.MockController{}
 	response := controller.NewMockResponse()
-	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: errorController}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: errorController, StaticPaths: []string{"test"}}
 	router.Get("/standard", standardController)
 	router.Get("/param/[%s]", paramController)
 	router.Get("/", indexController)
 
-	// Set CWD
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
-
 	// Serve static file
-	staticURL := &url.URL{Path: "/css/default.min.css"}
+	staticURL := &url.URL{Path: "/style.css"}
 	staticRequest := &http.Request{URL: staticURL, Method: "GET"}
 	router.ServeHTTP(response, staticRequest)
 	if errorController.HasRun {

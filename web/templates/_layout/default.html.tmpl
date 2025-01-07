@@ -7,16 +7,16 @@
     <title>{{template "title" .}}{{.Container.Configuration.Title}}</title>
     <meta name="viewport" content="device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
     <meta name="description" content="{{.Container.Configuration.Description}}" />
-    <link rel="stylesheet" type="text/css" href="/css/default.min.css?v={{.Container.Version}}" />
+    <link rel="stylesheet" type="text/css" href="/style.css?v={{.Container.Version}}" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest"></head>
 <body>
     <header role="banner">
-        <a href="/">{{.Container.Configuration.Title}}</a>
+        <a id="title" href="/">{{.Container.Configuration.Title}}</a>
         {{if .Container.Configuration.EnableCreate}}
-            <p class="float-right"><a class="button" href="/new">Create New Post</a></p>
+            <nav id="menu" class="float-right"><a class="button" href="/new">Create New Post</a></nav>
         {{end}}
     </header>
     <main role="main">
@@ -28,7 +28,6 @@
         <p class="github"><a target="_blank" href="https://github.com/jamiefdhurst/journal">GitHub</a></p>
         <p>Journal v{{.Container.Version}}</p>
     </footer>
-    <script src="/js/default.min.js?v={{.Container.Version}}"></script>
     {{if ne .Container.Configuration.GoogleAnalyticsCode ""}}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{.Container.Configuration.GoogleAnalyticsCode}}"></script>
     <script>

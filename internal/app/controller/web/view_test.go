@@ -3,6 +3,8 @@ package web
 import (
 	"net/http"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -11,13 +13,21 @@ import (
 	"github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
+func init() {
+	_, filename, _, _ := runtime.Caller(0)
+	dir := path.Join(path.Dir(filename), "../../../..")
+	err := os.Chdir(dir)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func TestView_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	configuration := app.DefaultConfiguration()
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &View{}
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test not found/error with GET/POST
 	db.Rows = &database.MockRowsEmpty{}
