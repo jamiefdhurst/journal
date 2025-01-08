@@ -24,7 +24,7 @@ type Index struct {
 func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 
 	container := c.Super.Container.(*app.Container)
-	js := model.Journals{Container: container, Gs: model.GiphyAdapter(container)}
+	js := model.Journals{Container: container}
 
 	paginationQuery := database.PaginationQuery{Page: 1, ResultsPerPage: container.Configuration.ArticlesPerPage}
 	query := request.URL.Query()

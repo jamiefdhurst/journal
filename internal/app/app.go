@@ -16,16 +16,10 @@ type Database interface {
 	Query(sql string, args ...interface{}) (rows.Rows, error)
 }
 
-// GiphyAdapter Interface for API
-type GiphyAdapter interface {
-	SearchForID(s string) (string, error)
-}
-
 // Container Define the main container for the application
 type Container struct {
 	Configuration Configuration
 	Db            Database
-	Giphy         GiphyAdapter
 	Version       string
 }
 

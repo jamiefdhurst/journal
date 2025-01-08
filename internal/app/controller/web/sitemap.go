@@ -20,7 +20,7 @@ type Sitemap struct {
 func (c *Sitemap) Run(response http.ResponseWriter, request *http.Request) {
 
 	container := c.Super.Container.(*app.Container)
-	js := model.Journals{Container: container, Gs: model.GiphyAdapter(container)}
+	js := model.Journals{Container: container}
 
 	c.Journals = js.FetchAll()
 

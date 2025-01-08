@@ -20,7 +20,7 @@ type View struct {
 // Run View action
 func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
+	js := model.Journals{Container: c.Super.Container.(*app.Container)}
 	c.Journal = js.FindBySlug(c.Params[1])
 
 	if c.Journal.ID == 0 {
@@ -28,8 +28,6 @@ func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 	} else {
 		c.Next = js.FindNext(c.Journal.ID)
 		c.Prev = js.FindPrev(c.Journal.ID)
-		gs := model.Giphys{}
-		c.Journal.Content = gs.ConvertIDsToIframes(c.Journal.Content)
 		template, _ := template.ParseFiles(
 			"./web/templates/_layout/default.html.tmpl",
 			"./web/templates/view.html.tmpl")
