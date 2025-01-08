@@ -58,6 +58,14 @@ branches:
         contexts: ['Test']
       enforce_admins: false
       restrictions: null
+  - name: release/*
+    protection:
+      required_pull_request_reviews: null
+      required_status_checks:
+        strict: true
+        contexts: ['Test']
+      enforce_admins: false
+      restrictions: null
 milestones:
   - title: Journal v1.0 Release
     description: Re-brand the application and make it more accessible for others to try
