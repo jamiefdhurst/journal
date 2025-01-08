@@ -1,6 +1,7 @@
 repository:
   name: journal
-  description: A simple blog available as an API, written in Go with accompanying tests and documentation. Can be used as a useful starting point for Go web projects.
+  description: A simple blog available as an API, written in Go with 
+accompanying tests and documentation. Can be used as a useful starting point for Go web projects.
   #homepage: https://example.github.io/
   topics: golang, unit-testing, rest-api, sqlite
   private: false
