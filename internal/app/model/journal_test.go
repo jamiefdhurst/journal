@@ -282,9 +282,8 @@ func TestJournals_FindPrev(t *testing.T) {
 func TestJournals_Save(t *testing.T) {
 	db := &database.MockSqlite{Result: &database.MockResult{}}
 	db.Rows = &database.MockRowsEmpty{}
-	gs := &database.MockGiphyExtractor{}
 	container := &app.Container{Db: db}
-	js := Journals{Container: container, Gs: gs}
+	js := Journals{Container: container}
 
 	// Test with new Journal
 	journal := js.Save(Journal{ID: 0, Title: "Testing"})
@@ -296,11 +295,6 @@ func TestJournals_Save(t *testing.T) {
 	journal = js.Save(Journal{ID: 2, Title: "Testing 2"})
 	if journal.ID != 2 || journal.Title != "Testing 2" {
 		t.Error("Expected same Journal to have been returned with new ID")
-	}
-
-	// Check Giphy calls
-	if gs.CalledTimes != 2 {
-		t.Error("Expected Giphy to have been called 2 times within test scope")
 	}
 }
 

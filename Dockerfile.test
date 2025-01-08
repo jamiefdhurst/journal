@@ -2,9 +2,13 @@ FROM golang:1.22-bookworm
 LABEL org.opencontainers.image.source=https://github.com/jamiefdhurst/journal
 
 ENV J_ARTICLES_PER_PAGE ""
+ENV J_CREATE ""
 ENV J_DB_PATH ""
-ENV J_GIPHY_API_KEY ""
+ENV J_DESCRIPTION ""
+ENV J_EDIT ""
+ENV J_GA_CODE ""
 ENV J_PORT ""
+ENV J_THEME ""
 ENV J_TITLE ""
 
 WORKDIR /go/src/github.com/jamiefdhurst/journal

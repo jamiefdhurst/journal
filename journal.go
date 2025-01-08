@@ -7,8 +7,6 @@ import (
 	"os"
 
 	"github.com/akrylysov/algnhsa"
-	"github.com/jamiefdhurst/journal/pkg/adapter/giphy"
-	"github.com/jamiefdhurst/journal/pkg/adapter/json"
 
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
@@ -51,14 +49,6 @@ func loadDatabase() func() {
 	}
 }
 
-func loadGiphy() {
-	giphyAPIKey := os.Getenv("J_GIPHY_API_KEY")
-	if giphyAPIKey != "" {
-		log.Println("Enabling GIPHY client...")
-		container.Giphy = &giphy.Client{APIKey: giphyAPIKey, Client: &json.Client{}}
-	}
-}
-
 func main() {
 	const version = "0.9.6"
 
@@ -74,7 +64,6 @@ func main() {
 
 	closeFunc := loadDatabase()
 	defer closeFunc()
-	loadGiphy()
 
 	router := router.NewRouter(container)
 

@@ -26,6 +26,7 @@ type Route struct {
 type Router struct {
 	Container       interface{}
 	Routes          []Route
+	StaticPaths     []string
 	ErrorController controller.Controller
 }
 
@@ -65,14 +66,16 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 	// Debug output into the console
 	log.Printf("%s: %s", request.Method, request.URL.Path)
 
-	// Attempt to serve a file first
-	if request.URL.Path != "/" {
-		file := "web/static" + request.URL.Path
-		_, err := os.Stat(file)
-		if !os.IsNotExist(err) {
-			response.Header().Add("Cache-Control", "public, max-age=15552000")
-			http.ServeFile(response, request, file)
-			return
+	// Attempt to serve a file first from available static paths
+	for _, staticPath := range r.StaticPaths {
+		if request.URL.Path != "/" {
+			file := staticPath + request.URL.Path
+			_, err := os.Stat(file)
+			if !os.IsNotExist(err) {
+				response.Header().Add("Cache-Control", "public, max-age=15552000")
+				http.ServeFile(response, request, file)
+				return
+			}
 		}
 	}
 

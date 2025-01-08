@@ -39,7 +39,7 @@ Contains all current post reources in reverse date order.
         "slug": "example-post",
         "title": "An Example Post",
         "date": "2018-05-18T12:53:22Z",
-        "content": "<p>TEST</p><p>:gif:id:cE1qRt8nl6Neo:</p>"
+        "content": "<p>TEST</p>"
     }
 ]
 ```
@@ -66,7 +66,7 @@ Contains the single post.
     "slug": "example-post",
     "title": "An Example Post",
     "date": "2018-05-18T12:53:22Z",
-    "content": "<p>TEST</p><p>:gif:id:cE1qRt8nl6Neo:</p>"
+    "content": "<p>TEST</p>"
 }
 ```
 

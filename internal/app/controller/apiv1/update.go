@@ -22,7 +22,7 @@ func (c *Update) Run(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	js := model.Journals{Container: container, Gs: model.GiphyAdapter(container)}
+	js := model.Journals{Container: container}
 	journal := js.FindBySlug(c.Params[1])
 
 	response.Header().Add("Content-Type", "application/json")

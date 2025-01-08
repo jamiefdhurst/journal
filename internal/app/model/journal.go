@@ -27,7 +27,7 @@ type Journal struct {
 
 // GetDate Get the friendly date for the Journal
 func (j Journal) GetDate() string {
-	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
+	re := regexp.MustCompile(`\d{4}\-\d{2}\-\d{2}`)
 	date := re.FindString(j.Date)
 	timeObj, err := time.Parse("2006-01-02", date)
 	if err != nil {
@@ -38,7 +38,7 @@ func (j Journal) GetDate() string {
 
 // GetEditableDate Get the date string for editing
 func (j Journal) GetEditableDate() string {
-	re := regexp.MustCompile("\\d{4}\\-\\d{2}\\-\\d{2}")
+	re := regexp.MustCompile(`\d{4}\-\d{2}\-\d{2}`)
 	return re.FindString(j.Date)
 }
 
@@ -59,7 +59,6 @@ func (j Journal) GetExcerpt() string {
 // Journals Common database resource link for Journal actions
 type Journals struct {
 	Container *app.Container
-	Gs        GiphysExtractor
 }
 
 // CreateTable Create the actual table
@@ -144,7 +143,6 @@ func (js *Journals) Save(j Journal) Journal {
 	var res sql.Result
 
 	// Convert content for saving
-	j.Content = js.Gs.ExtractContentsAndSearchAPI(j.Content)
 	if j.Slug == "" {
 		j.Slug = Slugify(j.Title)
 	}
@@ -192,7 +190,7 @@ func (js *Journals) loadSingle(rows rows.Rows, err error) Journal {
 
 // Slugify Utility to convert a string into a slug
 func Slugify(s string) string {
-	re := regexp.MustCompile("[\\W+]")
+	re := regexp.MustCompile(`[\W+]`)
 
 	return strings.ToLower(re.ReplaceAllString(s, "-"))
 }

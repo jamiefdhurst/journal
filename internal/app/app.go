@@ -16,16 +16,10 @@ type Database interface {
 	Query(sql string, args ...interface{}) (rows.Rows, error)
 }
 
-// GiphyAdapter Interface for API
-type GiphyAdapter interface {
-	SearchForID(s string) (string, error)
-}
-
 // Container Define the main container for the application
 type Container struct {
 	Configuration Configuration
 	Db            Database
-	Giphy         GiphyAdapter
 	Version       string
 }
 
@@ -38,6 +32,7 @@ type Configuration struct {
 	EnableEdit          bool
 	GoogleAnalyticsCode string
 	Port                string
+	Theme               string
 	Title               string
 }
 
@@ -51,6 +46,7 @@ func DefaultConfiguration() Configuration {
 		EnableEdit:          true,
 		GoogleAnalyticsCode: "",
 		Port:                "3000",
+		Theme:               "default",
 		Title:               "Jamie's Journal",
 	}
 }
@@ -81,6 +77,10 @@ func ApplyEnvConfiguration(config *Configuration) {
 	port := os.Getenv("J_PORT")
 	if port != "" {
 		config.Port = port
+	}
+	theme := os.Getenv("J_THEME")
+	if theme != "" {
+		config.Theme = theme
 	}
 	title := os.Getenv("J_TITLE")
 	if title != "" {

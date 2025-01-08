@@ -9,9 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jamiefdhurst/journal/pkg/adapter/giphy"
-	"github.com/jamiefdhurst/journal/pkg/adapter/json"
-
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
 	"github.com/jamiefdhurst/journal/internal/app/router"
@@ -25,15 +22,14 @@ var (
 )
 
 func init() {
-	rtr = router.NewRouter(nil)
+	container = &app.Container{Configuration: app.DefaultConfiguration()}
+	rtr = router.NewRouter(container)
 	server = httptest.NewServer(rtr)
 
 	log.Println("Serving on " + server.URL)
 }
 
 func fixtures(t *testing.T) {
-	container := &app.Container{Configuration: app.DefaultConfiguration()}
-	adapter := giphy.Client{Client: &json.Client{}}
 	db := &database.Sqlite{}
 	if err := db.Connect("test/data/test.db"); err != nil {
 		t.Error("Could not open test database for writing...")
@@ -41,8 +37,6 @@ func fixtures(t *testing.T) {
 
 	// Setup container
 	container.Db = db
-	container.Giphy = adapter
-	rtr.Container = container
 
 	js := model.Journals{Container: container}
 	db.Exec("DROP TABLE journal")
@@ -65,23 +59,15 @@ func TestConfig(t *testing.T) {
 	if configuration.Port != "3000" {
 		t.Errorf("Expected default port to be set, got %s", configuration.Port)
 	}
+	if configuration.Theme != "default" {
+		t.Errorf("Expected default theme to be set, got %s", configuration.Theme)
+	}
 }
 
 func TestLoadDatabase(t *testing.T) {
 	container.Configuration.DatabasePath = "test/data/test.db"
 	closeFunc := loadDatabase()
 	closeFunc()
-}
-
-func TestLoadGiphy(t *testing.T) {
-	existing := os.Getenv("J_GIPHY_API_KEY")
-	os.Setenv("J_GIPHY_API_KEY", "foobar")
-	loadGiphy()
-	os.Setenv("J_GIPHY_API_KEY", existing)
-
-	if container.Giphy == nil {
-		t.Error("Expected Giphy adapter to be setup")
-	}
 }
 
 func TestApiv1List(t *testing.T) {

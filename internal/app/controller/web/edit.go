@@ -24,7 +24,7 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	js := model.Journals{Container: c.Super.Container.(*app.Container), Gs: model.GiphyAdapter(c.Super.Container.(*app.Container))}
+	js := model.Journals{Container: c.Super.Container.(*app.Container)}
 	c.Journal = js.FindBySlug(c.Params[1])
 
 	if c.Journal.ID == 0 {
