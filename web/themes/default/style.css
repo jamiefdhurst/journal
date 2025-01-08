@@ -162,9 +162,9 @@ article .content a,
 article .content a:link,
 article .content a:visited,
 article .content a:active,
-article .content a:hover, {
+article .content a:hover {
     box-shadow: inset 0 -2px 0 currentColor;
-    transition: .3s;
+    text-decoration: none;
 }
 
 article a:hover {
@@ -351,11 +351,24 @@ button:hover,
     width: 50%;
 }
 
-.prev-next.next > div {
+.prev-next > div.next {
     text-align: right;
 }
 
+.prev-next a:link,
+.prev-next a:visited,
+.prev-next a:active,
+.prev-next a:hover {
+    font-weight: 700;
+}
+
 .prev-next span {
+    color: #222;
+    display: block;
+    font-size: .875rem;
+}
+
+.prev-next small {
     color: #777;
     display: block;
     font-size: .875rem;

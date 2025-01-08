@@ -3,7 +3,7 @@
 <article class="view" itemscope itemtype="https://schema.org/BlogPosting">
     <h1 itemprop="title headline">{{.Journal.Title}}</h1>
     <p class="date">
-        <span itemprop="dateCreated pubdate datePublished" content="{{.Journal.Date}}">Posted on {{.Journal.GetDate}}</span>
+        <span itemprop="dateCreated pubdate datePublished" content="{{.Journal.Date}}">{{.Journal.GetDate}}</span>
         {{if .Container.Configuration.EnableEdit}}<span class="float-right"><a href="/{{.Journal.Slug}}/edit" class="button button-outline">Edit</a></span>{{end}}
     </p>
     <div class="content" itemprop="mainEntityOfPage">
@@ -16,13 +16,13 @@
         <div class="prev">
             {{if .Prev.ID}}
                 <span>Previous</span>
-                <a href="/{{.Prev.Slug}}">{{.Prev.Title}}</a>
+                <a href="/{{.Prev.Slug}}">{{.Prev.Title}}</a> <small>{{.Prev.GetDate}}</small>
             {{end}}
         </div>
         <div class="next">
             {{if .Next.ID}}
                 <span>Next</span>
-                <a href="/{{.Next.Slug}}">{{.Next.Title}}</a>
+                <a href="/{{.Next.Slug}}">{{.Next.Title}}</a> <small>{{.Next.GetDate}}</small>
             {{end}}
         </div>
     </nav>
