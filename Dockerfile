@@ -19,9 +19,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
 
 ENV GOPATH "/go"
 ENV J_ARTICLES_PER_PAGE ""
+ENV J_CREATE ""
 ENV J_DB_PATH ""
-ENV J_GIPHY_API_KEY ""
+ENV J_DESCRIPTION ""
+ENV J_EDIT ""
+ENV J_GA_CODE ""
 ENV J_PORT ""
+ENV J_THEME ""
 ENV J_TITLE ""
 
 VOLUME /go/data

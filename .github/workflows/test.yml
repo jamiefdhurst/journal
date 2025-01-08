@@ -13,7 +13,6 @@ env:
   GOPATH: /home/runner/work/journal/journal/go
   J_ARTICLES_PER_PAGE: ''
   J_DB_PATH: ''
-  J_GIPHY_API_KEY: ''
   J_PORT: ''
   J_TITLE: ''
 

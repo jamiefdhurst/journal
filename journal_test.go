@@ -9,9 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jamiefdhurst/journal/pkg/adapter/giphy"
-	"github.com/jamiefdhurst/journal/pkg/adapter/json"
-
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
 	"github.com/jamiefdhurst/journal/internal/app/router"
@@ -33,7 +30,6 @@ func init() {
 }
 
 func fixtures(t *testing.T) {
-	adapter := giphy.Client{Client: &json.Client{}}
 	db := &database.Sqlite{}
 	if err := db.Connect("test/data/test.db"); err != nil {
 		t.Error("Could not open test database for writing...")
@@ -41,7 +37,6 @@ func fixtures(t *testing.T) {
 
 	// Setup container
 	container.Db = db
-	container.Giphy = adapter
 
 	js := model.Journals{Container: container}
 	db.Exec("DROP TABLE journal")
@@ -73,17 +68,6 @@ func TestLoadDatabase(t *testing.T) {
 	container.Configuration.DatabasePath = "test/data/test.db"
 	closeFunc := loadDatabase()
 	closeFunc()
-}
-
-func TestLoadGiphy(t *testing.T) {
-	existing := os.Getenv("J_GIPHY_API_KEY")
-	os.Setenv("J_GIPHY_API_KEY", "foobar")
-	loadGiphy()
-	os.Setenv("J_GIPHY_API_KEY", existing)
-
-	if container.Giphy == nil {
-		t.Error("Expected Giphy adapter to be setup")
-	}
 }
 
 func TestApiv1List(t *testing.T) {

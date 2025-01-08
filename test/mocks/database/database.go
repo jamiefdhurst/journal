@@ -28,41 +28,6 @@ func (m *MockDatabase) Query(sql string, args ...interface{}) (rows.Rows, error)
 	return nil, nil
 }
 
-// MockGiphyExtractor Mock the Giphy Extractor interface
-type MockGiphyExtractor struct {
-	CalledTimes int
-}
-
-// ExtractContentsAndSearchAPI Mock the full call
-func (m *MockGiphyExtractor) ExtractContentsAndSearchAPI(s string) string {
-	m.CalledTimes++
-	return s
-}
-
-// MockGiphy_SingleRow Mock single row for the Giphy API
-type MockGiphy_SingleRow struct {
-	MockRowsEmpty
-	RowNumber int
-}
-
-// Next Mock 1 row
-func (m *MockGiphy_SingleRow) Next() bool {
-	m.RowNumber++
-	if m.RowNumber < 2 {
-		return true
-	}
-	return false
-}
-
-// Scan Return the data
-func (m *MockGiphy_SingleRow) Scan(dest ...interface{}) error {
-	if m.RowNumber == 1 {
-		*dest[0].(*int) = 1
-		*dest[1].(*string) = "API123456"
-	}
-	return nil
-}
-
 // MockJournal_MultipleRows Mock multiple rows returned for a Journal
 type MockJournal_MultipleRows struct {
 	MockRowsEmpty
