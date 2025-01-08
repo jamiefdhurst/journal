@@ -23,12 +23,14 @@
 {{if gt .Pagination.TotalPages 1}}
     <nav class="pagination">
         <ol>
-            {{$currentPage := .Pagination.Page}}
+            {{if .Pagination.ShowLeft}}<li class="first">1 ...</li>{{end}}
+            {{$currentPage := .Pagination.CurrentPage}}
             {{range .Pages}}
                 <li class="{{if eq . $currentPage}}current{{end}}">
                     <a href="/?page={{.}}">{{.}}</a>
                 </li>
             {{end}}
+            {{if .Pagination.ShowRight}}<li class="last">... {{.Pagination.TotalPages}}</li>{{end}}
         </ol>
     </nav>
 {{end}}

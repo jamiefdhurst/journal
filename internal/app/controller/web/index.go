@@ -16,7 +16,7 @@ type Index struct {
 	controller.Super
 	Journals   []model.Journal
 	Pages      []int
-	Pagination database.PaginationInformation
+	Pagination database.PaginationDisplay
 	Saved      bool
 }
 
@@ -26,25 +26,29 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 	container := c.Super.Container.(*app.Container)
 	js := model.Journals{Container: container, Gs: model.GiphyAdapter(container)}
 
-	pagination := database.PaginationQuery{Page: 1, ResultsPerPage: container.Configuration.ArticlesPerPage}
+	paginationQuery := database.PaginationQuery{Page: 1, ResultsPerPage: container.Configuration.ArticlesPerPage}
 	query := request.URL.Query()
 	if query["page"] != nil {
 		page, err := strconv.Atoi(query["page"][0])
 		if err == nil {
-			pagination.Page = page
+			paginationQuery.Page = page
 		}
 	}
 
-	c.Journals, c.Pagination = js.FetchPaginated(pagination)
+	var paginationInfo database.PaginationInformation
+	c.Journals, paginationInfo = js.FetchPaginated(paginationQuery)
+	c.Pagination = database.DisplayPagination(paginationInfo)
 	c.Saved = false
 	flash := c.Session.GetFlash()
 	if flash != nil && flash[0] == "saved" {
 		c.Saved = true
 	}
 
-	c.Pages = make([]int, c.Pagination.TotalPages)
-	for i := range c.Pages {
-		c.Pages[i] = i + 1
+	c.Pages = make([]int, database.PAGINATION_MAX_PAGES)
+	i := 0
+	for p := c.Pagination.FirstPage; p <= c.Pagination.LastPage; p++ {
+		c.Pages[i] = p
+		i++
 	}
 
 	c.SessionStore.Save(response)
