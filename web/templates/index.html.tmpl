@@ -10,7 +10,7 @@
     <article>
         <h1><a href="/{{.Slug}}">{{.Title}}</a></h1>
         <p class="date">
-            Posted on {{.GetDate}}
+            {{.GetDate}}
             {{if $enableEdit}}<span class="float-right"><a href="/{{.Slug}}/edit" class="button button-outline">Edit</a></span>{{end}}
         </p>
         <div class="summary">
