@@ -32,7 +32,9 @@ type Configuration struct {
 	EnableEdit          bool
 	GoogleAnalyticsCode string
 	Port                string
+	StaticPath          string
 	Theme               string
+	ThemePath           string
 	Title               string
 }
 
@@ -46,7 +48,9 @@ func DefaultConfiguration() Configuration {
 		EnableEdit:          true,
 		GoogleAnalyticsCode: "",
 		Port:                "3000",
+		StaticPath:          "web/static",
 		Theme:               "default",
+		ThemePath:           "web/themes",
 		Title:               "Jamie's Journal",
 	}
 }
@@ -78,9 +82,17 @@ func ApplyEnvConfiguration(config *Configuration) {
 	if port != "" {
 		config.Port = port
 	}
+	staticPath := os.Getenv("J_STATIC_PATH")
+	if staticPath != "" {
+		config.StaticPath = staticPath
+	}
 	theme := os.Getenv("J_THEME")
 	if theme != "" {
 		config.Theme = theme
+	}
+	themePath := os.Getenv("J_THEME_PATH")
+	if themePath != "" {
+		config.ThemePath = themePath
 	}
 	title := os.Getenv("J_TITLE")
 	if title != "" {
