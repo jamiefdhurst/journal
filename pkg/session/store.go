@@ -82,7 +82,7 @@ func (s *DefaultStore) decrypt(encrypted string, output interface{}) error {
 	}
 
 	nonceSize := gcm.NonceSize()
-	asBytes, _ := base64.URLEncoding.DecodeString(encrypted)
+	asBytes, err := base64.URLEncoding.DecodeString(encrypted)
 	if err != nil || len(asBytes) < nonceSize {
 		return errors.New("string length too short")
 	}
