@@ -31,3 +31,21 @@ func (s *Session) AddFlash(value interface{}) {
 	}
 	s.Values[flashKey] = append(flashes, value)
 }
+
+// Get retrieves a value from the session
+func (s *Session) Get(key string) interface{} {
+	if v, ok := s.Values[key]; ok {
+		return v
+	}
+	return nil
+}
+
+// Set stores a value in the session
+func (s *Session) Set(key string, value interface{}) {
+	s.Values[key] = value
+}
+
+// Delete removes a value from the session
+func (s *Session) Delete(key string) {
+	delete(s.Values, key)
+}
