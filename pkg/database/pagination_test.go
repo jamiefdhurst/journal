@@ -18,20 +18,24 @@ func TestDisplayPagination(t *testing.T) {
 			PaginationDisplay{false, false, 1, 1, 4, 4},
 		},
 		{
+			PaginationInformation{1, 7, 20, 135},
+			PaginationDisplay{false, false, 1, 1, 7, 7},
+		},
+		{
 			PaginationInformation{1, 9, 20, 175},
-			PaginationDisplay{false, false, 1, 1, 9, 9},
+			PaginationDisplay{false, true, 1, 1, 7, 9},
 		},
 		{
 			PaginationInformation{1, 15, 20, 299},
-			PaginationDisplay{false, true, 1, 1, 9, 15},
+			PaginationDisplay{false, true, 1, 1, 7, 15},
 		},
 		{
 			PaginationInformation{15, 15, 20, 299},
-			PaginationDisplay{true, false, 15, 7, 15, 15},
+			PaginationDisplay{true, false, 15, 9, 15, 15},
 		},
 		{
 			PaginationInformation{7, 15, 20, 299},
-			PaginationDisplay{true, true, 7, 3, 11, 15},
+			PaginationDisplay{true, true, 7, 4, 10, 15},
 		},
 	}
 

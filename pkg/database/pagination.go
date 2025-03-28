@@ -2,7 +2,7 @@ package database
 
 import "math"
 
-const PAGINATION_MAX_PAGES = 9
+const PAGINATION_MAX_PAGES = 7
 
 // PaginationDisplay describes the information needed to display a pagination component
 type PaginationDisplay struct {
