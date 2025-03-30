@@ -16,7 +16,7 @@ html {
 
 @media screen and (min-width: 768px) {
     html {
-        font-size: 16px;
+        font-size: 14px;
     }
 }
 
@@ -28,7 +28,8 @@ body {
 }
 
 h1 {
-    font-size: 2em;
+    font-size: 2.5rem;
+    font-weight: 900;
     margin: 0.67em 0;
 }
 
@@ -63,8 +64,9 @@ img {
 }
 
 header[role=banner] {
-    margin: 0 auto;
-    max-width: 700px;
+    border-bottom: 1px solid #dedede;
+    margin: 0 auto 2rem;
+    max-width: 1240px;
     padding: 1rem 0;
     width: 90%;
 }
@@ -115,7 +117,7 @@ article {
 }
 
 article h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 900;
     margin: 0 auto;
     max-width: 700px;
@@ -173,6 +175,14 @@ article a:hover {
 
 article .float-right {
     margin: 0;
+}
+
+article .summary .float-right a,
+article .summary .float-right a:link,
+article .summary .float-right a:visited,
+article .summary .float-right a:active,
+article .summary .float-right a:hover {
+    box-shadow: none;
 }
 
 .saved,
@@ -302,6 +312,7 @@ button:hover,
 .pagination ol {
     list-style: none;
     margin: 1rem 0;
+    padding-left: 0;
     text-align: center;
 }
 
@@ -375,8 +386,9 @@ button:hover,
 }
 
 .form-title {
-    margin: 0 auto 1em;
+    margin: 0 auto 2rem;
     max-width: 700px;
+    padding: 1rem 0 .75rem;
 }
 
 form {
@@ -391,12 +403,13 @@ fieldset {
 }
 
 fieldset > div {
-    margin: 0 0 1rem;
+    margin: 0 0 2rem;
 }
 
 fieldset label {
-    color: #333;
+    color: #777;
     display: block;
+    font-size: .9em;
     margin-bottom: .5rem;
 }
 
@@ -437,10 +450,11 @@ fieldset textarea:after {
 fieldset input[type=text]:focus,
 fieldset input[type=date]:focus,
 fieldset textarea:focus {
-    border-color: 333;
+    border-color: #333;
     outline: none;
 }
 
 fieldset p {
     margin: 2rem 0;
+    text-align: right;
 }
