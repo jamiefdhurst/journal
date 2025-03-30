@@ -16,7 +16,7 @@ html {
 
 @media screen and (min-width: 768px) {
     html {
-        font-size: 16px;
+        font-size: 14px;
     }
 }
 
@@ -28,7 +28,8 @@ body {
 }
 
 h1 {
-    font-size: 2em;
+    font-size: 2.5rem;
+    font-weight: 900;
     margin: 0.67em 0;
 }
 
@@ -116,7 +117,7 @@ article {
 }
 
 article h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 900;
     margin: 0 auto;
     max-width: 700px;
@@ -385,8 +386,9 @@ button:hover,
 }
 
 .form-title {
-    margin: 0 auto 1em;
+    margin: 0 auto 2rem;
     max-width: 700px;
+    padding: 1rem 0 .75rem;
 }
 
 form {
@@ -405,8 +407,9 @@ fieldset > div {
 }
 
 fieldset label {
-    color: #333;
+    color: #777;
     display: block;
+    font-size: .9em;
     margin-bottom: .5rem;
 }
 
@@ -447,10 +450,11 @@ fieldset textarea:after {
 fieldset input[type=text]:focus,
 fieldset input[type=date]:focus,
 fieldset textarea:focus {
-    border-color: 333;
+    border-color: #333;
     outline: none;
 }
 
 fieldset p {
     margin: 2rem 0;
+    text-align: right;
 }
