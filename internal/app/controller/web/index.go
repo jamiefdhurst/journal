@@ -2,10 +2,10 @@ package web
 
 import (
 	"net/http"
-	"strconv"
 	"text/template"
 
 	"github.com/jamiefdhurst/journal/internal/app"
+	"github.com/jamiefdhurst/journal/internal/app/controller/apiv1"
 	"github.com/jamiefdhurst/journal/internal/app/model"
 	"github.com/jamiefdhurst/journal/pkg/controller"
 	"github.com/jamiefdhurst/journal/pkg/database"
@@ -26,17 +26,8 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 	container := c.Super.Container.(*app.Container)
 	js := model.Journals{Container: container}
 
-	paginationQuery := database.PaginationQuery{Page: 1, ResultsPerPage: container.Configuration.ArticlesPerPage}
-	query := request.URL.Query()
-	if query["page"] != nil {
-		page, err := strconv.Atoi(query["page"][0])
-		if err == nil {
-			paginationQuery.Page = page
-		}
-	}
-
 	var paginationInfo database.PaginationInformation
-	c.Journals, paginationInfo = js.FetchPaginated(paginationQuery)
+	c.Journals, paginationInfo = apiv1.ListData(request, js)
 	c.Pagination = database.DisplayPagination(paginationInfo)
 	c.Saved = false
 	flash := c.Session.GetFlash()

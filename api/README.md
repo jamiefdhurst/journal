@@ -20,7 +20,7 @@ and editing.
 ### URL Parameters
 
 When specified within endpoints, URL parameters are shown within `{}` curly
-brackets. URLs are parameterised to include post slugs, as opposed to IDs.
+brackets. URLs are parametrised to include post slugs, as opposed to IDs.
 
 ## Available Endpoints
 
@@ -30,7 +30,7 @@ brackets. URLs are parameterised to include post slugs, as opposed to IDs.
 
 **Successful Response:** `200`
 
-Contains all current post reources in reverse date order.
+Contains all current post resources in reverse date order.
 
 ```json
 [
@@ -80,7 +80,7 @@ Contains the single post.
 
 **Method/URL:** `PUT /api/v1/post`
 
-Post is provided as JSON, ommitting the ID and slug:
+Post is provided as JSON, omitting the ID and slug:
 
 ```json
 {

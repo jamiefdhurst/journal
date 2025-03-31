@@ -26,7 +26,7 @@ func (c *Single) Run(response http.ResponseWriter, request *http.Request) {
 	} else {
 		encoder := json.NewEncoder(response)
 		encoder.SetEscapeHTML(false)
-		encoder.Encode(journal)
+		encoder.Encode(MapJournalToJSON(journal))
 	}
 
 }

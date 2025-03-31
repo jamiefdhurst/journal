@@ -24,6 +24,7 @@ _testmain.go
 !Dockerfile.test
 *.out
 *.prof
+coverage.xml
 data
 journal
 node_modules
