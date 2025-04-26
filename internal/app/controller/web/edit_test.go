@@ -50,15 +50,15 @@ func TestEdit_Run(t *testing.T) {
 	// Display error when cookie was set
 	response.Reset()
 	controller.Init(container, []string{"", "0"}, request)
-	controller.Session.AddFlash("error")
-	controller.SessionStore.Save(response)
+	controller.Session().AddFlash("error")
+	controller.SaveSession(response)
 	request, _ = http.NewRequest("GET", "/test/edit", strings.NewReader(""))
 	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
 	response.Reset()
 	db.Rows = &database.MockJournal_SingleRow{}
 	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
-	if !controller.Error || !strings.Contains(response.Content, "div class=\"error\"") {
+	if !strings.Contains(response.Content, "div class=\"error\"") {
 		t.Error("Expected error to be shown in form")
 	}
 
@@ -66,10 +66,9 @@ func TestEdit_Run(t *testing.T) {
 	response.Reset()
 	request, _ = http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
 	db.Rows = &database.MockJournal_SingleRow{}
-	controller.Error = false
 	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
-	if controller.Error || strings.Contains(response.Content, "div class=\"error\"") {
+	if strings.Contains(response.Content, "div class=\"error\"") {
 		t.Error("Expected no error to be shown in form")
 	}
 	if !strings.Contains(response.Content, "<title>Edit Title - Jamie's Journal</title>") {
@@ -105,15 +104,15 @@ func TestEdit_Run(t *testing.T) {
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	db.Rows = &database.MockJournal_SingleRow{}
 	prevController.Init(container, []string{"", "slug"}, request)
-	
+
 	// Verify form data is saved in session
 	prevController.Run(response, request)
 	if response.StatusCode != 302 || response.Headers.Get("Location") != "/slug/edit" {
 		t.Error("Expected redirect back to edit page")
 	}
-	
+
 	// Check if form_data was set in the session
-	formData := prevController.Session.Get("form_data")
+	formData := prevController.Session().Get("form_data")
 	if formData == nil {
 		t.Error("Expected form_data to be set in session")
 	} else {

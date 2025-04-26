@@ -17,6 +17,7 @@ type Index struct {
 }
 
 type indexTemplateData struct {
+	Container  interface{}
 	Journals   []model.Journal
 	Pages      []int
 	Pagination database.PaginationDisplay
@@ -29,6 +30,7 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 	data := indexTemplateData{}
 
 	container := c.Super.Container().(*app.Container)
+	data.Container = container
 	js := model.Journals{Container: container}
 
 	var paginationInfo database.PaginationInformation

@@ -17,6 +17,7 @@ type Edit struct {
 func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 	data := formTemplateData{}
 	container := c.Super.Container().(*app.Container)
+	data.Container = container
 	if !container.Configuration.EnableEdit {
 		RunBadRequest(response, request, c.Super.Container)
 		return

@@ -87,7 +87,7 @@ func TestApiv1List(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `[{"id":3,"slug":"test-3","title":"A Final Test","date":"2018-03-01T00:00:00Z","content":"<p>Test finally!</p>"},{"id":2,"slug":"test-2","title":"Another Test","date":"2018-02-01T00:00:00Z","content":"<p>Test again!</p>"},{"id":1,"slug":"test","title":"Test","date":"2018-01-01T00:00:00Z","content":"<p>Test!</p>"}]`
+	expected := `{"links":{},"pagination":{"current_page":1,"total_pages":1,"posts_per_page":20,"total_posts":3},"posts":[{"url":"/api/v1/post/test-3","title":"A Final Test","date":"2018-03-01T00:00:00Z","content":"<p>Test finally!</p>"},{"url":"/api/v1/post/test-2","title":"Another Test","date":"2018-02-01T00:00:00Z","content":"<p>Test again!</p>"},{"url":"/api/v1/post/test","title":"Test","date":"2018-01-01T00:00:00Z","content":"<p>Test!</p>"}]}`
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {
@@ -113,7 +113,7 @@ func TestApiV1Single(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `{"id":1,"slug":"test","title":"Test","date":"2018-01-01T00:00:00Z","content":"<p>Test!</p>"}`
+	expected := `{"url":"/api/v1/post/test","title":"Test","date":"2018-01-01T00:00:00Z","content":"<p>Test!</p>"}`
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {
@@ -225,7 +225,7 @@ func TestApiV1Create_RepeatTitles(t *testing.T) {
 	}
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `{"id":5,"slug":"repeated-1","title":"Repeated","date":"2019-02-01T00:00:00Z","content":"<p>Repeated content test again!</p>"}`
+	expected := `{"url":"/api/v1/post/repeated-1","title":"Repeated","date":"2019-02-01T00:00:00Z","content":"<p>Repeated content test again!</p>"}`
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {

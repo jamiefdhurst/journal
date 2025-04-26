@@ -19,6 +19,7 @@ func (c *New) Run(response http.ResponseWriter, request *http.Request) {
 
 	data := formTemplateData{}
 	container := c.Super.Container().(*app.Container)
+	data.Container = container
 	if !container.Configuration.EnableCreate {
 		RunBadRequest(response, request, c.Super.Container)
 		return

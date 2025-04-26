@@ -36,7 +36,7 @@ func TestNew_Run(t *testing.T) {
 	request, _ := http.NewRequest("GET", "/new", strings.NewReader(""))
 	controller.Init(container, []string{"", "0"}, request)
 	controller.Run(response, request)
-	if controller.Error || !strings.Contains(response.Content, "<form") {
+	if !strings.Contains(response.Content, "<form") {
 		t.Error("Expected form to be shown")
 	}
 	if !strings.Contains(response.Content, "<title>Create New Post - Jamie's Journal</title>") {
@@ -46,8 +46,8 @@ func TestNew_Run(t *testing.T) {
 	// Display error when cookie was set
 	response.Reset()
 	controller.Init(container, []string{"", "0"}, request)
-	controller.Session.AddFlash("error")
-	controller.SessionStore.Save(response)
+	controller.Session().AddFlash("error")
+	controller.SaveSession(response)
 	request, _ = http.NewRequest("GET", "/new", strings.NewReader(""))
 	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
 	controller.Init(container, []string{"", "0"}, request)
@@ -84,15 +84,15 @@ func TestNew_Run(t *testing.T) {
 	request, _ = http.NewRequest("POST", "/new", strings.NewReader("title=Test+Title&date=&content=Test+Content"))
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	prevController.Init(container, []string{"", "0"}, request)
-	
+
 	// Verify form data is saved in session
 	prevController.Run(response, request)
 	if response.StatusCode != 302 || response.Headers.Get("Location") != "/new" {
 		t.Error("Expected redirect back to new page")
 	}
-	
+
 	// Check if form_data was set in the session
-	formData := prevController.Session.Get("form_data")
+	formData := prevController.Session().Get("form_data")
 	if formData == nil {
 		t.Error("Expected form_data to be set in session")
 	} else {

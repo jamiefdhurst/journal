@@ -9,8 +9,9 @@ import (
 )
 
 type formTemplateData struct {
-	Error   bool
-	Journal model.Journal
+	Container interface{}
+	Error     bool
+	Journal   model.Journal
 }
 
 func RenderFromSession(c controller.Controller, data formTemplateData, templateFile string, response http.ResponseWriter) {

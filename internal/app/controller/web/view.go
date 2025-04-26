@@ -15,16 +15,19 @@ type View struct {
 }
 
 type viewTemplateData struct {
-	Journal model.Journal
-	Next    model.Journal
-	Prev    model.Journal
+	Container interface{}
+	Journal   model.Journal
+	Next      model.Journal
+	Prev      model.Journal
 }
 
 // Run View action
 func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 
 	data := viewTemplateData{}
-	js := model.Journals{Container: c.Super.Container().(*app.Container)}
+	container := c.Super.Container().(*app.Container)
+	data.Container = container
+	js := model.Journals{Container: container}
 	data.Journal = js.FindBySlug(c.Params()[1])
 
 	if data.Journal.ID == 0 {
