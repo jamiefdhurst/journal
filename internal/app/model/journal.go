@@ -194,3 +194,19 @@ func Slugify(s string) string {
 
 	return strings.ToLower(re.ReplaceAllString(s, "-"))
 }
+
+// Validate data for inserting or updating a journal
+func Validate(title string, date string, content string) bool {
+	if title == "" || len(title) < 3 {
+		return false
+	}
+	re := regexp.MustCompile(`^\d{4}\-\d{2}\-\d{2}`)
+	if date == "" || !re.Match([]byte(date)) {
+		return false
+	}
+	if content == "" || len(content) < 3 {
+		return false
+	}
+
+	return true
+}

@@ -15,8 +15,9 @@ func TestInit(t *testing.T) {
 	}
 	controller := Super{}
 	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
+	request.Host = "foobar.com"
 	controller.Init(container, params, request)
-	if controller.Container != container || controller.Params[2] != "param3" {
+	if controller.Container() != container || controller.Params()[2] != "param3" || controller.Host() != "foobar.com" {
 		t.Error("Expected values were not passed into struct")
 	}
 }

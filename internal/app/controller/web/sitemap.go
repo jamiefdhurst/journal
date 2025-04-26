@@ -13,20 +13,24 @@ import (
 // Sitemap Generate an XML sitemap
 type Sitemap struct {
 	controller.Super
+}
+
+type sitemapTemplateData struct {
 	Journals []model.Journal
 }
 
 // Run Sitemap
 func (c *Sitemap) Run(response http.ResponseWriter, request *http.Request) {
 
-	container := c.Super.Container.(*app.Container)
+	data := sitemapTemplateData{}
+	container := c.Super.Container().(*app.Container)
 	js := model.Journals{Container: container}
 
-	c.Journals = js.FetchAll()
+	data.Journals = js.FetchAll()
 
-	log.Println(c.Host)
+	log.Println(c.Host())
 
 	response.Header().Add("Content-type", "text/xml")
 	template, _ := template.ParseFiles("./web/templates/sitemap.xml.tmpl")
-	template.ExecuteTemplate(response, "content", c)
+	template.ExecuteTemplate(response, "content", data)
 }

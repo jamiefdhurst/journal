@@ -16,14 +16,14 @@ type Update struct {
 
 // Run Update action
 func (c *Update) Run(response http.ResponseWriter, request *http.Request) {
-	container := c.Super.Container.(*app.Container)
+	container := c.Super.Container().(*app.Container)
 	if !container.Configuration.EnableEdit {
 		response.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	js := model.Journals{Container: container}
-	journal := js.FindBySlug(c.Params[1])
+	journal := js.FindBySlug(c.Params()[1])
 
 	response.Header().Add("Content-Type", "application/json")
 	if journal.ID == 0 {
@@ -45,10 +45,14 @@ func (c *Update) Run(response http.ResponseWriter, request *http.Request) {
 			if journalRequest.Content != "" {
 				journal.Content = journalRequest.Content
 			}
-			journal = js.Save(journal)
-			encoder := json.NewEncoder(response)
-			encoder.SetEscapeHTML(false)
-			encoder.Encode(journal)
+			if !model.Validate(journal.Title, journal.Date, journal.Content) {
+				response.WriteHeader(http.StatusBadRequest)
+			} else {
+				journal = js.Save(journal)
+				encoder := json.NewEncoder(response)
+				encoder.SetEscapeHTML(false)
+				encoder.Encode(journal)
+			}
 		}
 	}
 }

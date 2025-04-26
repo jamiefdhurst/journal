@@ -37,7 +37,7 @@ func ListData(request *http.Request, js model.Journals) ([]model.Journal, databa
 
 // Run List action
 func (c *List) Run(response http.ResponseWriter, request *http.Request) {
-	container := c.Super.Container.(*app.Container)
+	container := c.Super.Container().(*app.Container)
 	js := model.Journals{Container: container}
 
 	journals, paginationInfo := ListData(request, js)

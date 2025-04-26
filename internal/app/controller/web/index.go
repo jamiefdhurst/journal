@@ -14,6 +14,9 @@ import (
 // Index Handle displaying all blog entries
 type Index struct {
 	controller.Super
+}
+
+type indexTemplateData struct {
 	Journals   []model.Journal
 	Pages      []int
 	Pagination database.PaginationDisplay
@@ -23,28 +26,30 @@ type Index struct {
 // Run Index action
 func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 
-	container := c.Super.Container.(*app.Container)
+	data := indexTemplateData{}
+
+	container := c.Super.Container().(*app.Container)
 	js := model.Journals{Container: container}
 
 	var paginationInfo database.PaginationInformation
-	c.Journals, paginationInfo = apiv1.ListData(request, js)
-	c.Pagination = database.DisplayPagination(paginationInfo)
-	c.Saved = false
-	flash := c.Session.GetFlash()
+	data.Journals, paginationInfo = apiv1.ListData(request, js)
+	data.Pagination = database.DisplayPagination(paginationInfo)
+	data.Saved = false
+	flash := c.Session().GetFlash()
 	if flash != nil && flash[0] == "saved" {
-		c.Saved = true
+		data.Saved = true
 	}
 
-	c.Pages = make([]int, database.PAGINATION_MAX_PAGES)
+	data.Pages = make([]int, database.PAGINATION_MAX_PAGES)
 	i := 0
-	for p := c.Pagination.FirstPage; p <= c.Pagination.LastPage; p++ {
-		c.Pages[i] = p
+	for p := data.Pagination.FirstPage; p <= data.Pagination.LastPage; p++ {
+		data.Pages[i] = p
 		i++
 	}
 
-	c.SessionStore.Save(response)
+	c.SaveSession(response)
 	template, _ := template.ParseFiles(
 		"./web/templates/_layout/default.html.tmpl",
 		"./web/templates/index.html.tmpl")
-	template.ExecuteTemplate(response, "layout", c)
+	template.ExecuteTemplate(response, "layout", data)
 }

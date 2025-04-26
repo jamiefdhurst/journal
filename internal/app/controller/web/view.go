@@ -12,6 +12,9 @@ import (
 // View Handle displaying individual entry
 type View struct {
 	controller.Super
+}
+
+type viewTemplateData struct {
 	Journal model.Journal
 	Next    model.Journal
 	Prev    model.Journal
@@ -20,17 +23,18 @@ type View struct {
 // Run View action
 func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Container: c.Super.Container.(*app.Container)}
-	c.Journal = js.FindBySlug(c.Params[1])
+	data := viewTemplateData{}
+	js := model.Journals{Container: c.Super.Container().(*app.Container)}
+	data.Journal = js.FindBySlug(c.Params()[1])
 
-	if c.Journal.ID == 0 {
+	if data.Journal.ID == 0 {
 		RunBadRequest(response, request, c.Super.Container)
 	} else {
-		c.Next = js.FindNext(c.Journal.ID)
-		c.Prev = js.FindPrev(c.Journal.ID)
+		data.Next = js.FindNext(data.Journal.ID)
+		data.Prev = js.FindPrev(data.Journal.ID)
 		template, _ := template.ParseFiles(
 			"./web/templates/_layout/default.html.tmpl",
 			"./web/templates/view.html.tmpl")
-		template.ExecuteTemplate(response, "layout", c)
+		template.ExecuteTemplate(response, "layout", data)
 	}
 }

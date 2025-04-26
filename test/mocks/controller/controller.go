@@ -3,19 +3,43 @@ package controller
 import (
 	"net/http"
 	"strings"
+
+	"github.com/jamiefdhurst/journal/pkg/session"
 )
 
 // MockController Mock the controller interface
 type MockController struct {
-	HasRun bool
+	HasRun  bool
+	session *session.Session
 }
 
 // Init Mock the init method
-func (m *MockController) Init(app interface{}, params []string, request *http.Request) {}
+func (m *MockController) Init(app interface{}, params []string, request *http.Request) {
+	m.session = session.NewSession()
+}
 
 // Run Mock the run method
 func (m *MockController) Run(response http.ResponseWriter, request *http.Request) {
 	m.HasRun = true
+}
+
+func (m *MockController) Container() interface{} {
+	var r interface{}
+	return r
+}
+
+func (m *MockController) Host() string {
+	return "foobar.com"
+}
+
+func (m *MockController) Params() []string {
+	return []string{}
+}
+
+func (m *MockController) SaveSession(w http.ResponseWriter) {}
+
+func (m *MockController) Session() *session.Session {
+	return m.session
 }
 
 // MockResponse Mock for http.ResponseWriter
