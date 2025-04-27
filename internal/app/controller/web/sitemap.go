@@ -1,7 +1,6 @@
 package web
 
 import (
-	"log"
 	"net/http"
 	"text/template"
 
@@ -16,6 +15,7 @@ type Sitemap struct {
 }
 
 type sitemapTemplateData struct {
+	Host     string
 	Journals []model.Journal
 }
 
@@ -24,11 +24,10 @@ func (c *Sitemap) Run(response http.ResponseWriter, request *http.Request) {
 
 	data := sitemapTemplateData{}
 	container := c.Super.Container().(*app.Container)
+	data.Host = request.Host
 	js := model.Journals{Container: container}
 
 	data.Journals = js.FetchAll()
-
-	log.Println(c.Host())
 
 	response.Header().Add("Content-type", "text/xml")
 	template, _ := template.ParseFiles("./web/templates/sitemap.xml.tmpl")
