@@ -9,7 +9,8 @@ with the addition of an API.
 
 It makes use of a SQLite database to store the journal entries.
 
-[API Documentation](api/README.md)
+[API Documentation](api/README.md) - also available via `openapi.yml` as a URL
+when deployed.
 
 ## Purpose
 

@@ -59,6 +59,12 @@ jobs:
         with:
           files: 'web/app/package.json'
           replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
+      - name: Update Version in Files (3)
+        if: ${{ contains(steps.latest.outputs.name, '.') }}
+        uses: datamonsters/replace-action@v2
+        with:
+          files: 'web/static/openapi.yml'
+          replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
       - name: File Save Delay
         uses: jakejarvis/wait-action@master
         with:
