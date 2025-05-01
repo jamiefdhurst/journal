@@ -289,3 +289,26 @@ func TestApiV1Update_InvalidRequest(t *testing.T) {
 		t.Error("Expected 400 status code")
 	}
 }
+
+func TestOpenapi(t *testing.T) {
+	fixtures(t)
+
+	request, _ := http.NewRequest("GET", server.URL+"/openapi.yml", nil)
+
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Error("Expected 200 status code")
+	}
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+	expected := "openapi: '3.0.3'"
+	if !strings.Contains(string(body[:]), expected) {
+		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
+	}
+}
