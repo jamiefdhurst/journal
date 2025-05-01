@@ -1,6 +1,9 @@
 package database
 
-import "math"
+import (
+	"math"
+	"strconv"
+)
 
 const PAGINATION_MAX_PAGES = 7
 
@@ -16,10 +19,16 @@ type PaginationDisplay struct {
 
 // PaginationInformation is used to return information from a pagination query
 type PaginationInformation struct {
-	Page           int
-	TotalPages     int
-	ResultsPerPage int
-	TotalResults   int
+	Page           int `json:"current_page"`
+	TotalPages     int `json:"total_pages"`
+	ResultsPerPage int `json:"posts_per_page"`
+	TotalResults   int `json:"total_posts"`
+}
+
+// PaginationLinks supports previous and next links for JSON results
+type PaginationLinks struct {
+	Previous string `json:"previous,omitempty"`
+	Next     string `json:"next,omitempty"`
 }
 
 // PaginationQuery accepts current page and results per page to generate a query
@@ -55,4 +64,18 @@ func DisplayPagination(info PaginationInformation) PaginationDisplay {
 	}
 
 	return display
+}
+
+func LinksPagination(url string, info PaginationInformation) PaginationLinks {
+	links := PaginationLinks{}
+	if info.TotalPages == 1 {
+		return links
+	}
+	if info.Page < info.TotalPages {
+		links.Next = url + "?page=" + strconv.Itoa(info.Page+1)
+	}
+	if info.Page > 1 {
+		links.Previous = url + "?page=" + strconv.Itoa(info.Page-1)
+	}
+	return links
 }

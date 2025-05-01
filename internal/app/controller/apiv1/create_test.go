@@ -2,7 +2,6 @@ package apiv1
 
 import (
 	"net/http"
-	"os"
 	"strings"
 	"testing"
 
@@ -19,7 +18,6 @@ func TestCreate_Run(t *testing.T) {
 	response := controller.NewMockResponse()
 	response.Reset()
 	controller := &Create{}
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 
 	// Test forbidden
 	container.Configuration.EnableCreate = false

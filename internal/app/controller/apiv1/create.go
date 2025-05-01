@@ -16,7 +16,7 @@ type Create struct {
 
 // Run Create action
 func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
-	container := c.Super.Container.(*app.Container)
+	container := c.Super.Container().(*app.Container)
 	if !container.Configuration.EnableCreate {
 		response.WriteHeader(http.StatusForbidden)
 		return
@@ -28,7 +28,7 @@ func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		response.WriteHeader(http.StatusBadRequest)
 	} else {
-		if journalRequest.Title == "" || journalRequest.Content == "" || journalRequest.Date == "" {
+		if !model.Validate(journalRequest.Title, journalRequest.Date, journalRequest.Content) {
 			response.WriteHeader(http.StatusBadRequest)
 		} else {
 			journal := model.Journal{ID: 0, Slug: model.Slugify(journalRequest.Title), Title: journalRequest.Title, Date: journalRequest.Date, Content: journalRequest.Content}

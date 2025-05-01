@@ -16,7 +16,7 @@ type BadRequest struct {
 func (c *BadRequest) Run(response http.ResponseWriter, request *http.Request) {
 	response.WriteHeader(http.StatusNotFound)
 
-	c.SessionStore.Save(response)
+	c.SaveSession(response)
 	template, _ := template.ParseFiles(
 		"./web/templates/_layout/default.html.tmpl",
 		"./web/templates/error.html.tmpl")

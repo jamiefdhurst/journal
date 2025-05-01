@@ -1,0 +1,162 @@
+openapi: '3.0.3'
+info:
+  title: Journal
+  version: '0.9.6'
+paths:
+  /api/v1/post:
+    get:
+      description: Retrieve all posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Posts'
+    put:
+      description: Create a post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+      responses:
+        '200':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Incorrect parameters supplied - the date, title and content must be provided.
+  /api/v1/post/{slug}:
+    get:
+      description: Retrieve a single post
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of post
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contains the single post.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post with provided slug could not be found.
+    post:
+      description: Update a post
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of post
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequestPartial'
+      responses:
+        '200':
+          description: Post updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Incorrect parameters supplied - the date, title and content must be provided.
+        '404':
+          description: Post with provided slug could not be found.
+components:
+  schemas:
+    Post:
+      required:
+        - url
+        - title
+        - date
+        - content
+      type: object
+      properties:
+        url:
+          type: string
+          example: /api/v1/post/my-journal-post
+        title:
+          type: string
+          example: 'My Journal Post'
+        date:
+          type: string
+          format: date-time
+          example: '2018-06-21T09:12:00Z'
+        content:
+          type: string
+          example: 'Some post content.'
+    Posts:
+      required:
+        - links
+        - pagination
+        - posts
+      type: object
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+            prev:
+              type: string
+        pagination:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            total_pages:
+              type: integer
+              example: 16
+            posts_per_page:
+              type: integer
+              example: 20
+            total_posts:
+              type: integer
+              example: 307
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+    PostRequest:
+      required:
+        - title
+        - date
+        - content
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'My Journal Post'
+        date:
+          type: string
+          format: date
+          example: '2018-06-2'
+        content:
+          type: string
+          example: 'Some post content.'
+    PostRequestPartial:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'My Journal Post'
+        date:
+          type: string
+          format: date
+          example: '2018-06-21'
+        content:
+          type: string
+          example: 'Some post content.'
+

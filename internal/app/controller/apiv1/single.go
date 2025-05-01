@@ -17,8 +17,8 @@ type Single struct {
 // Run Single action
 func (c *Single) Run(response http.ResponseWriter, request *http.Request) {
 
-	js := model.Journals{Container: c.Super.Container.(*app.Container)}
-	journal := js.FindBySlug(c.Params[1])
+	js := model.Journals{Container: c.Super.Container().(*app.Container)}
+	journal := js.FindBySlug(c.Params()[1])
 
 	response.Header().Add("Content-Type", "application/json")
 	if journal.ID == 0 {
@@ -26,7 +26,7 @@ func (c *Single) Run(response http.ResponseWriter, request *http.Request) {
 	} else {
 		encoder := json.NewEncoder(response)
 		encoder.SetEscapeHTML(false)
-		encoder.Encode(journal)
+		encoder.Encode(MapJournalToJSON(journal))
 	}
 
 }
