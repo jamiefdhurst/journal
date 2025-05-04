@@ -58,11 +58,11 @@ func (j Journal) GetExcerpt() string {
 	// Markdown handling - replace newlines with spaces
 	text := strings.ReplaceAll(j.Content, "\n", " ")
 	text = strip.ReplaceAllString(text, " ")
-	
+
 	// Clean up multiple spaces
 	spaceRegex := regexp.MustCompile(`\s+`)
 	text = spaceRegex.ReplaceAllString(text, " ")
-	
+
 	words := strings.Split(text, " ")
 
 	if len(words) > 50 {
@@ -76,36 +76,36 @@ func (j Journal) GetHTMLExcerpt() string {
 	if j.Content == "" {
 		return ""
 	}
-	
+
 	// Split content by paragraphs to preserve newlines
 	paragraphs := strings.Split(j.Content, "\n\n")
-	
+
 	// Process each paragraph
 	wordCount := 0
 	resultParagraphs := []string{}
-	
+
 	for _, paragraph := range paragraphs {
 		// Skip if we've already got 50+ words
 		if wordCount >= 50 {
 			break
 		}
-		
+
 		// Process the paragraph
 		lines := strings.Split(paragraph, "\n")
 		resultLines := []string{}
-		
+
 		for _, line := range lines {
 			lineWords := strings.Fields(line)
-			
+
 			// Calculate how many words we can take from this line
 			wordsToTake := 50 - wordCount
 			if wordsToTake <= 0 {
 				break
 			}
-			
+
 			if len(lineWords) > wordsToTake {
 				lineWords = lineWords[:wordsToTake]
-				resultLines = append(resultLines, strings.Join(lineWords, " ") + "...")
+				resultLines = append(resultLines, strings.Join(lineWords, " ")+"...")
 				wordCount += wordsToTake
 				break
 			} else {
@@ -113,16 +113,16 @@ func (j Journal) GetHTMLExcerpt() string {
 				wordCount += len(lineWords)
 			}
 		}
-		
+
 		// Join the lines back together and add to result paragraphs
 		if len(resultLines) > 0 {
 			resultParagraphs = append(resultParagraphs, strings.Join(resultLines, "\n"))
 		}
 	}
-	
+
 	// Join the paragraphs with double newlines for markdown
 	excerpt := strings.Join(resultParagraphs, "\n\n")
-	
+
 	// Create a temporary markdown formatter and convert to HTML
 	markdownProcessor := &markdown.Markdown{}
 	return markdownProcessor.ToHTML(excerpt)
@@ -212,18 +212,16 @@ func (js *Journals) FindPrev(id int) Journal {
 
 // FindRandom returns a random journal entry
 func (js *Journals) FindRandom() Journal {
-	// In a real application, we'd count entries and use a random offset
-	// For testing, attempt a general query first - this will be mocked in tests
 	allEntries := js.FetchAll()
 	if len(allEntries) == 0 {
 		return Journal{}
 	}
-	
+
 	// In a production environment, select a random entry
 	seed := time.Now().UnixNano()
 	r := rand.New(rand.NewSource(seed))
 	randomIndex := r.Intn(len(allEntries))
-	
+
 	return allEntries[randomIndex]
 }
 
@@ -296,12 +294,12 @@ func ValidateSlug(slug string) bool {
 	if slug == "random" {
 		return false
 	}
-	
+
 	// Check for slugs that would conflict with API routes
 	if strings.HasPrefix(slug, "api/") {
 		return false
 	}
-	
+
 	return true
 }
 
@@ -317,12 +315,9 @@ func Validate(title string, date string, content string) bool {
 	if content == "" || len(content) < 3 {
 		return false
 	}
-	
+
 	// Generate a slug and validate it
 	slug := Slugify(title)
-	if !ValidateSlug(slug) {
-		return false
-	}
 
-	return true
+	return ValidateSlug(slug)
 }
