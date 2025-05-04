@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
@@ -57,11 +58,11 @@ func (j Journal) GetExcerpt() string {
 	// Markdown handling - replace newlines with spaces
 	text := strings.ReplaceAll(j.Content, "\n", " ")
 	text = strip.ReplaceAllString(text, " ")
-	
+
 	// Clean up multiple spaces
 	spaceRegex := regexp.MustCompile(`\s+`)
 	text = spaceRegex.ReplaceAllString(text, " ")
-	
+
 	words := strings.Split(text, " ")
 
 	if len(words) > 50 {
@@ -75,36 +76,36 @@ func (j Journal) GetHTMLExcerpt() string {
 	if j.Content == "" {
 		return ""
 	}
-	
+
 	// Split content by paragraphs to preserve newlines
 	paragraphs := strings.Split(j.Content, "\n\n")
-	
+
 	// Process each paragraph
 	wordCount := 0
 	resultParagraphs := []string{}
-	
+
 	for _, paragraph := range paragraphs {
 		// Skip if we've already got 50+ words
 		if wordCount >= 50 {
 			break
 		}
-		
+
 		// Process the paragraph
 		lines := strings.Split(paragraph, "\n")
 		resultLines := []string{}
-		
+
 		for _, line := range lines {
 			lineWords := strings.Fields(line)
-			
+
 			// Calculate how many words we can take from this line
 			wordsToTake := 50 - wordCount
 			if wordsToTake <= 0 {
 				break
 			}
-			
+
 			if len(lineWords) > wordsToTake {
 				lineWords = lineWords[:wordsToTake]
-				resultLines = append(resultLines, strings.Join(lineWords, " ") + "...")
+				resultLines = append(resultLines, strings.Join(lineWords, " ")+"...")
 				wordCount += wordsToTake
 				break
 			} else {
@@ -112,16 +113,16 @@ func (j Journal) GetHTMLExcerpt() string {
 				wordCount += len(lineWords)
 			}
 		}
-		
+
 		// Join the lines back together and add to result paragraphs
 		if len(resultLines) > 0 {
 			resultParagraphs = append(resultParagraphs, strings.Join(resultLines, "\n"))
 		}
 	}
-	
+
 	// Join the paragraphs with double newlines for markdown
 	excerpt := strings.Join(resultParagraphs, "\n\n")
-	
+
 	// Create a temporary markdown formatter and convert to HTML
 	markdownProcessor := &markdown.Markdown{}
 	return markdownProcessor.ToHTML(excerpt)
@@ -204,9 +205,24 @@ func (js *Journals) FindNext(id int) Journal {
 	return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `id` > ? ORDER BY `id` LIMIT 1", strconv.Itoa(id)))
 }
 
-// FindNext returns the previous entry before an ID
+// FindPrev returns the previous entry before an ID
 func (js *Journals) FindPrev(id int) Journal {
 	return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `id` < ? ORDER BY `id` DESC LIMIT 1", strconv.Itoa(id)))
+}
+
+// FindRandom returns a random journal entry
+func (js *Journals) FindRandom() Journal {
+	allEntries := js.FetchAll()
+	if len(allEntries) == 0 {
+		return Journal{}
+	}
+
+	// In a production environment, select a random entry
+	seed := time.Now().UnixNano()
+	r := rand.New(rand.NewSource(seed))
+	randomIndex := r.Intn(len(allEntries))
+
+	return allEntries[randomIndex]
 }
 
 // Save Save a journal entry, either inserting it or updating it in the database
@@ -216,6 +232,12 @@ func (js *Journals) Save(j Journal) Journal {
 	// Convert content for saving
 	if j.Slug == "" {
 		j.Slug = Slugify(j.Title)
+	}
+
+	// Ensure the slug is not reserved
+	if !ValidateSlug(j.Slug) {
+		// Append a number to the slug to make it valid
+		j.Slug = j.Slug + "-post"
 	}
 
 	if j.ID == 0 {
@@ -266,6 +288,21 @@ func Slugify(s string) string {
 	return strings.ToLower(re.ReplaceAllString(s, "-"))
 }
 
+// ValidateSlug ensures a slug is acceptable
+func ValidateSlug(slug string) bool {
+	// Check for reserved slugs
+	if slug == "random" {
+		return false
+	}
+
+	// Check for slugs that would conflict with API routes
+	if strings.HasPrefix(slug, "api/") {
+		return false
+	}
+
+	return true
+}
+
 // Validate data for inserting or updating a journal
 func Validate(title string, date string, content string) bool {
 	if title == "" || len(title) < 3 {
@@ -279,5 +316,8 @@ func Validate(title string, date string, content string) bool {
 		return false
 	}
 
-	return true
+	// Generate a slug and validate it
+	slug := Slugify(title)
+
+	return ValidateSlug(slug)
 }

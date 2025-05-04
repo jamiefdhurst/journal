@@ -124,7 +124,8 @@ func TestApiV1Single(t *testing.T) {
 func TestApiV1Single_NotFound(t *testing.T) {
 	fixtures(t)
 
-	request, _ := http.NewRequest("GET", server.URL+"/api/v1/post/random", nil)
+	// Try a post that doesn't exist, but is not the new random endpoint
+	request, _ := http.NewRequest("GET", server.URL+"/api/v1/post/nonexistent", nil)
 
 	res, err := http.DefaultClient.Do(request)
 
@@ -134,6 +135,30 @@ func TestApiV1Single_NotFound(t *testing.T) {
 
 	if res.StatusCode != 404 {
 		t.Error("Expected 404 status code")
+	}
+}
+
+func TestApiV1Random(t *testing.T) {
+	fixtures(t)
+
+	request, _ := http.NewRequest("GET", server.URL+"/api/v1/post/random", nil)
+
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Error("Expected 200 status code")
+	}
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	// Make sure we got a valid JSON response
+	if !strings.Contains(string(body[:]), "\"url\":") || !strings.Contains(string(body[:]), "\"title\":") {
+		t.Errorf("Expected JSON with id and slug, got: %s", string(body[:]))
 	}
 }
 

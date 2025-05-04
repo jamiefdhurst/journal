@@ -29,6 +29,18 @@ paths:
                 $ref: '#/components/schemas/Post'
         '400':
           description: Incorrect parameters supplied - the date, title and content must be provided.
+  /api/v1/post/random:
+    get:
+      description: Retrieve a random post
+      responses:
+        '200':
+          description: Contains the single post.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: No posts available
   /api/v1/post/{slug}:
     get:
       description: Retrieve a single post
