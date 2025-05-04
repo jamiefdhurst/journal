@@ -6,7 +6,7 @@
         <span itemprop="dateCreated pubdate datePublished" content="{{.Journal.Date}}">{{.Journal.GetDate}}</span>
     </p>
     <div class="content" itemprop="mainEntityOfPage">
-        {{.Journal.Content}}
+        {{.Journal.GetHTML}}
     </div>
     {{if .Container.Configuration.EnableEdit}}<span class="float-right"><a href="/{{.Journal.Slug}}/edit" class="button button-outline">Edit</a></span>{{end}}
 </article>

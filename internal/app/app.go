@@ -16,11 +16,18 @@ type Database interface {
 	Query(sql string, args ...interface{}) (rows.Rows, error)
 }
 
+// MarkdownProcessor defines an interface for markdown processing
+type MarkdownProcessor interface {
+	ToHTML(input string) string
+	FromHTML(input string) string
+}
+
 // Container Define the main container for the application
 type Container struct {
-	Configuration Configuration
-	Db            Database
-	Version       string
+	Configuration    Configuration
+	Db               Database
+	Version          string
+	MarkdownProcessor MarkdownProcessor
 }
 
 // Configuration can be modified through environment variables

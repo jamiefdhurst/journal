@@ -12,6 +12,7 @@ import (
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/pkg/database"
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
+	"github.com/jamiefdhurst/journal/pkg/markdown"
 )
 
 const journalTable = "journal"
@@ -22,7 +23,15 @@ type Journal struct {
 	Slug    string `json:"slug"`
 	Title   string `json:"title"`
 	Date    string `json:"date"`
-	Content string `json:"content"`
+	Content string `json:"content"` // Now stores markdown content
+}
+
+// GetHTML converts the Markdown content to HTML for display
+func (j Journal) GetHTML() string {
+	// This method will be rendered in templates, so we need a version that doesn't need container access
+	// In production, use the container's MarkdownProcessor when available through other methods
+	markdownProcessor := &markdown.Markdown{}
+	return markdownProcessor.ToHTML(j.Content)
 }
 
 // GetDate Get the friendly date for the Journal
@@ -42,18 +51,80 @@ func (j Journal) GetEditableDate() string {
 	return re.FindString(j.Date)
 }
 
-// GetExcerpt returns a small extract of the entry
+// GetExcerpt returns a small extract of the entry as plain text
 func (j Journal) GetExcerpt() string {
 	strip := regexp.MustCompile("\b+")
-	text := strings.ReplaceAll(j.Content, "<p>", "")
-	text = strings.ReplaceAll(text, "</p>", " ")
+	// Markdown handling - replace newlines with spaces
+	text := strings.ReplaceAll(j.Content, "\n", " ")
 	text = strip.ReplaceAllString(text, " ")
+	
+	// Clean up multiple spaces
+	spaceRegex := regexp.MustCompile(`\s+`)
+	text = spaceRegex.ReplaceAllString(text, " ")
+	
 	words := strings.Split(text, " ")
 
 	if len(words) > 50 {
 		return strings.Join(words[:50], " ") + "..."
 	}
-	return strings.TrimSuffix(strings.Join(words, " "), " ")
+	return strings.TrimSpace(strings.Join(words, " "))
+}
+
+// GetHTMLExcerpt returns a small extract of the entry rendered as HTML
+func (j Journal) GetHTMLExcerpt() string {
+	if j.Content == "" {
+		return ""
+	}
+	
+	// Split content by paragraphs to preserve newlines
+	paragraphs := strings.Split(j.Content, "\n\n")
+	
+	// Process each paragraph
+	wordCount := 0
+	resultParagraphs := []string{}
+	
+	for _, paragraph := range paragraphs {
+		// Skip if we've already got 50+ words
+		if wordCount >= 50 {
+			break
+		}
+		
+		// Process the paragraph
+		lines := strings.Split(paragraph, "\n")
+		resultLines := []string{}
+		
+		for _, line := range lines {
+			lineWords := strings.Fields(line)
+			
+			// Calculate how many words we can take from this line
+			wordsToTake := 50 - wordCount
+			if wordsToTake <= 0 {
+				break
+			}
+			
+			if len(lineWords) > wordsToTake {
+				lineWords = lineWords[:wordsToTake]
+				resultLines = append(resultLines, strings.Join(lineWords, " ") + "...")
+				wordCount += wordsToTake
+				break
+			} else {
+				resultLines = append(resultLines, strings.Join(lineWords, " "))
+				wordCount += len(lineWords)
+			}
+		}
+		
+		// Join the lines back together and add to result paragraphs
+		if len(resultLines) > 0 {
+			resultParagraphs = append(resultParagraphs, strings.Join(resultLines, "\n"))
+		}
+	}
+	
+	// Join the paragraphs with double newlines for markdown
+	excerpt := strings.Join(resultParagraphs, "\n\n")
+	
+	// Create a temporary markdown formatter and convert to HTML
+	markdownProcessor := &markdown.Markdown{}
+	return markdownProcessor.ToHTML(excerpt)
 }
 
 // Journals Common database resource link for Journal actions

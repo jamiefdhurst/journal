@@ -54,11 +54,11 @@ func TestJournal_GetExcerpt(t *testing.T) {
 		input  string
 		output string
 	}{
-		{"<p>Some simple text</p>", "Some simple text"},
-		{"<p>Multiple</p><p>paragraphs, some with</p><p>multiple words</p>", "Multiple paragraphs, some with multiple words"},
+		{"Some simple text", "Some simple text"},
+		{"Multiple\n\nparagraphs, some with\n\nmultiple words", "Multiple paragraphs, some with multiple words"},
 		{"", ""},
-		{"<p></p><p></p>", " "},
-		{"<p>a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z</p>", "a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x..."},
+		{"\n\n", ""},
+		{"a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x y z", "a b c d e f g h i j k l m n o p q r s t u v w x y z a b c d e f g h i j k l m n o p q r s t u v w x..."},
 	}
 
 	for _, table := range tables {
@@ -66,6 +66,27 @@ func TestJournal_GetExcerpt(t *testing.T) {
 		actual := j.GetExcerpt()
 		if actual != table.output {
 			t.Errorf("Expected GetExcerpt() to produce result of '%s', got '%s'", table.output, actual)
+		}
+	}
+}
+
+func TestJournal_GetHTMLExcerpt(t *testing.T) {
+	tables := []struct {
+		input  string
+		output string
+	}{
+		{"Some **bold** text", "<p>Some <strong>bold</strong> text</p>\n"},
+		{"Multiple\n\nparagraphs", "<p>Multiple</p>\n\n<p>paragraphs</p>\n"},
+		{"", ""},
+		{"*Italic* and **bold**", "<p><em>Italic</em> and <strong>bold</strong></p>\n"},
+		{"Line 1\nLine 2\nLine 3", "<p>Line 1\nLine 2\nLine 3</p>\n"},
+	}
+
+	for _, table := range tables {
+		j := Journal{Content: table.input}
+		actual := j.GetHTMLExcerpt()
+		if actual != table.output {
+			t.Errorf("Expected GetHTMLExcerpt() to produce result of '%s', got '%s'", table.output, actual)
 		}
 	}
 }
