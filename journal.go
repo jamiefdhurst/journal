@@ -62,6 +62,12 @@ func loadDatabase() func() {
 		log.Printf("Error during HTML to Markdown migration: %s\n", err)
 		log.Panicln(err)
 	}
+	
+	// Run random slug migration if needed
+	if err := migrations.MigrateRandomSlugs(); err != nil {
+		log.Printf("Error during random slug migration: %s\n", err)
+		log.Panicln(err)
+	}
 
 	return func() {
 		container.Db.Close()

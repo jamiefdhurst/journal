@@ -126,3 +126,37 @@ func (m *Migrations) MigrateHTMLToMarkdown() error {
 
 	return nil
 }
+
+// MigrateRandomSlugs fixes any journal entries that have the "random" slug
+func (m *Migrations) MigrateRandomSlugs() error {
+	const migrationName = "random_slug_fix"
+
+	// Skip if already migrated
+	if m.HasMigrationRun(migrationName) {
+		log.Println("Random slug fix migration already applied. Skipping...")
+		return nil
+	}
+
+	log.Println("Running random slug fix migration...")
+
+	// Get the journal with the 'random' slug if it exists
+	js := Journals{Container: m.Container}
+	randomJournal := js.FindBySlug("random")
+
+	if randomJournal.ID == 0 {
+		log.Println("No journal entry found with 'random' slug. Migration not needed.")
+	} else {
+		// Rename the slug to 'random-post'
+		randomJournal.Slug = "random-post"
+		js.Save(randomJournal)
+		log.Printf("Migrated journal entry: %s (ID: %d) from 'random' to 'random-post'\n", randomJournal.Title, randomJournal.ID)
+	}
+
+	// Record migration as completed
+	err := m.RecordMigration(migrationName)
+	if err != nil {
+		return fmt.Errorf("migration completed but failed to record status: %w", err)
+	}
+
+	return nil
+}

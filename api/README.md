@@ -125,6 +125,29 @@ provided.
 
 --
 
+### Retrieve a random post
+
+**Method/URL:** `GET /api/v1/post/random`
+
+**Successful Response:** `200`
+
+Contains a randomly selected post.
+
+```json
+{
+    "url": "/api/v1/post/example-post",
+    "title": "An Example Post",
+    "date": "2018-05-18T12:53:22Z",
+    "content": "TEST"
+}
+```
+
+**Error Responses:**
+
+`404` - No posts exist in the system.
+
+--
+
 ### Update a post
 
 **Method/URL:** `POST /api/v1/post/{slug}`

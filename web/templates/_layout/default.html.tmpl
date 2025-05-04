@@ -15,9 +15,12 @@
 <body>
     <header role="banner">
         <a id="title" href="/">{{.Container.Configuration.Title}}</a>
-        {{if .Container.Configuration.EnableCreate}}
-            <nav id="menu" class="float-right"><a class="button" href="/new">Create New Post</a></nav>
-        {{end}}
+        <nav id="menu" class="float-right">
+            <a href="/random">View Random Post</a>
+            {{if .Container.Configuration.EnableCreate}}
+                <a class="button" href="/new">Create New Post</a>
+            {{end}}
+        </nav>
     </header>
     <main role="main">
         <div id="content">

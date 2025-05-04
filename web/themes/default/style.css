@@ -85,6 +85,10 @@ header[role=banner] p {
     padding-top: .5rem;
 }
 
+#menu .button {
+    margin-left: 15px;
+}
+
 main {
     display: block;
     margin: 0 auto;
