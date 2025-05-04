@@ -33,5 +33,5 @@ func (c *Random) Run(response http.ResponseWriter, request *http.Request) {
 
 	// Encode and return the journal
 	encoder := json.NewEncoder(response)
-	encoder.Encode(randomJournal)
+	encoder.Encode(MapJournalToJSON(randomJournal))
 }

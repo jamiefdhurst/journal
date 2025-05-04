@@ -155,14 +155,12 @@ func TestApiV1Random(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	
+
 	// Make sure we got a valid JSON response
-	if !strings.Contains(string(body[:]), "\"id\":") || !strings.Contains(string(body[:]), "\"slug\":") {
+	if !strings.Contains(string(body[:]), "\"url\":") || !strings.Contains(string(body[:]), "\"title\":") {
 		t.Errorf("Expected JSON with id and slug, got: %s", string(body[:]))
 	}
 }
-
-
 
 func TestApiV1Create(t *testing.T) {
 	fixtures(t)
