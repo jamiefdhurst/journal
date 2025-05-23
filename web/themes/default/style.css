@@ -462,3 +462,38 @@ fieldset p {
     margin: 2rem 0;
     text-align: right;
 }
+
+section.stats dl {
+    margin: 0 0 3rem;
+    padding: 0;
+}
+
+section.stats dl:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+section.stats dt, 
+section.stats dd {
+    display: block;
+    float: left;
+    margin: 0;
+    padding: 0.75rem 0.5rem;
+    box-sizing: border-box;
+}
+
+section.stats dt {
+    width: 40%;
+    clear: left;
+    font-weight: bold;
+}
+
+section.stats dd {
+    width: 60%;
+}
+
+section.stats dt:nth-of-type(odd),
+section.stats dd:nth-of-type(odd) {
+    background-color: #f7f7f7;
+}

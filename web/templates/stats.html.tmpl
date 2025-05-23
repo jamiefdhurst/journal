@@ -1,0 +1,41 @@
+{{define "title"}}Stats - {{end}}
+{{define "content"}}
+
+<h1>Stats</h1>
+
+<section class="stats">
+    <h2>Posts</h2>
+    <dl>
+        <dt>Total Posts</dt>
+        <dd>{{.PostCount}}</dd>
+        
+        <dt>First Post Date</dt>
+        <dd>{{.FirstPostDate}}</dd>
+    </dl>
+    
+    <h2>Configuration</h2>
+    <dl>
+        <dt>Title</dt>
+        <dd>{{.Container.Configuration.Title}}{{if .TitleSet}}{{else}} (Default){{end}}</dd>
+        
+        <dt>Description</dt>
+        <dd>{{.Container.Configuration.Description}}{{if .DescriptionSet}}{{else}} (Default){{end}}</dd>
+        
+        <dt>Theme</dt>
+        <dd>{{.Container.Configuration.Theme}}</dd>
+        
+        <dt>Posts Per Page</dt>
+        <dd>{{.ArticlesPerPage}}</dd>
+        
+        <dt>Google Analytics</dt>
+        <dd>{{if .GACodeSet}}Enabled{{else}}Disabled{{end}}</dd>
+        
+        <dt>Create Posts</dt>
+        <dd>{{if .CreateEnabled}}Enabled{{else}}Disabled{{end}}</dd>
+        
+        <dt>Edit Posts</dt>
+        <dd>{{if .EditEnabled}}Enabled{{else}}Disabled{{end}}</dd>
+    </dl>
+</section>
+
+{{end}}

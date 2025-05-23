@@ -337,3 +337,32 @@ func TestOpenapi(t *testing.T) {
 		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
 	}
 }
+
+func TestWebStats(t *testing.T) {
+	fixtures(t)
+
+	request, _ := http.NewRequest("GET", server.URL+"/stats", nil)
+
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Error("Expected 200 status code")
+	}
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+
+	// Check for stats page elements
+	if !strings.Contains(string(body[:]), "<h1>Stats</h1>") {
+		t.Error("Expected stats page title to be present")
+	}
+
+	// Check for post count (3 from fixtures)
+	if !strings.Contains(string(body[:]), "Total Posts") || !strings.Contains(string(body[:]), "<dd>3</dd>") {
+		t.Error("Expected post count to be displayed")
+	}
+}
