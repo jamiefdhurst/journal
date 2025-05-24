@@ -85,6 +85,16 @@ paths:
           description: Incorrect parameters supplied - the date, title and content must be provided.
         '404':
           description: Post with provided slug could not be found.
+  /api/v1/stats:
+    get:
+      description: Retrieve statistics about the journal system
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
 components:
   schemas:
     Post:
@@ -171,4 +181,49 @@ components:
         content:
           type: string
           example: 'Some post content.'
-
+    Stats:
+      required:
+        - posts
+        - configuration
+      type: object
+      properties:
+        posts:
+          type: object
+          required:
+            - count
+          properties:
+            count:
+              type: integer
+              example: 42
+            first_post_date:
+              type: string
+              example: 'Monday January 1, 2018'
+        configuration:
+          type: object
+          required:
+            - title
+            - description
+            - theme
+            - posts_per_page
+            - google_analytics
+            - create_enabled
+            - edit_enabled
+          properties:
+            title:
+              type: string
+              example: "Jamie's Journal"
+            description:
+              type: string
+              example: "A private journal containing Jamie's innermost thoughts"
+            theme:
+              type: string
+              example: "default"
+            posts_per_page:
+              type: integer
+              example: 20
+            google_analytics:
+              type: boolean
+            create_enabled:
+              type: boolean
+            edit_enabled:
+              type: boolean

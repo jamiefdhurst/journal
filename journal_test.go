@@ -315,6 +315,31 @@ func TestApiV1Update_InvalidRequest(t *testing.T) {
 	}
 }
 
+func TestApiV1Stats(t *testing.T) {
+	fixtures(t)
+
+	request, _ := http.NewRequest("GET", server.URL+"/api/v1/stats", nil)
+
+	res, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		t.Errorf("Unexpected error: %s", err)
+	}
+
+	if res.StatusCode != 200 {
+		t.Error("Expected 200 status code")
+	}
+
+	defer res.Body.Close()
+	body, _ := io.ReadAll(res.Body)
+	expected := `{"posts":{"count":3,"first_post_date":"Monday January 1, 2018"},"configuration":{"title":"Jamie's Journal","description":"A private journal containing Jamie's innermost thoughts","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true}}`
+
+	// Use contains to get rid of any extra whitespace that we can discount
+	if !strings.Contains(string(body[:]), expected) {
+		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
+	}
+}
+
 func TestOpenapi(t *testing.T) {
 	fixtures(t)
 
@@ -332,9 +357,11 @@ func TestOpenapi(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := "openapi: '3.0.3'"
-	if !strings.Contains(string(body[:]), expected) {
-		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
+	expected := []string{"openapi: '3.0.3'", "/api/v1/post:", "/api/v1/post/{slug}:", "/api/v1/post/random:", "/api/v1/stats:"}
+	for _, e := range expected {
+		if !strings.Contains(string(body[:]), e) {
+			t.Errorf("Expected:\n\t%s\nGot:\n\t%s", e, string(body[:]))
+		}
 	}
 }
 
