@@ -34,37 +34,39 @@ func config() app.Configuration {
 
 func loadDatabase() func() {
 	container.Db = &database.Sqlite{}
-	
+
 	// Set up the markdown processor
 	container.MarkdownProcessor = &markdown.Markdown{}
-	
+
 	log.Printf("Loading DB from %s...\n", container.Configuration.DatabasePath)
 	if err := container.Db.Connect(container.Configuration.DatabasePath); err != nil {
 		log.Printf("Database error - please verify that the %s path is available and writeable.\nError: %s\n", container.Configuration.DatabasePath, err)
 		os.Exit(1)
 	}
 
-	// Initialize journal table
+	// Create needed tables
 	js := model.Journals{Container: container}
 	if err := js.CreateTable(); err != nil {
+		log.Printf("Error creating journal table: %s\n", err)
 		log.Panicln(err)
 	}
-
-	// Initialize and run migrations
-	migrations := model.Migrations{Container: container}
-	if err := migrations.CreateTable(); err != nil {
+	ms := model.Migrations{Container: container}
+	if err := ms.CreateTable(); err != nil {
 		log.Printf("Error creating migrations table: %s\n", err)
 		log.Panicln(err)
 	}
+	vs := model.Visits{Container: container}
+	if err := vs.CreateTable(); err != nil {
+		log.Printf("Error creating visits table: %s\n", err)
+		log.Panicln(err)
+	}
 
-	// Run HTML to Markdown migration if needed
-	if err := migrations.MigrateHTMLToMarkdown(); err != nil {
+	// Run migrations
+	if err := ms.MigrateHTMLToMarkdown(); err != nil {
 		log.Printf("Error during HTML to Markdown migration: %s\n", err)
 		log.Panicln(err)
 	}
-	
-	// Run random slug migration if needed
-	if err := migrations.MigrateRandomSlugs(); err != nil {
+	if err := ms.MigrateRandomSlugs(); err != nil {
 		log.Printf("Error during random slug migration: %s\n", err)
 		log.Panicln(err)
 	}
