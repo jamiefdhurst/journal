@@ -15,6 +15,7 @@ func TestRandom_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	container := &app.Container{Db: db}
 	random := &Random{}
+	random.DisableTracking()
 
 	// Test with a journal found
 	db.Rows = &database.MockJournal_SingleRow{}

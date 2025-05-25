@@ -26,6 +26,7 @@ func TestError_Run(t *testing.T) {
 	configuration := app.DefaultConfiguration()
 	container := &app.Container{Configuration: configuration}
 	controller := &BadRequest{}
+	controller.DisableTracking()
 	request, _ := http.NewRequest("GET", "/", strings.NewReader(""))
 
 	// Test header and response

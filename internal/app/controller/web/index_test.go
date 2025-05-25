@@ -29,6 +29,7 @@ func TestIndex_Run(t *testing.T) {
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Index{}
+	controller.DisableTracking()
 
 	// Test showing all Journals
 	db.EnableMultiMode()

@@ -18,6 +18,7 @@ func TestStats_Run(t *testing.T) {
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Stats{}
+	controller.DisableTracking()
 
 	// Test with journals
 	db.Rows = &database.MockJournal_MultipleRows{}

@@ -18,6 +18,7 @@ func TestCreate_Run(t *testing.T) {
 	response := controller.NewMockResponse()
 	response.Reset()
 	controller := &Create{}
+	controller.DisableTracking()
 
 	// Test forbidden
 	container.Configuration.EnableCreate = false

@@ -230,3 +230,29 @@ func (m *MockSqlite) popResult() rows.Rows {
 
 	return result
 }
+
+// MockVisit_SingleRow Mock single row returned for a Visit
+type MockVisit_SingleRow struct {
+	MockRowsEmpty
+	RowNumber int
+}
+
+// Next Mock 1 row
+func (m *MockVisit_SingleRow) Next() bool {
+	m.RowNumber++
+	if m.RowNumber < 2 {
+		return true
+	}
+	return false
+}
+
+// Scan Return the visit data
+func (m *MockVisit_SingleRow) Scan(dest ...interface{}) error {
+	if m.RowNumber == 1 {
+		*dest[0].(*int) = 1
+		*dest[1].(*string) = "2023-01-01"
+		*dest[2].(*string) = "/test"
+		*dest[3].(*int) = 5
+	}
+	return nil
+}

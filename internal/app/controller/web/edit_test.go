@@ -29,6 +29,7 @@ func TestEdit_Run(t *testing.T) {
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Edit{}
+	controller.DisableTracking()
 
 	// Test not found/error with GET/POST
 	db.Rows = &database.MockRowsEmpty{}
@@ -89,6 +90,7 @@ func TestEdit_Run(t *testing.T) {
 	// Validate error cookie on redirect
 	// We need to create a new controller with the cookie to test flash values
 	newController := &Edit{}
+	newController.DisableTracking()
 	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
 	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
 	newController.Init(container, []string{"", "0"}, request)
@@ -99,6 +101,7 @@ func TestEdit_Run(t *testing.T) {
 	response.Reset()
 	// Create a new controller instance for this test
 	prevController := &Edit{}
+	prevController.DisableTracking()
 	// Submit a form with a missing field (date is empty)
 	request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("title=Updated+Title&date=&content=Updated+Content"))
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")

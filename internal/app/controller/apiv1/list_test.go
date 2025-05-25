@@ -16,6 +16,7 @@ func TestList_Run(t *testing.T) {
 	response := &controller.MockResponse{}
 	response.Reset()
 	controller := &List{}
+	controller.DisableTracking()
 
 	// Test showing all Journals
 	db.EnableMultiMode()
