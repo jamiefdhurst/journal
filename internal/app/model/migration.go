@@ -9,7 +9,7 @@ import (
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 )
 
-const migrationsTable = "migrations"
+const migrationTable = "migration"
 
 // Migration stores a record of migrations that have been applied
 type Migration struct {
@@ -24,8 +24,8 @@ type Migrations struct {
 }
 
 // CreateTable initializes the migrations table
-func (m *Migrations) CreateTable() error {
-	_, err := m.Container.Db.Exec("CREATE TABLE IF NOT EXISTS `" + migrationsTable + "` (" +
+func (ms *Migrations) CreateTable() error {
+	_, err := ms.Container.Db.Exec("CREATE TABLE IF NOT EXISTS `" + migrationTable + "` (" +
 		"`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
 		"`name` VARCHAR(255) NOT NULL, " +
 		"`applied` BOOLEAN NOT NULL DEFAULT 0" +
@@ -35,34 +35,34 @@ func (m *Migrations) CreateTable() error {
 }
 
 // HasMigrationRun checks if a specific migration has been applied
-func (m *Migrations) HasMigrationRun(name string) bool {
-	rows, err := m.Container.Db.Query("SELECT * FROM `"+migrationsTable+"` WHERE `name` = ? LIMIT 1", name)
+func (ms *Migrations) HasMigrationRun(name string) bool {
+	rows, err := ms.Container.Db.Query("SELECT * FROM `"+migrationTable+"` WHERE `name` = ? LIMIT 1", name)
 	if err != nil {
 		return false
 	}
 
-	migrations := m.loadFromRows(rows)
+	migrations := ms.loadFromRows(rows)
 
 	return len(migrations) > 0 && migrations[0].Applied
 }
 
 // RecordMigration marks a migration as applied
-func (m *Migrations) RecordMigration(name string) error {
+func (ms *Migrations) RecordMigration(name string) error {
 	// Check if migration exists first
-	rows, err := m.Container.Db.Query("SELECT * FROM `"+migrationsTable+"` WHERE `name` = ? LIMIT 1", name)
+	rows, err := ms.Container.Db.Query("SELECT * FROM `"+migrationTable+"` WHERE `name` = ? LIMIT 1", name)
 	if err != nil {
 		return err
 	}
 
-	migrations := m.loadFromRows(rows)
+	migrations := ms.loadFromRows(rows)
 
 	var res sql.Result
 	if len(migrations) == 0 {
 		// Create new migration record
-		res, err = m.Container.Db.Exec("INSERT INTO `"+migrationsTable+"` (`name`, `applied`) VALUES(?, ?)", name, true)
+		res, err = ms.Container.Db.Exec("INSERT INTO `"+migrationTable+"` (`name`, `applied`) VALUES(?, ?)", name, true)
 	} else {
 		// Update existing migration record
-		res, err = m.Container.Db.Exec("UPDATE `"+migrationsTable+"` SET `applied` = ? WHERE `id` = ?", true, migrations[0].ID)
+		res, err = ms.Container.Db.Exec("UPDATE `"+migrationTable+"` SET `applied` = ? WHERE `id` = ?", true, migrations[0].ID)
 	}
 
 	if err != nil {
@@ -73,7 +73,7 @@ func (m *Migrations) RecordMigration(name string) error {
 	return err
 }
 
-func (m *Migrations) loadFromRows(rows rows.Rows) []Migration {
+func (ms *Migrations) loadFromRows(rows rows.Rows) []Migration {
 	defer rows.Close()
 	migrations := []Migration{}
 	for rows.Next() {
@@ -86,11 +86,11 @@ func (m *Migrations) loadFromRows(rows rows.Rows) []Migration {
 }
 
 // MigrateHTMLToMarkdown converts all journal entries from HTML to Markdown
-func (m *Migrations) MigrateHTMLToMarkdown() error {
+func (ms *Migrations) MigrateHTMLToMarkdown() error {
 	const migrationName = "html_to_markdown"
 
 	// Skip if already migrated
-	if m.HasMigrationRun(migrationName) {
+	if ms.HasMigrationRun(migrationName) {
 		log.Println("HTML to Markdown migration already applied. Skipping...")
 		return nil
 	}
@@ -98,7 +98,7 @@ func (m *Migrations) MigrateHTMLToMarkdown() error {
 	log.Println("Running HTML to Markdown migration...")
 
 	// Get all journal entries
-	js := Journals{Container: m.Container}
+	js := Journals{Container: ms.Container}
 	journalEntries := js.FetchAll()
 
 	log.Printf("Found %d journal entries to migrate\n", len(journalEntries))
@@ -106,7 +106,7 @@ func (m *Migrations) MigrateHTMLToMarkdown() error {
 	count := 0
 	for _, journal := range journalEntries {
 		// Convert HTML content to Markdown
-		markdownContent := m.Container.MarkdownProcessor.FromHTML(journal.Content)
+		markdownContent := ms.Container.MarkdownProcessor.FromHTML(journal.Content)
 		journal.Content = markdownContent
 
 		// Save the entry with the new markdown content
@@ -119,7 +119,7 @@ func (m *Migrations) MigrateHTMLToMarkdown() error {
 	log.Printf("Migration complete. Converted %d journal entries from HTML to Markdown.\n", count)
 
 	// Record migration as completed
-	err := m.RecordMigration(migrationName)
+	err := ms.RecordMigration(migrationName)
 	if err != nil {
 		return fmt.Errorf("migration completed but failed to record status: %w", err)
 	}
@@ -128,11 +128,11 @@ func (m *Migrations) MigrateHTMLToMarkdown() error {
 }
 
 // MigrateRandomSlugs fixes any journal entries that have the "random" slug
-func (m *Migrations) MigrateRandomSlugs() error {
+func (ms *Migrations) MigrateRandomSlugs() error {
 	const migrationName = "random_slug_fix"
 
 	// Skip if already migrated
-	if m.HasMigrationRun(migrationName) {
+	if ms.HasMigrationRun(migrationName) {
 		log.Println("Random slug fix migration already applied. Skipping...")
 		return nil
 	}
@@ -140,7 +140,7 @@ func (m *Migrations) MigrateRandomSlugs() error {
 	log.Println("Running random slug fix migration...")
 
 	// Get the journal with the 'random' slug if it exists
-	js := Journals{Container: m.Container}
+	js := Journals{Container: ms.Container}
 	randomJournal := js.FindBySlug("random")
 
 	if randomJournal.ID == 0 {
@@ -153,7 +153,7 @@ func (m *Migrations) MigrateRandomSlugs() error {
 	}
 
 	// Record migration as completed
-	err := m.RecordMigration(migrationName)
+	err := ms.RecordMigration(migrationName)
 	if err != nil {
 		return fmt.Errorf("migration completed but failed to record status: %w", err)
 	}
