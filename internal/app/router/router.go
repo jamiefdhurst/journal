@@ -18,9 +18,11 @@ func NewRouter(app *app.Container) *pkgrouter.Router {
 	}
 
 	rtr.Get("/sitemap.xml", &web.Sitemap{})
+	rtr.Get("/stats", &web.Stats{})
 	rtr.Get("/new", &web.New{})
 	rtr.Post("/new", &web.New{})
 	rtr.Get("/random", &web.Random{})
+	rtr.Get("/api/v1/stats", &apiv1.Stats{})
 	rtr.Get("/api/v1/post", &apiv1.List{})
 	rtr.Put("/api/v1/post", &apiv1.Create{})
 	rtr.Get("/api/v1/post/random", &apiv1.Random{})

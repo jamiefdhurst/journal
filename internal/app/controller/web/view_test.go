@@ -28,6 +28,7 @@ func TestView_Run(t *testing.T) {
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &View{}
+	controller.DisableTracking()
 
 	// Test not found/error with GET/POST
 	db.Rows = &database.MockRowsEmpty{}

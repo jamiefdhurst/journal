@@ -28,6 +28,7 @@ func TestSitemap_Run(t *testing.T) {
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Sitemap{}
+	controller.DisableTracking()
 
 	// Test showing all Journals in sitemap
 	db.Rows = &database.MockJournal_MultipleRows{}

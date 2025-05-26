@@ -2,7 +2,6 @@ package apiv1
 
 import (
 	"net/http"
-	"os"
 	"strings"
 	"testing"
 
@@ -17,7 +16,7 @@ func TestUpdate_Run(t *testing.T) {
 	response := &controller.MockResponse{}
 	response.Reset()
 	controller := &Update{}
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
+	controller.DisableTracking()
 
 	// Test forbidden
 	container.Configuration.EnableEdit = false

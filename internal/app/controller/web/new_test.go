@@ -31,6 +31,7 @@ func TestNew_Run(t *testing.T) {
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &New{}
+	controller.DisableTracking()
 
 	// Display form
 	request, _ := http.NewRequest("GET", "/new", strings.NewReader(""))

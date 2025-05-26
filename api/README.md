@@ -193,3 +193,52 @@ When updating the post, the slug remains constant, even when the title changes.
 * `400` - Incorrect parameters supplied - at least one or more of the date,
 title and content must be provided.
 * `404` - Post with provided slug could not be found.
+
+---
+
+### Stats
+
+**Method/URL:** `GET /api/v1/stats`
+
+**Successful Response:** `200`
+
+Retrieve statistics, configuration information and visit summaries for the
+current installation.
+
+```json
+{
+    "posts": {
+        "count": 3,
+        "first_post_date": "Monday January 1, 2018"
+    },
+    "configuration": {
+        "title": "Jamie's Journal",
+        "description": "A private journal containing Jamie's innermost thoughts",
+        "theme": "default",
+        "posts_per_page": 20,
+        "google_analytics": false,
+        "create_enabled": true,
+        "edit_enabled": true
+    },
+    "visits": {
+        "daily": [
+            {
+                "date": "2025-01-01",
+                "api_hits": 20,
+                "web_hits": 30,
+                "total": 50
+            }
+        ],
+        "monthly": [
+            {
+                "month": "2025-01",
+                "api_hits": 200,
+                "web_hits": 300,
+                "total": 500
+            }
+        ]
+    }
+}
+```
+
+**Error Responses:** *None*

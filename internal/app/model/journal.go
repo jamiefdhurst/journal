@@ -291,7 +291,7 @@ func Slugify(s string) string {
 // ValidateSlug ensures a slug is acceptable
 func ValidateSlug(slug string) bool {
 	// Check for reserved slugs
-	if slug == "random" {
+	if slug == "random" || slug == "new" || slug == "stats" {
 		return false
 	}
 
