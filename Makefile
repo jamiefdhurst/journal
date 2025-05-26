@@ -1,7 +1,7 @@
 .PHONY: build test
 
 build:
-	@CC=x86_64-unknown-linux-gnu-gcc CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go build -v -o bootstrap .
+	@CC=x86_64-unknown-linux-gnu-gcc GOARCH=amd64 GOOS=linux go build -v -o bootstrap .
 	@zip -r lambda.zip bootstrap web -x web/app/\*
 
 test:
