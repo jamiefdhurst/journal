@@ -25,6 +25,8 @@ type statsTemplateData struct {
 	GACodeSet       bool
 	CreateEnabled   bool
 	EditEnabled     bool
+	DailyVisits     []model.DailyVisit
+	MonthlyVisits   []model.MonthlyVisit
 }
 
 // Run Stats action
@@ -54,6 +56,10 @@ func (c *Stats) Run(response http.ResponseWriter, request *http.Request) {
 	data.GACodeSet = container.Configuration.GoogleAnalyticsCode != ""
 	data.CreateEnabled = container.Configuration.EnableCreate
 	data.EditEnabled = container.Configuration.EnableEdit
+
+	vs := model.Visits{Container: container}
+	data.DailyVisits = vs.GetDailyStats(14)
+	data.MonthlyVisits = vs.GetMonthlyStats()
 
 	template, _ := template.ParseFiles(
 		"./web/templates/_layout/default.html.tmpl",

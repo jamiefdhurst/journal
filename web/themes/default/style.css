@@ -497,3 +497,48 @@ section.stats dt:nth-of-type(odd),
 section.stats dd:nth-of-type(odd) {
     background-color: #f7f7f7;
 }
+
+/* Stats section adjustments for full width tables */
+section.stats {
+    max-width: none;
+    width: 95%;
+    margin: 0 auto;
+}
+
+/* Visits table styling */
+.visits {
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+    width: 100%;
+}
+
+.visits th,
+.visits td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.visits th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    border-bottom: 2px solid #222;
+}
+
+.visits tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.visits tr:hover {
+    background-color: #f0f0f0;
+}
+
+.visits td:nth-child(2),
+.visits td:nth-child(3),
+.visits td:nth-child(4),
+.visits th:nth-child(2),
+.visits th:nth-child(3),
+.visits th:nth-child(4) {
+    text-align: right;
+}

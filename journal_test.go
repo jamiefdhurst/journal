@@ -335,7 +335,13 @@ func TestApiV1Stats(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `{"posts":{"count":3,"first_post_date":"Monday January 1, 2018"},"configuration":{"title":"Jamie's Journal","description":"A private journal containing Jamie's innermost thoughts","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true}}`
+
+	// Check that JSON is returned
+	if res.Header.Get("Content-Type") != "application/json" {
+		t.Error("Expected JSON content type")
+	}
+
+	expected := `{"posts":{"count":3,"first_post_date":"Monday January 1, 2018"},"configuration":{"title":"Jamie's Journal","description":"A private journal containing Jamie's innermost thoughts","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true},"visits":{"daily":[{"date":"2025-05-26T00:00:00Z","api_hits":1,"web_hits":0,"total":1}],"monthly":[{"month":"2025-05","api_hits":1,"web_hits":0,"total":1}]}}`
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {

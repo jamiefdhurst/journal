@@ -202,7 +202,8 @@ title and content must be provided.
 
 **Successful Response:** `200`
 
-Retrieve statistics and configuration information on the current installation.
+Retrieve statistics, configuration information and visit summaries for the
+current installation.
 
 ```json
 {
@@ -218,6 +219,24 @@ Retrieve statistics and configuration information on the current installation.
         "google_analytics": false,
         "create_enabled": true,
         "edit_enabled": true
+    },
+    "visits": {
+        "daily": [
+            {
+                "date": "2025-01-01",
+                "api_hits": 20,
+                "web_hits": 30,
+                "total": 50
+            }
+        ],
+        "monthly": [
+            {
+                "month": "2025-01",
+                "api_hits": 200,
+                "web_hits": 300,
+                "total": 500
+            }
+        ]
     }
 }
 ```

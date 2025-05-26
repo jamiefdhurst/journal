@@ -256,3 +256,65 @@ func (m *MockVisit_SingleRow) Scan(dest ...interface{}) error {
 	}
 	return nil
 }
+
+// MockVisitStats_DailyRows Mock daily visit statistics rows
+type MockVisitStats_DailyRows struct {
+	MockRowsEmpty
+	RowNumber int
+}
+
+// Next Mock 2 rows
+func (m *MockVisitStats_DailyRows) Next() bool {
+	m.RowNumber++
+	if m.RowNumber < 3 {
+		return true
+	}
+	return false
+}
+
+// Scan Return the daily stats data
+func (m *MockVisitStats_DailyRows) Scan(dest ...interface{}) error {
+	if m.RowNumber == 1 {
+		*dest[0].(*string) = "2023-12-25"
+		*dest[1].(*int) = 15
+		*dest[2].(*int) = 42
+		*dest[3].(*int) = 57
+	} else if m.RowNumber == 2 {
+		*dest[0].(*string) = "2023-12-24"
+		*dest[1].(*int) = 8
+		*dest[2].(*int) = 25
+		*dest[3].(*int) = 33
+	}
+	return nil
+}
+
+// MockVisitStats_MonthlyRows Mock monthly visit statistics rows
+type MockVisitStats_MonthlyRows struct {
+	MockRowsEmpty
+	RowNumber int
+}
+
+// Next Mock 2 rows
+func (m *MockVisitStats_MonthlyRows) Next() bool {
+	m.RowNumber++
+	if m.RowNumber < 3 {
+		return true
+	}
+	return false
+}
+
+// Scan Return the monthly stats data
+func (m *MockVisitStats_MonthlyRows) Scan(dest ...interface{}) error {
+	if m.RowNumber == 1 {
+		*dest[0].(*string) = "2023-12"
+		*dest[1].(*int) = 450
+		*dest[2].(*int) = 1250
+		*dest[3].(*int) = 1700
+	} else if m.RowNumber == 2 {
+		*dest[0].(*string) = "2023-11"
+		*dest[1].(*int) = 320
+		*dest[2].(*int) = 980
+		*dest[3].(*int) = 1300
+	}
+	return nil
+}

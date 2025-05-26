@@ -185,6 +185,7 @@ components:
       required:
         - posts
         - configuration
+        - visits
       type: object
       properties:
         posts:
@@ -227,3 +228,46 @@ components:
               type: boolean
             edit_enabled:
               type: boolean
+        visits:
+          type: object
+          required:
+            - daily
+            - monthly
+          properties:
+            daily:
+              type: array
+              description: Daily visit statistics for the last 14 days
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                    example: "2023-12-25"
+                  api_hits:
+                    type: integer
+                    example: 15
+                  web_hits:
+                    type: integer
+                    example: 42
+                  total:
+                    type: integer
+                    example: 57
+            monthly:
+              type: array
+              description: Monthly visit statistics for all available months
+              items:
+                type: object
+                properties:
+                  month:
+                    type: string
+                    example: "2023-12"
+                  api_hits:
+                    type: integer
+                    example: 450
+                  web_hits:
+                    type: integer
+                    example: 1250
+                  total:
+                    type: integer
+                    example: 1700

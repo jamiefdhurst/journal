@@ -17,6 +17,12 @@ type Stats struct {
 type statsJSON struct {
 	Posts         statsPostsJSON  `json:"posts"`
 	Configuration statsConfigJSON `json:"configuration"`
+	Visits        statsVisitsJSON `json:"visits"`
+}
+
+type statsVisitsJSON struct {
+	Daily   []model.DailyVisit   `json:"daily"`
+	Monthly []model.MonthlyVisit `json:"monthly"`
 }
 
 type statsPostsJSON struct {
@@ -56,6 +62,10 @@ func (c *Stats) Run(response http.ResponseWriter, request *http.Request) {
 	stats.Configuration.GoogleAnalytics = container.Configuration.GoogleAnalyticsCode != ""
 	stats.Configuration.CreateEnabled = container.Configuration.EnableCreate
 	stats.Configuration.EditEnabled = container.Configuration.EnableEdit
+
+	vs := model.Visits{Container: container}
+	stats.Visits.Daily = vs.GetDailyStats(14)
+	stats.Visits.Monthly = vs.GetMonthlyStats()
 
 	// Send JSON response
 	response.Header().Add("Content-Type", "application/json")
