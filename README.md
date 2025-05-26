@@ -98,15 +98,17 @@ the binary itself.
 
 #### Dependencies
 
-The application currently only has one dependency:
+The application has the following dependencies (using go.mod and go.sum):
 
-* [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3)
+- [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3)
+- [github.com/akrylysov/algnhsa](https://github.com/akrylysov/algnhsa)
+- [github.com/aws/aws-lambda-go](https://github.com/aws/aws-lambda-go)
+- [github.com/gomarkdown/markdown](https://github.com/gomarkdown/markdown)
 
 This can be installed using the following commands from the journal folder:
 
 ```bash
 go get -v ./...
-go install -v ./...
 ```
 
 #### Templates

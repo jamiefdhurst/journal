@@ -5,7 +5,8 @@ import (
 	"os"
 
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
-	_ "github.com/mattn/go-sqlite3" // SQLite 3 driver
+	_ "github.com/ncruces/go-sqlite3/driver" // SQLite 3 driver
+	_ "github.com/ncruces/go-sqlite3/embed"  // SQLite 3 embeddings
 )
 
 // Database Define a common interface for all database drivers
