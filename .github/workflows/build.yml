@@ -88,13 +88,13 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.22'
+          go-version: '1.23'
           cache-dependency-path: go.sum
       - name: Build Binary
         run: |
           sudo apt-get install -y build-essential libsqlite3-dev
           go mod download
-          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal-bin_linux_x64-v${{ steps.version.outputs.value }} .
+          GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal-bin_linux_x64-v${{ steps.version.outputs.value }} .
           cp journal-bin_linux_x64-v${{ steps.version.outputs.value }} bootstrap
           zip -r journal-lambda_al2023-v${{ steps.version.outputs.value }}.zip bootstrap web -x web/app/\*
       - name: Create Release
