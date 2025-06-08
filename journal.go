@@ -91,9 +91,18 @@ func main() {
 	router := router.NewRouter(container)
 
 	var err error
-	server := &http.Server{Addr: ":" + configuration.Port, Handler: router, TLSConfig: &tls.Config{
-		MinVersion: tls.VersionTLS13,
-	}}
+	var protocols http.Protocols
+	protocols.SetHTTP1(true)
+	protocols.SetHTTP2(true)
+	protocols.SetUnencryptedHTTP2(true)
+	server := &http.Server{
+		Addr:      ":" + configuration.Port,
+		Handler:   router,
+		Protocols: &protocols,
+		TLSConfig: &tls.Config{
+			MinVersion: tls.VersionTLS13,
+		},
+	}
 	log.Printf("Ready and listening on port %s...\n", configuration.Port)
 	if configuration.SSLCertificate == "" {
 		err = router.StartAndServe(server)
