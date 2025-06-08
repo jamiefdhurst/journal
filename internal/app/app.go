@@ -24,9 +24,9 @@ type MarkdownProcessor interface {
 
 // Container Define the main container for the application
 type Container struct {
-	Configuration    Configuration
-	Db               Database
-	Version          string
+	Configuration     Configuration
+	Db                Database
+	Version           string
 	MarkdownProcessor MarkdownProcessor
 }
 
@@ -39,6 +39,8 @@ type Configuration struct {
 	EnableEdit          bool
 	GoogleAnalyticsCode string
 	Port                string
+	SSLCertificate      string
+	SSLKey              string
 	StaticPath          string
 	Theme               string
 	ThemePath           string
@@ -55,6 +57,8 @@ func DefaultConfiguration() Configuration {
 		EnableEdit:          true,
 		GoogleAnalyticsCode: "",
 		Port:                "3000",
+		SSLCertificate:      "",
+		SSLKey:              "",
 		StaticPath:          "web/static",
 		Theme:               "default",
 		ThemePath:           "web/themes",
@@ -89,6 +93,8 @@ func ApplyEnvConfiguration(config *Configuration) {
 	if port != "" {
 		config.Port = port
 	}
+	config.SSLCertificate = os.Getenv("J_SSL_CERT")
+	config.SSLKey = os.Getenv("J_SSL_KEY")
 	staticPath := os.Getenv("J_STATIC_PATH")
 	if staticPath != "" {
 		config.StaticPath = staticPath

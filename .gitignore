@@ -34,3 +34,4 @@ test/data/test.db
 .history
 bootstrap
 *.zip
+*.pem

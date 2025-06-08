@@ -13,6 +13,7 @@ import (
 // Server Common interface for HTTP
 type Server interface {
 	ListenAndServe() error
+	ListenAndServeTLS(string, string) error
 }
 
 // Route A route contains a method (GET), URI, and a controller
@@ -99,4 +100,9 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 // StartAndServe Start the HTTP server and listen for connections
 func (r *Router) StartAndServe(server Server) error {
 	return server.ListenAndServe()
+}
+
+// StartAndServeTls Start the HTTP server and listen for connections with Tls
+func (r *Router) StartAndServeTLS(server Server, cert string, key string) error {
+	return server.ListenAndServeTLS(cert, key)
 }

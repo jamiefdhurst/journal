@@ -1,12 +1,11 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/akrylysov/algnhsa"
 
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
@@ -78,9 +77,6 @@ func loadDatabase() func() {
 
 func main() {
 	const version = "0.9.6"
-
-	// Set CWD
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
 	fmt.Printf("Journal v%s\n-------------------\n\n", version)
 
 	configuration := config()
@@ -95,13 +91,17 @@ func main() {
 	router := router.NewRouter(container)
 
 	var err error
-	if lambdaRuntimeApi, _ := os.LookupEnv("AWS_LAMBDA_RUNTIME_API"); lambdaRuntimeApi != "" {
-		log.Printf("Ready for Lambda payload...\n")
-		algnhsa.ListenAndServe(router, nil)
-	} else {
-		server := &http.Server{Addr: ":" + configuration.Port, Handler: router}
-		log.Printf("Ready and listening on port %s...\n", configuration.Port)
+	server := &http.Server{Addr: ":" + configuration.Port, Handler: router, TLSConfig: &tls.Config{
+		MinVersion: tls.VersionTLS13,
+	}}
+	log.Printf("Ready and listening on port %s...\n", configuration.Port)
+	if configuration.SSLCertificate == "" {
 		err = router.StartAndServe(server)
+	} else {
+		log.Printf("Certificate: %s\n", configuration.SSLCertificate)
+		log.Printf("Certificate Key: %s\n", configuration.SSLKey)
+		log.Println("Serving with SSL enabled...")
+		err = router.StartAndServeTLS(server, configuration.SSLCertificate, configuration.SSLKey)
 	}
 
 	if err != nil {
