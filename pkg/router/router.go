@@ -72,6 +72,8 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 	if r.isHTTPS {
 		request.Header.Add("Strict-Transport-Security", "max-age=15552000; includeSubDomains; preload")
 	}
+	request.Header.Add("Content-Security-Policy", "default-src: 'self'; font-src: 'fonts.googleapis.com'; frame-src: 'none'")
+	request.Header.Add("X-XSS-Protection", "mode=block")
 
 	// Attempt to serve a file first from available static paths
 	for _, staticPath := range r.StaticPaths {
