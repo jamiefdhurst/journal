@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
@@ -341,7 +343,10 @@ func TestApiV1Stats(t *testing.T) {
 		t.Error("Expected JSON content type")
 	}
 
-	expected := `{"posts":{"count":3,"first_post_date":"Monday January 1, 2018"},"configuration":{"title":"Jamie's Journal","description":"A private journal containing Jamie's innermost thoughts","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true},"visits":{"daily":[{"date":"2025-05-26T00:00:00Z","api_hits":1,"web_hits":0,"total":1}],"monthly":[{"month":"2025-05","api_hits":1,"web_hits":0,"total":1}]}}`
+	now := time.Now()
+	date := now.Format("2006-01-02")
+	month := now.Format("2006-01")
+	expected := fmt.Sprintf(`{"posts":{"count":3,"first_post_date":"Monday January 1, 2018"},"configuration":{"title":"Jamie's Journal","description":"A private journal containing Jamie's innermost thoughts","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true},"visits":{"daily":[{"date":"%sT00:00:00Z","api_hits":1,"web_hits":0,"total":1}],"monthly":[{"month":"%s","api_hits":1,"web_hits":0,"total":1}]}}`, date, month)
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {

@@ -25,7 +25,7 @@ type Route struct {
 
 // Router A router contains routes and links back to the application and implements the ServeHTTP interface
 type Router struct {
-	isHTTPS         bool
+	isHTTPS         bool `default:"false"`
 	Container       interface{}
 	Routes          []Route
 	StaticPaths     []string
@@ -70,10 +70,10 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 
 	// Security headers
 	if r.isHTTPS {
-		request.Header.Add("Strict-Transport-Security", "max-age=15552000; includeSubDomains; preload")
+		response.Header().Add("Strict-Transport-Security", "max-age=15552000; includeSubDomains; preload")
 	}
-	request.Header.Add("Content-Security-Policy", "default-src: 'self'; font-src: 'fonts.googleapis.com'; frame-src: 'none'")
-	request.Header.Add("X-XSS-Protection", "mode=block")
+	response.Header().Add("Content-Security-Policy", "default-src: 'self'; font-src: 'fonts.googleapis.com'; frame-src: 'none'")
+	response.Header().Add("X-XSS-Protection", "mode=block")
 
 	// Attempt to serve a file first from available static paths
 	for _, staticPath := range r.StaticPaths {

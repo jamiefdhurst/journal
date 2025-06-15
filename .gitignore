@@ -35,3 +35,5 @@ test/data/test.db
 bootstrap
 *.zip
 *.pem
+!test/cert.pem
+!test/key.pem
