@@ -13,6 +13,7 @@ import (
 // Server Common interface for HTTP
 type Server interface {
 	ListenAndServe() error
+	ListenAndServeTLS(string, string) error
 }
 
 // Route A route contains a method (GET), URI, and a controller
@@ -24,6 +25,7 @@ type Route struct {
 
 // Router A router contains routes and links back to the application and implements the ServeHTTP interface
 type Router struct {
+	isHTTPS         bool `default:"false"`
 	Container       interface{}
 	Routes          []Route
 	StaticPaths     []string
@@ -66,6 +68,13 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 	// Debug output into the console
 	log.Printf("%s: %s", request.Method, request.URL.Path)
 
+	// Security headers
+	if r.isHTTPS {
+		response.Header().Add("Strict-Transport-Security", "max-age=15552000; includeSubDomains; preload")
+	}
+	response.Header().Add("Content-Security-Policy", "default-src: 'self'; font-src: 'fonts.googleapis.com'; frame-src: 'none'")
+	response.Header().Add("X-XSS-Protection", "mode=block")
+
 	// Attempt to serve a file first from available static paths
 	for _, staticPath := range r.StaticPaths {
 		if request.URL.Path != "/" {
@@ -98,5 +107,12 @@ func (r *Router) ServeHTTP(response http.ResponseWriter, request *http.Request) 
 
 // StartAndServe Start the HTTP server and listen for connections
 func (r *Router) StartAndServe(server Server) error {
+	r.isHTTPS = false
 	return server.ListenAndServe()
+}
+
+// StartAndServeTls Start the HTTP server and listen for connections with Tls
+func (r *Router) StartAndServeTLS(server Server, cert string, key string) error {
+	r.isHTTPS = true
+	return server.ListenAndServeTLS(cert, key)
 }

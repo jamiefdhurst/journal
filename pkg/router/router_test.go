@@ -2,7 +2,6 @@ package router
 
 import (
 	"net/http"
-	"net/url"
 	"os"
 	"path"
 	"runtime"
@@ -86,8 +85,7 @@ func TestServeHTTP(t *testing.T) {
 	router.Get("/", indexController)
 
 	// Serve static file
-	staticURL := &url.URL{Path: "/style.css"}
-	staticRequest := &http.Request{URL: staticURL, Method: "GET"}
+	staticRequest, _ := http.NewRequest("GET", "/style.css", nil)
 	router.ServeHTTP(response, staticRequest)
 	if errorController.HasRun {
 		t.Errorf("Expected static file to have been served but error controller was run")
@@ -95,8 +93,7 @@ func TestServeHTTP(t *testing.T) {
 	}
 
 	// Index
-	indexURL := &url.URL{Path: "/"}
-	indexRequest := &http.Request{URL: indexURL, Method: "GET"}
+	indexRequest, _ := http.NewRequest("GET", "/", nil)
 	router.ServeHTTP(response, indexRequest)
 	if !indexController.HasRun || errorController.HasRun {
 		t.Errorf("Expected index controller to have been served but error controller was run")
@@ -104,8 +101,7 @@ func TestServeHTTP(t *testing.T) {
 	}
 
 	// Standard route
-	standardURL := &url.URL{Path: "/standard"}
-	standardRequest := &http.Request{URL: standardURL, Method: "GET"}
+	standardRequest, _ := http.NewRequest("GET", "/standard", nil)
 	router.ServeHTTP(response, standardRequest)
 	if !standardController.HasRun || errorController.HasRun {
 		t.Errorf("Expected standard controller to have been served but error controller was run")
@@ -113,8 +109,7 @@ func TestServeHTTP(t *testing.T) {
 	}
 
 	// Param route
-	paramURL := &url.URL{Path: "/param/test1"}
-	paramRequest := &http.Request{URL: paramURL, Method: "GET"}
+	paramRequest, _ := http.NewRequest("GET", "/param/test1", nil)
 	router.ServeHTTP(response, paramRequest)
 	if !paramController.HasRun || errorController.HasRun {
 		t.Errorf("Expected param controller to have been served but error controller was run")
@@ -122,11 +117,58 @@ func TestServeHTTP(t *testing.T) {
 	}
 
 	// Not found route
-	notFoundURL := &url.URL{Path: "/random"}
-	notFoundRequest := &http.Request{URL: notFoundURL, Method: "GET"}
+	notFoundRequest, _ := http.NewRequest("GET", "/random", nil)
 	router.ServeHTTP(response, notFoundRequest)
 	if !errorController.HasRun {
 		t.Errorf("Expected error controller to have been served")
+	}
+}
+
+func TestServeHTTP_HTTPHeaders(t *testing.T) {
+	ctrl := &controller.MockController{}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
+	server := &mockRouter.MockServer{}
+	router.StartAndServe(server)
+
+	response := controller.NewMockResponse()
+	request, _ := http.NewRequest("GET", "/random", nil)
+	router.ServeHTTP(response, request)
+
+	csp := response.Headers.Get("Content-Security-Policy")
+	xss := response.Headers.Get("X-XSS-Protection")
+	sts := response.Headers.Get("Strict-Transport-Security")
+	if csp == "" {
+		t.Error("Expected CSP header to be present")
+	}
+	if xss == "" {
+		t.Error("Expected XSS header to be present")
+	}
+	if sts != "" {
+		t.Error("Expected STS header to not be present")
+	}
+}
+
+func TestServeHTTP_HTTPSHeaders(t *testing.T) {
+	ctrl := &controller.MockController{}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
+	server := &mockRouter.MockServer{}
+	router.StartAndServeTLS(server, "test/cert.pem", "test/key.pem")
+
+	response := controller.NewMockResponse()
+	request, _ := http.NewRequest("GET", "/random", nil)
+	router.ServeHTTP(response, request)
+
+	csp := response.Headers.Get("Content-Security-Policy")
+	xss := response.Headers.Get("X-XSS-Protection")
+	sts := response.Headers.Get("Strict-Transport-Security")
+	if csp == "" {
+		t.Error("Expected CSP header to be present")
+	}
+	if xss == "" {
+		t.Error("Expected XSS header to be present")
+	}
+	if sts == "" {
+		t.Error("Expected STS header to be present")
 	}
 }
 
@@ -135,6 +177,17 @@ func TestStartAndServe(t *testing.T) {
 	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
 	server := &mockRouter.MockServer{}
 	router.StartAndServe(server)
+
+	if !server.Listening {
+		t.Errorf("Expected some routes to have been defined but none were found")
+	}
+}
+
+func TestStartAndServeTLS(t *testing.T) {
+	ctrl := &controller.MockController{}
+	router := Router{Container: &BlankContainer{}, Routes: []Route{}, ErrorController: ctrl}
+	server := &mockRouter.MockServer{}
+	router.StartAndServeTLS(server, "test/cert.pem", "test/key.pem")
 
 	if !server.Listening {
 		t.Errorf("Expected some routes to have been defined but none were found")
