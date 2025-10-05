@@ -3,13 +3,22 @@
 
 <div id="calendar">
     <nav class="calendar-top">
-        <h2>2025</h2>
-        <a href="/calendar/2024">2024</a>
+        <h2>{{.CurrentDate.Year}}</h2>
+        {{if .PrevYear}}
+            <a class="prev" href="/calendar/{{.PrevYearUrl}}">{{.PrevYear}}</a>
+        {{end}}
+        {{if .NextYear}}
+            <a class="next" href="/calendar/{{.NextYearUrl}}">{{.NextYear}}</a>
+        {{end}}
     </nav>
     <nav class="calendar-top">
-        <h2>May</h2>
-        <a href="/calendar/2025/apr">April</a>
-        <a href="/calendar/2025/jun">June</a>
+        <h2>{{.CurrentDate.Month}}</h2>
+        {{if .PrevMonth}}
+            <a class="prev" href="/calendar/{{.PrevMonthUrl}}">{{.PrevMonth}}</a>
+        {{end}}
+        {{if .NextMonth}}
+            <a class="next" href="/calendar/{{.NextMonthUrl}}">{{.NextMonth}}</a>
+        {{end}}
     </nav>
 
     <table class="calendar">
@@ -25,114 +34,22 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>
-                    <h3>1</h3>
-                </td>
-                <td>
-                    <h3>2</h3>
-                </td>
-                <td>
-                    <h3>3</h3>
-                </td>
-                <td>
-                    <h3>4</h3>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h3>5</h3>
-                </td>
-                <td>
-                    <h3>6</h3>
-                </td>
-                <td>
-                    <h3>7</h3>
-                </td>
-                <td>
-                    <h3>8</h3>
-                </td>
-                <td>
-                    <h3>9</h3>
-                </td>
-                <td>
-                    <h3>10</h3>
-                </td>
-                <td>
-                    <h3>11</h3>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h3>12</h3>
-                </td>
-                <td>
-                    <h3>13</h3>
-                </td>
-                <td>
-                    <h3>14</h3>
-                </td>
-                <td>
-                    <h3>15</h3>
-                </td>
-                <td>
-                    <h3>16</h3>
-                </td>
-                <td>
-                    <h3>17</h3>
-                </td>
-                <td>
-                    <h3>18</h3>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h3>19</h3>
-                </td>
-                <td>
-                    <h3>20</h3>
-                </td>
-                <td>
-                    <h3>21</h3>
-                </td>
-                <td>
-                    <h3>22</h3>
-                </td>
-                <td>
-                    <h3>23</h3>
-                </td>
-                <td>
-                    <h3>24</h3>
-                    <a href="/big-mouth">Big Mouth</a>
-                </td>
-                <td>
-                    <h3>25</h3>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h3>26</h3>
-                </td>
-                <td>
-                    <h3>27</h3>
-                </td>
-                <td>
-                    <h3>28</h3>
-                </td>
-                <td>
-                    <h3>29</h3>
-                </td>
-                <td>
-                    <h3>30</h3>
-                </td>
-                <td>
-                    <h3>31</h3>
-                </td>
-                <td>&nbsp;</td>
-            </tr>
+            {{range .Weeks}}
+                <tr>
+                    {{range .}}
+                        {{if .IsEmpty}}
+                            <td class="empty">&nbsp;</td>
+                        {{else}}
+                            <td>
+                                <h3>{{.Date.Day}}</h3>
+                                {{range (index $.Days .Date.Day)}}
+                                    <a href="/{{.Slug}}">{{.Title}}</a>
+                                {{end}}
+                            </td>
+                        {{end}}
+                    {{end}}
+                </tr>
+            {{end}}
         </tbody>
     </table>
 </div>

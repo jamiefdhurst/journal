@@ -171,6 +171,16 @@ func (js *Journals) FetchAll() []Journal {
 	return js.loadFromRows(rows)
 }
 
+// FetchByDate Get all journal entries on a given date
+func (js *Journals) FetchByDate(date string) []Journal {
+	rows, err := js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `date` LIKE ? ORDER BY `id`", date+"%")
+	if err != nil {
+		return []Journal{}
+	}
+
+	return js.loadFromRows(rows)
+}
+
 // FetchPaginated returns a set of paginated journal entries
 func (js *Journals) FetchPaginated(query database.PaginationQuery) ([]Journal, database.PaginationInformation) {
 	pagination := database.PaginationInformation{

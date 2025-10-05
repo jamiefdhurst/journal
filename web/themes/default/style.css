@@ -558,14 +558,14 @@ section.stats {
     margin: 0 auto 2rem;
 }
 
-.calendar-top a:nth-child(2) {
+.calendar-top .prev {
     left: 0;
     position: absolute;
     text-align: left;
     top: .5rem;
 }
 
-.calendar-top a:nth-child(3) {
+.calendar-top .next {
     position: absolute;
     right: 0;
     top: .5rem;
@@ -577,6 +577,10 @@ section.stats {
     border-collapse: collapse;
     margin-top: 4rem;
     width: 100%;
+}
+
+.calendar thead {
+    display: none;
 }
 
 .calendar th,
@@ -593,9 +597,13 @@ section.stats {
 }
 
 .calendar td {
-    height: 3rem;
-    padding-top: 2.25rem;
+    display: block;
+    padding: 1.75rem 1rem .5rem;
     position: relative;
+}
+
+.calendar td.empty {
+    display: none;
 }
 
 .calendar td h3 {
@@ -607,8 +615,20 @@ section.stats {
     top: .5rem;
 }
 
-.calendar td a {
-    font-size: 1rem;
-    font-style: italic;
-    line-height: 1.25rem;
+@media screen and (min-width: 768px) {
+    .calendar thead {
+        display: table-header-group;
+    }
+
+    .calendar td.empty, .calendar td {
+        display: table-cell;
+        height: 3rem;
+        padding: 1.75rem .5rem .5rem;
+        width: 14.27%;
+    }
+
+    .calendar td a {
+        font-size: 1rem;
+        line-height: 1.25rem;
+    }
 }
