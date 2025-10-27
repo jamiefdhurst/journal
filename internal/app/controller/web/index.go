@@ -18,6 +18,7 @@ type Index struct {
 
 type indexTemplateData struct {
 	Container  interface{}
+	Excerpt    func(model.Journal) string
 	Journals   []model.Journal
 	Pages      []int
 	Pagination database.PaginationDisplay
@@ -47,6 +48,10 @@ func (c *Index) Run(response http.ResponseWriter, request *http.Request) {
 	for p := data.Pagination.FirstPage; p <= data.Pagination.LastPage; p++ {
 		data.Pages[i] = p
 		i++
+	}
+
+	data.Excerpt = func(j model.Journal) string {
+		return j.GetHTMLExcerpt(container.Configuration.ExcerptWords)
 	}
 
 	c.SaveSession(response)

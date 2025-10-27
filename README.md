@@ -53,6 +53,7 @@ The application uses environment variables to configure all aspects.
 * `J_DB_PATH` - Path to SQLite DB - default is `$GOPATH/data/journal.db`
 * `J_DESCRIPTION` - Set the HTML description of the Journal
 * `J_EDIT` - Set to `0` to disable article modification
+* `J_EXCERPT_WORDS` - The length of the article shown as a preview/excerpt in the index, default `50`
 * `J_GA_CODE` - Google Analytics tag value, starts with `UA-`, or ignore to disable Google Analytics
 * `J_PORT` - Port to expose over HTTP, default is `3000`
 * `J_THEME` - Theme to use from within the _web/themes_ folder, defaults to `default`

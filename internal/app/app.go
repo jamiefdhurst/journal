@@ -37,6 +37,7 @@ type Configuration struct {
 	Description         string
 	EnableCreate        bool
 	EnableEdit          bool
+	ExcerptWords        int
 	GoogleAnalyticsCode string
 	Port                string
 	SSLCertificate      string
@@ -55,6 +56,7 @@ func DefaultConfiguration() Configuration {
 		Description:         "A private journal containing Jamie's innermost thoughts",
 		EnableCreate:        true,
 		EnableEdit:          true,
+		ExcerptWords:        50,
 		GoogleAnalyticsCode: "",
 		Port:                "3000",
 		SSLCertificate:      "",
@@ -87,6 +89,10 @@ func ApplyEnvConfiguration(config *Configuration) {
 	enableEdit := os.Getenv("J_EDIT")
 	if enableEdit == "0" {
 		config.EnableEdit = false
+	}
+	excerptWords, _ := strconv.Atoi(os.Getenv("J_EXCERPT_WORDS"))
+	if excerptWords > 0 {
+		config.ExcerptWords = excerptWords
 	}
 	config.GoogleAnalyticsCode = os.Getenv("J_GA_CODE")
 	port := os.Getenv("J_PORT")
