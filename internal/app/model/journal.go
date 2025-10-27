@@ -52,27 +52,8 @@ func (j Journal) GetEditableDate() string {
 	return re.FindString(j.Date)
 }
 
-// GetExcerpt returns a small extract of the entry as plain text
-func (j Journal) GetExcerpt() string {
-	strip := regexp.MustCompile("\b+")
-	// Markdown handling - replace newlines with spaces
-	text := strings.ReplaceAll(j.Content, "\n", " ")
-	text = strip.ReplaceAllString(text, " ")
-
-	// Clean up multiple spaces
-	spaceRegex := regexp.MustCompile(`\s+`)
-	text = spaceRegex.ReplaceAllString(text, " ")
-
-	words := strings.Split(text, " ")
-
-	if len(words) > 50 {
-		return strings.Join(words[:50], " ") + "..."
-	}
-	return strings.TrimSpace(strings.Join(words, " "))
-}
-
 // GetHTMLExcerpt returns a small extract of the entry rendered as HTML
-func (j Journal) GetHTMLExcerpt() string {
+func (j Journal) GetHTMLExcerpt(maxWords int) string {
 	if j.Content == "" {
 		return ""
 	}
@@ -86,7 +67,7 @@ func (j Journal) GetHTMLExcerpt() string {
 
 	for _, paragraph := range paragraphs {
 		// Skip if we've already got 50+ words
-		if wordCount >= 50 {
+		if wordCount >= maxWords {
 			break
 		}
 
@@ -98,7 +79,7 @@ func (j Journal) GetHTMLExcerpt() string {
 			lineWords := strings.Fields(line)
 
 			// Calculate how many words we can take from this line
-			wordsToTake := 50 - wordCount
+			wordsToTake := maxWords - wordCount
 			if wordsToTake <= 0 {
 				break
 			}

@@ -13,7 +13,7 @@
             {{.GetDate}}
         </p>
         <div class="summary">
-            {{.GetHTMLExcerpt}}
+            {{call $.Excerpt . }}
             {{if $enableEdit}}<span class="float-right"><a href="/{{.Slug}}/edit" class="button button-outline">Edit</a></span>{{end}}
             <p><a href="/{{.Slug}}">Read More</a></p>
         </div>
