@@ -31,7 +31,7 @@ func (c *View) Run(response http.ResponseWriter, request *http.Request) {
 	data.Journal = js.FindBySlug(c.Params()[1])
 
 	if data.Journal.ID == 0 {
-		RunBadRequest(response, request, c.Super.Container)
+		RunBadRequest(response, request, container)
 	} else {
 		data.Next = js.FindNext(data.Journal.ID)
 		data.Prev = js.FindPrev(data.Journal.ID)

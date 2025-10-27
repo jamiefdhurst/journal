@@ -5,19 +5,19 @@
     <nav class="calendar-top">
         <h2>{{.CurrentDate.Year}}</h2>
         {{if .PrevYear}}
-            <a class="prev" href="/calendar/{{.PrevYearUrl}}">{{.PrevYear}}</a>
+            <a class="prev prev-year" href="/calendar/{{.PrevYearUrl}}">{{.PrevYear}}</a>
         {{end}}
         {{if .NextYear}}
-            <a class="next" href="/calendar/{{.NextYearUrl}}">{{.NextYear}}</a>
+            <a class="next next-year" href="/calendar/{{.NextYearUrl}}">{{.NextYear}}</a>
         {{end}}
     </nav>
     <nav class="calendar-top">
         <h2>{{.CurrentDate.Month}}</h2>
         {{if .PrevMonth}}
-            <a class="prev" href="/calendar/{{.PrevMonthUrl}}">{{.PrevMonth}}</a>
+            <a class="prev prev-month" href="/calendar/{{.PrevMonthUrl}}">{{.PrevMonth}}</a>
         {{end}}
         {{if .NextMonth}}
-            <a class="next" href="/calendar/{{.NextMonthUrl}}">{{.NextMonth}}</a>
+            <a class="next next-month" href="/calendar/{{.NextMonthUrl}}">{{.NextMonth}}</a>
         {{end}}
     </nav>
 

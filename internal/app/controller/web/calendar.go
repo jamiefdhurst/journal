@@ -1,6 +1,7 @@
 package web
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -57,7 +58,8 @@ func (c *Calendar) Run(response http.ResponseWriter, request *http.Request) {
 		date, err = time.Parse("2006-01-02", c.Params()[1]+"-01-01")
 	}
 	if err != nil {
-		RunBadRequest(response, request, c.Super.Container)
+		log.Print(err)
+		RunBadRequest(response, request, container)
 		return
 	}
 

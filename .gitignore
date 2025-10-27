@@ -29,11 +29,7 @@ data
 journal
 node_modules
 test/data/test.db
+tests.xml
 .vscode
 .DS_Store
 .history
-bootstrap
-*.zip
-*.pem
-!test/cert.pem
-!test/key.pem
