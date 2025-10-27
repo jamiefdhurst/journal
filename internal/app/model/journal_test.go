@@ -158,6 +158,33 @@ func TestJournals_FetchAll(t *testing.T) {
 	}
 }
 
+func TestJournals_FetchByDate(t *testing.T) {
+	// Test error
+	db := &database.MockSqlite{}
+	db.ErrorMode = true
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
+	journals := js.FetchByDate("2001-01-01")
+	if len(journals) > 0 {
+		t.Errorf("Expected empty result set returned when error received")
+	}
+
+	// Test empty result
+	db.ErrorMode = false
+	db.Rows = &database.MockRowsEmpty{}
+	journals = js.FetchByDate("2001-01-01")
+	if len(journals) > 0 {
+		t.Errorf("Expected empty result set returned")
+	}
+
+	// Test successful result
+	db.Rows = &database.MockJournal_MultipleRows{}
+	journals = js.FetchByDate("2001-01-01")
+	if len(journals) < 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" {
+		t.Errorf("Expected 2 rows returned and with correct data")
+	}
+}
+
 func TestJournals_FetchPaginated(t *testing.T) {
 
 	// Test error

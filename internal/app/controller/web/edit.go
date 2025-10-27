@@ -19,7 +19,7 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 	container := c.Super.Container().(*app.Container)
 	data.Container = container
 	if !container.Configuration.EnableEdit {
-		RunBadRequest(response, request, c.Super.Container)
+		RunBadRequest(response, request, container)
 		return
 	}
 
@@ -27,7 +27,7 @@ func (c *Edit) Run(response http.ResponseWriter, request *http.Request) {
 	data.Journal = js.FindBySlug(c.Params()[1])
 
 	if data.Journal.ID == 0 {
-		RunBadRequest(response, request, c.Super.Container)
+		RunBadRequest(response, request, container)
 		return
 	}
 

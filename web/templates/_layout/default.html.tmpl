@@ -16,9 +16,10 @@
     <header role="banner">
         <a id="title" href="/">{{.Container.Configuration.Title}}</a>
         <nav id="menu" class="float-right">
-            <a href="/random">View Random Post</a>
+            <a href="/calendar" title="View Post Calendar">Calendar</a>
+            <a href="/random" title="View Random Post">Random</a>
             {{if .Container.Configuration.EnableCreate}}
-                <a class="button" href="/new">Create New Post</a>
+                <a class="button" href="/new" title="Create New Post">Create</a>
             {{end}}
         </nav>
     </header>

@@ -85,7 +85,12 @@ header[role=banner] p {
     padding-top: .5rem;
 }
 
-#menu .button {
+#menu{
+    padding-top: .375rem;
+}
+
+#menu a {
+    font-size: 1rem;
     margin-left: 15px;
 }
 
@@ -541,4 +546,89 @@ section.stats {
 .visits th:nth-child(3),
 .visits th:nth-child(4) {
     text-align: right;
+}
+
+.calendar-top {
+    clear: both;
+    position: relative;
+    text-align: center;
+}
+
+.calendar-top h2 {
+    margin: 0 auto 2rem;
+}
+
+.calendar-top .prev {
+    left: 0;
+    position: absolute;
+    text-align: left;
+    top: .5rem;
+}
+
+.calendar-top .next {
+    position: absolute;
+    right: 0;
+    top: .5rem;
+    text-align: right;
+}
+
+.calendar {
+    border: 2px solid #111;
+    border-collapse: collapse;
+    margin-top: 4rem;
+    width: 100%;
+}
+
+.calendar thead {
+    display: none;
+}
+
+.calendar th,
+.calendar td {
+    border: 1px solid #dedede;
+    padding: .25rem .5rem;
+    vertical-align: top;
+}
+
+.calendar th {
+    background-color: #dedede;
+    font-weight: bold;
+    text-align: right;
+}
+
+.calendar td {
+    display: block;
+    padding: 1.75rem 1rem .5rem;
+    position: relative;
+}
+
+.calendar td.empty {
+    display: none;
+}
+
+.calendar td h3 {
+    font-size: 1.25rem;
+    margin: 0;
+    position: absolute;
+    right: .5rem;
+    text-align: right;
+    top: .5rem;
+}
+
+@media screen and (min-width: 768px) {
+    .calendar thead {
+        display: table-header-group;
+    }
+
+    .calendar td.empty, .calendar td {
+        display: table-cell;
+        height: 3rem;
+        padding: 1.75rem .5rem .5rem;
+        width: 14.27%;
+    }
+
+    .calendar td a {
+        font-size: 1rem;
+        line-height: 1.25rem;
+    }
 }
