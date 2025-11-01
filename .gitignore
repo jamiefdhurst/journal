@@ -33,3 +33,4 @@ tests.xml
 .vscode
 .DS_Store
 .history
+.env

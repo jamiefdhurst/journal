@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
+	"github.com/jamiefdhurst/journal/pkg/env"
 )
 
 // Database Define same interface as database
@@ -84,40 +85,53 @@ func DefaultConfiguration() Configuration {
 }
 
 // ApplyEnvConfiguration applies the env variables on top of existing config
+// It first loads values from a .env file (if it exists), then applies any
+// environment variables set in the system (which override .env values)
 func ApplyEnvConfiguration(config *Configuration) {
-	articles, _ := strconv.Atoi(os.Getenv("J_ARTICLES_PER_PAGE"))
+	// Parse .env file (if it exists)
+	dotenvVars, _ := env.Parse(".env")
+
+	// Helper function to get env var, preferring system env over .env file
+	getEnv := func(key string) string {
+		if val := os.Getenv(key); val != "" {
+			return val
+		}
+		return dotenvVars[key]
+	}
+
+	articles, _ := strconv.Atoi(getEnv("J_ARTICLES_PER_PAGE"))
 	if articles > 0 {
 		config.ArticlesPerPage = articles
 	}
-	database := os.Getenv("J_DB_PATH")
+	database := getEnv("J_DB_PATH")
 	if database != "" {
 		config.DatabasePath = database
 	}
-	description := os.Getenv("J_DESCRIPTION")
+	description := getEnv("J_DESCRIPTION")
 	if description != "" {
 		config.Description = description
 	}
-	enableCreate := os.Getenv("J_CREATE")
+	enableCreate := getEnv("J_CREATE")
 	if enableCreate == "0" {
 		config.EnableCreate = false
 	}
-	enableEdit := os.Getenv("J_EDIT")
+	enableEdit := getEnv("J_EDIT")
 	if enableEdit == "0" {
 		config.EnableEdit = false
 	}
-	excerptWords, _ := strconv.Atoi(os.Getenv("J_EXCERPT_WORDS"))
+	excerptWords, _ := strconv.Atoi(getEnv("J_EXCERPT_WORDS"))
 	if excerptWords > 0 {
 		config.ExcerptWords = excerptWords
 	}
-	config.GoogleAnalyticsCode = os.Getenv("J_GA_CODE")
-	port := os.Getenv("J_PORT")
+	config.GoogleAnalyticsCode = getEnv("J_GA_CODE")
+	port := getEnv("J_PORT")
 	if port != "" {
 		config.Port = port
 	}
-	config.SSLCertificate = os.Getenv("J_SSL_CERT")
-	config.SSLKey = os.Getenv("J_SSL_KEY")
+	config.SSLCertificate = getEnv("J_SSL_CERT")
+	config.SSLKey = getEnv("J_SSL_KEY")
 
-	sessionKey := os.Getenv("J_SESSION_KEY")
+	sessionKey := getEnv("J_SESSION_KEY")
 	if sessionKey != "" {
 		if len(sessionKey) != 32 {
 			log.Println("WARNING: J_SESSION_KEY must be exactly 32 bytes. Using auto-generated key instead.")
@@ -133,22 +147,22 @@ func ApplyEnvConfiguration(config *Configuration) {
 	}
 	config.SessionKey = sessionKey
 
-	sessionName := os.Getenv("J_SESSION_NAME")
+	sessionName := getEnv("J_SESSION_NAME")
 	if sessionName != "" {
 		config.SessionName = sessionName
 	}
 
-	cookieDomain := os.Getenv("J_COOKIE_DOMAIN")
+	cookieDomain := getEnv("J_COOKIE_DOMAIN")
 	if cookieDomain != "" {
 		config.CookieDomain = cookieDomain
 	}
 
-	cookieMaxAge, _ := strconv.Atoi(os.Getenv("J_COOKIE_MAX_AGE"))
+	cookieMaxAge, _ := strconv.Atoi(getEnv("J_COOKIE_MAX_AGE"))
 	if cookieMaxAge > 0 {
 		config.CookieMaxAge = cookieMaxAge
 	}
 
-	cookieHTTPOnly := os.Getenv("J_COOKIE_HTTPONLY")
+	cookieHTTPOnly := getEnv("J_COOKIE_HTTPONLY")
 	if cookieHTTPOnly == "0" || cookieHTTPOnly == "false" {
 		config.CookieHTTPOnly = false
 	}
@@ -157,19 +171,19 @@ func ApplyEnvConfiguration(config *Configuration) {
 		config.CookieSecure = true
 	}
 
-	staticPath := os.Getenv("J_STATIC_PATH")
+	staticPath := getEnv("J_STATIC_PATH")
 	if staticPath != "" {
 		config.StaticPath = staticPath
 	}
-	theme := os.Getenv("J_THEME")
+	theme := getEnv("J_THEME")
 	if theme != "" {
 		config.Theme = theme
 	}
-	themePath := os.Getenv("J_THEME_PATH")
+	themePath := getEnv("J_THEME_PATH")
 	if themePath != "" {
 		config.ThemePath = themePath
 	}
-	title := os.Getenv("J_TITLE")
+	title := getEnv("J_TITLE")
 	if title != "" {
 		config.Title = title
 	}

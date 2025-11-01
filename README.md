@@ -48,6 +48,9 @@ _Please note: you will need Docker installed on your local machine._
 
 The application uses environment variables to configure all aspects.
 
+You can optionally supply these through a `.env` file that will be parsed before
+any additional environment variables.
+
 ### General Configuration
 
 * `J_ARTICLES_PER_PAGE` - Articles to display per page, default `20`
