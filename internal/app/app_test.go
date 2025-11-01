@@ -2,6 +2,7 @@ package app
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -353,5 +354,104 @@ func TestApplyEnvConfiguration_Combined(t *testing.T) {
 	}
 	if config.Port != "8080" {
 		t.Errorf("Expected Port '8080', got %q", config.Port)
+	}
+}
+
+func TestApplyEnvConfiguration_DotEnvFile(t *testing.T) {
+	// Save current working directory
+	originalWd, _ := os.Getwd()
+	defer os.Chdir(originalWd)
+
+	// Create a temporary directory for testing
+	tmpDir := t.TempDir()
+	os.Chdir(tmpDir)
+
+	// Create a .env file
+	envContent := `J_PORT=9000
+J_TITLE=Test Journal
+J_DESCRIPTION=A test journal
+J_ARTICLES_PER_PAGE=15
+J_COOKIE_MAX_AGE=3600
+`
+	if err := os.WriteFile(filepath.Join(tmpDir, ".env"), []byte(envContent), 0644); err != nil {
+		t.Fatalf("Failed to create .env file: %v", err)
+	}
+
+	config := DefaultConfiguration()
+	ApplyEnvConfiguration(&config)
+
+	if config.Port != "9000" {
+		t.Errorf("Expected Port '9000' from .env, got %q", config.Port)
+	}
+	if config.Title != "Test Journal" {
+		t.Errorf("Expected Title 'Test Journal' from .env, got %q", config.Title)
+	}
+	if config.Description != "A test journal" {
+		t.Errorf("Expected Description 'A test journal' from .env, got %q", config.Description)
+	}
+	if config.ArticlesPerPage != 15 {
+		t.Errorf("Expected ArticlesPerPage 15 from .env, got %d", config.ArticlesPerPage)
+	}
+	if config.CookieMaxAge != 3600 {
+		t.Errorf("Expected CookieMaxAge 3600 from .env, got %d", config.CookieMaxAge)
+	}
+}
+
+func TestApplyEnvConfiguration_EnvOverridesDotEnv(t *testing.T) {
+	// Save current working directory and environment
+	originalWd, _ := os.Getwd()
+	defer os.Chdir(originalWd)
+	defer os.Unsetenv("J_PORT")
+	defer os.Unsetenv("J_TITLE")
+
+	// Create a temporary directory for testing
+	tmpDir := t.TempDir()
+	os.Chdir(tmpDir)
+
+	// Create a .env file
+	envContent := `J_PORT=9000
+J_TITLE=DotEnv Title
+J_DESCRIPTION=DotEnv Description
+`
+	if err := os.WriteFile(filepath.Join(tmpDir, ".env"), []byte(envContent), 0644); err != nil {
+		t.Fatalf("Failed to create .env file: %v", err)
+	}
+
+	// Set environment variables that should override .env
+	os.Setenv("J_PORT", "7777")
+	os.Setenv("J_TITLE", "Override Title")
+
+	config := DefaultConfiguration()
+	ApplyEnvConfiguration(&config)
+
+	// Environment variables should override .env values
+	if config.Port != "7777" {
+		t.Errorf("Expected Port '7777' from env var (not .env), got %q", config.Port)
+	}
+	if config.Title != "Override Title" {
+		t.Errorf("Expected Title 'Override Title' from env var (not .env), got %q", config.Title)
+	}
+	// Values not overridden should come from .env
+	if config.Description != "DotEnv Description" {
+		t.Errorf("Expected Description 'DotEnv Description' from .env, got %q", config.Description)
+	}
+}
+
+func TestApplyEnvConfiguration_NoDotEnvFile(t *testing.T) {
+	// Save current working directory
+	originalWd, _ := os.Getwd()
+	defer os.Chdir(originalWd)
+
+	// Create a temporary directory without .env file
+	tmpDir := t.TempDir()
+	os.Chdir(tmpDir)
+
+	// Should work fine even without .env file
+	config := DefaultConfiguration()
+	ApplyEnvConfiguration(&config)
+
+	// Should have default values
+	if config.Port != "3000" {
+		t.Errorf("Expected default Port '3000', got %q", config.Port)
 	}
 }
