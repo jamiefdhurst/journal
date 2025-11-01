@@ -12,6 +12,7 @@ import (
 	"net/http"
 )
 
+// Store defines the interface for session storage implementations
 type Store interface {
 	Get(r *http.Request) (*Session, error)
 	Save(w http.ResponseWriter) error
@@ -19,19 +20,50 @@ type Store interface {
 
 const defaultName string = "journal-session"
 
+// CookieConfig defines the configuration for session cookies
+type CookieConfig struct {
+	Name     string
+	Domain   string
+	MaxAge   int
+	Secure   bool
+	HTTPOnly bool
+}
+
+// DefaultStore implements Store using encrypted cookies for session storage
 type DefaultStore struct {
 	cachedSession *Session
 	key           []byte
 	name          string
+	config        CookieConfig
 }
 
-func NewDefaultStore(key string) *DefaultStore {
-	return &DefaultStore{
-		key:  []byte(key),
-		name: defaultName,
+// NewDefaultStore creates a new DefaultStore with the given encryption key and cookie configuration.
+// The key must be exactly 32 bytes (for AES-256) and contain only printable ASCII characters.
+func NewDefaultStore(key string, config CookieConfig) (*DefaultStore, error) {
+	if len(key) != 32 {
+		return nil, errors.New("session key must be exactly 32 bytes")
 	}
+
+	for i := 0; i < len(key); i++ {
+		if key[i] < 32 || key[i] > 126 {
+			return nil, errors.New("session key must contain only printable ASCII characters")
+		}
+	}
+
+	name := config.Name
+	if name == "" {
+		name = defaultName
+	}
+
+	return &DefaultStore{
+		key:    []byte(key),
+		name:   name,
+		config: config,
+	}, nil
 }
 
+// Get retrieves the session from the request cookie, decrypting and deserializing it.
+// If no session exists, a new empty session is created.
 func (s *DefaultStore) Get(r *http.Request) (*Session, error) {
 	var err error
 	if s.cachedSession == nil {
@@ -50,6 +82,7 @@ func (s *DefaultStore) Get(r *http.Request) (*Session, error) {
 	return s.cachedSession, err
 }
 
+// Save encrypts and serializes the session, writing it to a cookie in the response.
 func (s *DefaultStore) Save(w http.ResponseWriter) error {
 	encrypted, err := s.encrypt(s.cachedSession.Values)
 	if err != nil {
@@ -60,11 +93,11 @@ func (s *DefaultStore) Save(w http.ResponseWriter) error {
 		Name:     s.name,
 		Value:    encrypted,
 		Path:     "/",
-		Domain:   "",
-		MaxAge:   86400 * 30,
-		Secure:   false,
+		Domain:   s.config.Domain,
+		MaxAge:   s.config.MaxAge,
+		Secure:   s.config.Secure,
 		SameSite: http.SameSiteStrictMode,
-		HttpOnly: false,
+		HttpOnly: s.config.HTTPOnly,
 	})
 
 	return nil

@@ -26,6 +26,7 @@ func TestIndex_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	configuration := app.DefaultConfiguration()
 	configuration.ArticlesPerPage = 2
+	configuration.SessionKey = "12345678901234567890123456789012"
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &Index{}

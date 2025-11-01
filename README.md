@@ -48,6 +48,8 @@ _Please note: you will need Docker installed on your local machine._
 
 The application uses environment variables to configure all aspects.
 
+### General Configuration
+
 * `J_ARTICLES_PER_PAGE` - Articles to display per page, default `20`
 * `J_CREATE` - Set to `0` to disable article creation
 * `J_DB_PATH` - Path to SQLite DB - default is `$GOPATH/data/journal.db`
@@ -58,6 +60,21 @@ The application uses environment variables to configure all aspects.
 * `J_PORT` - Port to expose over HTTP, default is `3000`
 * `J_THEME` - Theme to use from within the _web/themes_ folder, defaults to `default`
 * `J_TITLE` - Set the title of the Journal
+
+### SSL/TLS Configuration
+
+* `J_SSL_CERT` - Path to SSL certificate file for HTTPS (enables SSL when set)
+* `J_SSL_KEY` - Path to SSL private key file for HTTPS
+
+### Session and Cookie Security
+
+* `J_SESSION_KEY` - 32-byte encryption key for session data (AES-256). Must be exactly 32 printable ASCII characters. If not set, a random key is generated on startup (sessions won't persist across restarts).
+* `J_SESSION_NAME` - Cookie name for sessions, default `journal-session`
+* `J_COOKIE_DOMAIN` - Domain restriction for cookies, default is current domain only
+* `J_COOKIE_MAX_AGE` - Cookie expiry time in seconds, default `2592000` (30 days)
+* `J_COOKIE_HTTPONLY` - Set to `0` or `false` to allow JavaScript access to cookies (not recommended). Default is `true` for XSS protection.
+
+**Note:** When `J_SSL_CERT` is configured, session cookies automatically use the `Secure` flag to prevent transmission over unencrypted connections.
 
 ## Layout
 

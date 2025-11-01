@@ -1,7 +1,10 @@
 package app
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
+	"log"
 	"os"
 	"strconv"
 
@@ -46,6 +49,12 @@ type Configuration struct {
 	Theme               string
 	ThemePath           string
 	Title               string
+	SessionKey          string
+	SessionName         string
+	CookieDomain        string
+	CookieMaxAge        int
+	CookieSecure        bool
+	CookieHTTPOnly      bool
 }
 
 // DefaultConfiguration returns the default settings for the app
@@ -65,6 +74,12 @@ func DefaultConfiguration() Configuration {
 		Theme:               "default",
 		ThemePath:           "web/themes",
 		Title:               "Jamie's Journal",
+		SessionKey:          "",
+		SessionName:         "journal-session",
+		CookieDomain:        "",
+		CookieMaxAge:        2592000,
+		CookieSecure:        false,
+		CookieHTTPOnly:      true,
 	}
 }
 
@@ -101,6 +116,47 @@ func ApplyEnvConfiguration(config *Configuration) {
 	}
 	config.SSLCertificate = os.Getenv("J_SSL_CERT")
 	config.SSLKey = os.Getenv("J_SSL_KEY")
+
+	sessionKey := os.Getenv("J_SESSION_KEY")
+	if sessionKey != "" {
+		if len(sessionKey) != 32 {
+			log.Println("WARNING: J_SESSION_KEY must be exactly 32 bytes. Using auto-generated key instead.")
+			sessionKey = ""
+		}
+	}
+	if sessionKey == "" {
+		bytes := make([]byte, 16)
+		if _, err := rand.Read(bytes); err == nil {
+			sessionKey = hex.EncodeToString(bytes)
+			log.Println("WARNING: J_SESSION_KEY not set or invalid. Using auto-generated key. Sessions will not persist across restarts.")
+		}
+	}
+	config.SessionKey = sessionKey
+
+	sessionName := os.Getenv("J_SESSION_NAME")
+	if sessionName != "" {
+		config.SessionName = sessionName
+	}
+
+	cookieDomain := os.Getenv("J_COOKIE_DOMAIN")
+	if cookieDomain != "" {
+		config.CookieDomain = cookieDomain
+	}
+
+	cookieMaxAge, _ := strconv.Atoi(os.Getenv("J_COOKIE_MAX_AGE"))
+	if cookieMaxAge > 0 {
+		config.CookieMaxAge = cookieMaxAge
+	}
+
+	cookieHTTPOnly := os.Getenv("J_COOKIE_HTTPONLY")
+	if cookieHTTPOnly == "0" || cookieHTTPOnly == "false" {
+		config.CookieHTTPOnly = false
+	}
+
+	if config.SSLCertificate != "" {
+		config.CookieSecure = true
+	}
+
 	staticPath := os.Getenv("J_STATIC_PATH")
 	if staticPath != "" {
 		config.StaticPath = staticPath
