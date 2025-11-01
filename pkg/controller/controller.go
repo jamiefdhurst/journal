@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/jamiefdhurst/journal/internal/app"
+	internalApp "github.com/jamiefdhurst/journal/internal/app"
 	"github.com/jamiefdhurst/journal/internal/app/model"
 	"github.com/jamiefdhurst/journal/pkg/session"
 )
@@ -35,8 +35,26 @@ func (c *Super) Init(app interface{}, params []string, request *http.Request) {
 	c.container = app
 	c.host = request.Host
 	c.params = params
-	c.sessionStore = session.NewDefaultStore("defaultdefaultdefaultdefault1234")
-	c.session, _ = c.sessionStore.Get(request)
+
+	appContainer, ok := app.(*internalApp.Container)
+	if ok && appContainer != nil {
+		store, err := session.NewDefaultStore(appContainer.Configuration.SessionKey, session.CookieConfig{
+			Name:     appContainer.Configuration.SessionName,
+			Domain:   appContainer.Configuration.CookieDomain,
+			MaxAge:   appContainer.Configuration.CookieMaxAge,
+			Secure:   appContainer.Configuration.CookieSecure,
+			HTTPOnly: appContainer.Configuration.CookieHTTPOnly,
+		})
+		if err == nil {
+			c.sessionStore = store
+		}
+	}
+
+	if c.sessionStore != nil {
+		c.session, _ = c.sessionStore.Get(request)
+	} else {
+		c.session = session.NewSession()
+	}
 
 	c.trackVisit(request)
 }
@@ -59,7 +77,9 @@ func (c *Super) Params() []string {
 
 // SaveSession saves the session with the current response
 func (c *Super) SaveSession(w http.ResponseWriter) {
-	c.sessionStore.Save(w)
+	if c.sessionStore != nil {
+		c.sessionStore.Save(w)
+	}
 }
 
 // Session gets the private session value
@@ -76,7 +96,7 @@ func (c *Super) trackVisit(request *http.Request) {
 		return
 	}
 
-	appContainer, ok := c.container.(*app.Container)
+	appContainer, ok := c.container.(*internalApp.Container)
 	if !ok || appContainer.Db == nil {
 		return
 	}

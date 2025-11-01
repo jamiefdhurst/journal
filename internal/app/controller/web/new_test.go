@@ -28,6 +28,7 @@ func TestNew_Run(t *testing.T) {
 	db.Rows = &database.MockRowsEmpty{}
 	configuration := app.DefaultConfiguration()
 	configuration.EnableCreate = true
+	configuration.SessionKey = "12345678901234567890123456789012"
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
 	controller := &New{}
