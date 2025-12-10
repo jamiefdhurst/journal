@@ -50,8 +50,10 @@ information on the total posts, pages and posts per page.
         {
             "url": "/api/v1/post/example-post",
             "title": "An Example Post",
-            "date": "2018-05-18T12:53:22Z",
-            "content": "TEST"
+            "date": "2018-05-18T00:00:00Z",
+            "content": "TEST",
+            "created_at": "2018-05-18T15:16:17Z",
+            "updated_at": "2018-05-18T15:16:17Z"
         }
     ]
 }
@@ -77,8 +79,10 @@ Contains the single post.
 {
     "url": "/api/v1/post/example-post",
     "title": "An Example Post",
-    "date": "2018-05-18T12:53:22Z",
-    "content": "TEST"
+    "date": "2018-05-18T00:00:00Z",
+    "content": "TEST",
+    "created_at": "2018-05-18T15:16:17Z",
+    "updated_at": "2018-05-18T15:16:17Z"
 }
 ```
 

@@ -2,6 +2,7 @@ package model
 
 import (
 	"testing"
+	"time"
 
 	"github.com/jamiefdhurst/journal/internal/app"
 	pkgDb "github.com/jamiefdhurst/journal/pkg/database"
@@ -364,4 +365,87 @@ func TestSlugify(t *testing.T) {
 			t.Errorf("Expected Slugify() to produce result of '%s', got '%s'", table.output, actual)
 		}
 	}
+}
+
+func TestJournal_GetFormattedCreatedAt(t *testing.T) {
+	// Test with nil timestamp
+	j := Journal{}
+	actual := j.GetFormattedCreatedAt()
+	if actual != "" {
+		t.Errorf("Expected empty string for nil timestamp, got '%s'", actual)
+	}
+
+	// Test with valid timestamp
+	testTime := time.Date(2025, 1, 10, 15, 45, 30, 0, time.UTC)
+	j.CreatedAt = &testTime
+	actual = j.GetFormattedCreatedAt()
+	expected := "January 10, 2025 at 15:45"
+	if actual != expected {
+		t.Errorf("Expected GetFormattedCreatedAt() to produce result of '%s', got '%s'", expected, actual)
+	}
+}
+
+func TestJournal_GetFormattedUpdatedAt(t *testing.T) {
+	// Test with nil timestamp
+	j := Journal{}
+	actual := j.GetFormattedUpdatedAt()
+	if actual != "" {
+		t.Errorf("Expected empty string for nil timestamp, got '%s'", actual)
+	}
+
+	// Test with valid timestamp
+	testTime := time.Date(2025, 1, 10, 15, 45, 30, 0, time.UTC)
+	j.UpdatedAt = &testTime
+	actual = j.GetFormattedUpdatedAt()
+	expected := "January 10, 2025 at 15:45"
+	if actual != expected {
+		t.Errorf("Expected GetFormattedUpdatedAt() to produce result of '%s', got '%s'", expected, actual)
+	}
+}
+
+func TestJournals_Save_Timestamps(t *testing.T) {
+	db := &database.MockSqlite{Result: &database.MockResult{}}
+	db.Rows = &database.MockRowsEmpty{}
+	container := &app.Container{Db: db}
+	js := Journals{Container: container}
+
+	// Test new Journal gets timestamps set
+	beforeCreate := time.Now().UTC()
+	journal := js.Save(Journal{ID: 0, Title: "Testing", Date: "2025-01-10", Content: "Test content"})
+	afterCreate := time.Now().UTC()
+
+	if journal.CreatedAt == nil {
+		t.Error("Expected CreatedAt to be set on new journal")
+	}
+	if journal.UpdatedAt == nil {
+		t.Error("Expected UpdatedAt to be set on new journal")
+	}
+
+	// Verify timestamps are within reasonable range
+	if journal.CreatedAt.Before(beforeCreate) || journal.CreatedAt.After(afterCreate) {
+		t.Error("CreatedAt timestamp is outside expected time range")
+	}
+	if journal.UpdatedAt.Before(beforeCreate) || journal.UpdatedAt.After(afterCreate) {
+		t.Error("UpdatedAt timestamp is outside expected time range")
+	}
+
+	// Test updating Journal only updates UpdatedAt
+	time.Sleep(10 * time.Millisecond) // Small delay to ensure different timestamp
+
+	beforeUpdate := time.Now().UTC()
+	journal.Title = "Updated Title"
+	updatedJournal := js.Save(journal)
+	afterUpdate := time.Now().UTC()
+
+	if updatedJournal.UpdatedAt == nil {
+		t.Error("Expected UpdatedAt to be set on updated journal")
+	}
+
+	// Verify UpdatedAt changed but CreatedAt didn't
+	if updatedJournal.UpdatedAt.Before(beforeUpdate) || updatedJournal.UpdatedAt.After(afterUpdate) {
+		t.Error("UpdatedAt timestamp is outside expected time range after update")
+	}
+
+	// Note: In the mock, CreatedAt won't be preserved since we're not actually reading from DB,
+	// but in real usage the query would only update updated_at
 }

@@ -4,6 +4,16 @@
     <h1 itemprop="title headline">{{.Journal.Title}}</h1>
     <p class="date">
         <span itemprop="dateCreated pubdate datePublished" content="{{.Journal.Date}}">{{.Journal.GetDate}}</span>
+        {{if or .Journal.GetFormattedCreatedAt .Journal.GetFormattedUpdatedAt}}
+            <em>
+                {{if .Journal.GetFormattedUpdatedAt}}
+                    <br />Last Updated: {{.Journal.GetFormattedUpdatedAt}}
+                {{end}}
+                {{if .Journal.GetFormattedCreatedAt}}
+                    <br />Created: {{.Journal.GetFormattedCreatedAt}}
+                {{end}}
+            </em>
+        {{end}}
     </p>
     <div class="content" itemprop="mainEntityOfPage">
         {{.Journal.GetHTML}}

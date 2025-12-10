@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/jamiefdhurst/journal/pkg/database/rows"
 )
@@ -51,12 +52,17 @@ func (m *MockJournal_MultipleRows) Scan(dest ...interface{}) error {
 		*dest[2].(*string) = "Title"
 		*dest[3].(*string) = "2018-02-01"
 		*dest[4].(*string) = "Content"
+		// CreatedAt and UpdatedAt are nil for mock data (simulating old records)
+		*dest[5].(**time.Time) = nil
+		*dest[6].(**time.Time) = nil
 	} else if m.RowNumber == 2 {
 		*dest[0].(*int) = 2
 		*dest[1].(*string) = "slug-2"
 		*dest[2].(*string) = "Title 2"
 		*dest[3].(*string) = "2018-03-01"
 		*dest[4].(*string) = "Content 2"
+		*dest[5].(**time.Time) = nil
+		*dest[6].(**time.Time) = nil
 	}
 	return nil
 }
@@ -84,6 +90,8 @@ func (m *MockJournal_SingleRow) Scan(dest ...interface{}) error {
 		*dest[2].(*string) = "Title"
 		*dest[3].(*string) = "2018-02-01"
 		*dest[4].(*string) = "Content"
+		*dest[5].(**time.Time) = nil
+		*dest[6].(**time.Time) = nil
 	}
 	return nil
 }
