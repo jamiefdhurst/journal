@@ -41,11 +41,15 @@ func fixtures(t *testing.T) {
 	container.Db = db
 
 	js := model.Journals{Container: container}
+	ms := model.Migrations{Container: container}
 	vs := model.Visits{Container: container}
 	db.Exec("DROP TABLE journal")
+	db.Exec("DROP TABLE migration")
 	db.Exec("DROP TABLE visit")
 	js.CreateTable()
+	ms.CreateTable()
 	vs.CreateTable()
+	ms.MigrateAddTimestamps()
 
 	// Set up data
 	db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?)", "test", "Test", "<p>Test!</p>", "2018-01-01")
