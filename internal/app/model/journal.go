@@ -24,7 +24,7 @@ type Journal struct {
 	Slug      string     `json:"slug"`
 	Title     string     `json:"title"`
 	Date      string     `json:"date"`
-	Content   string     `json:"content"`   // Now stores markdown content
+	Content   string     `json:"content"`    // Now stores markdown content
 	CreatedAt *time.Time `json:"created_at"` // Automatically managed
 	UpdatedAt *time.Time `json:"updated_at"` // Automatically managed
 }
@@ -139,9 +139,7 @@ func (js *Journals) CreateTable() error {
 		"`slug` VARCHAR(255) NOT NULL, " +
 		"`title` VARCHAR(255) NOT NULL, " +
 		"`date` DATE NOT NULL, " +
-		"`content` TEXT NOT NULL, " +
-		"`created_at` DATETIME DEFAULT NULL, " +
-		"`updated_at` DATETIME DEFAULT NULL" +
+		"`content` TEXT NOT NULL" +
 		")")
 
 	return err
