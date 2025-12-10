@@ -160,3 +160,38 @@ func (ms *Migrations) MigrateRandomSlugs() error {
 
 	return nil
 }
+
+// MigrateAddTimestamps adds created_at and updated_at columns to the journal table
+func (ms *Migrations) MigrateAddTimestamps() error {
+	const migrationName = "add_timestamps"
+
+	// Skip if already migrated
+	if ms.HasMigrationRun(migrationName) {
+		log.Println("Add timestamps migration already applied. Skipping...")
+		return nil
+	}
+
+	log.Println("Running add timestamps migration...")
+
+	// Add created_at column
+	_, err := ms.Container.Db.Exec("ALTER TABLE `" + journalTable + "` ADD COLUMN `created_at` DATETIME DEFAULT NULL")
+	if err != nil {
+		return fmt.Errorf("failed to add created_at column: %w", err)
+	}
+
+	// Add updated_at column
+	_, err = ms.Container.Db.Exec("ALTER TABLE `" + journalTable + "` ADD COLUMN `updated_at` DATETIME DEFAULT NULL")
+	if err != nil {
+		return fmt.Errorf("failed to add updated_at column: %w", err)
+	}
+
+	log.Println("Successfully added created_at and updated_at columns to journal table.")
+
+	// Record migration as completed
+	err = ms.RecordMigration(migrationName)
+	if err != nil {
+		return fmt.Errorf("migration completed but failed to record status: %w", err)
+	}
+
+	return nil
+}

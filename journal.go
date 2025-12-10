@@ -69,6 +69,10 @@ func loadDatabase() func() {
 		log.Printf("Error during random slug migration: %s\n", err)
 		log.Panicln(err)
 	}
+	if err := ms.MigrateAddTimestamps(); err != nil {
+		log.Printf("Error during add timestamps migration: %s\n", err)
+		log.Panicln(err)
+	}
 
 	return func() {
 		container.Db.Close()

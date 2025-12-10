@@ -57,4 +57,12 @@ func TestUpdate_Run(t *testing.T) {
 	if response.StatusCode != 200 || !strings.Contains(response.Content, "Something New") {
 		t.Error("Expected new title to be within content")
 	}
+
+	// Test that timestamp fields are present in response
+	if !strings.Contains(response.Content, "created_at") {
+		t.Error("Expected created_at field to be present in JSON response")
+	}
+	if !strings.Contains(response.Content, "updated_at") {
+		t.Error("Expected updated_at field to be present in JSON response")
+	}
 }

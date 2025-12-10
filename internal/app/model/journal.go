@@ -20,11 +20,13 @@ const journalTable = "journal"
 
 // Journal model
 type Journal struct {
-	ID      int    `json:"id"`
-	Slug    string `json:"slug"`
-	Title   string `json:"title"`
-	Date    string `json:"date"`
-	Content string `json:"content"` // Now stores markdown content
+	ID        int        `json:"id"`
+	Slug      string     `json:"slug"`
+	Title     string     `json:"title"`
+	Date      string     `json:"date"`
+	Content   string     `json:"content"`    // Now stores markdown content
+	CreatedAt *time.Time `json:"created_at"` // Automatically managed
+	UpdatedAt *time.Time `json:"updated_at"` // Automatically managed
 }
 
 // GetHTML converts the Markdown content to HTML for display
@@ -50,6 +52,22 @@ func (j Journal) GetDate() string {
 func (j Journal) GetEditableDate() string {
 	re := regexp.MustCompile(`\d{4}\-\d{2}\-\d{2}`)
 	return re.FindString(j.Date)
+}
+
+// GetFormattedCreatedAt returns the formatted created timestamp
+func (j Journal) GetFormattedCreatedAt() string {
+	if j.CreatedAt == nil {
+		return ""
+	}
+	return j.CreatedAt.Format("January 2, 2006 at 15:04")
+}
+
+// GetFormattedUpdatedAt returns the formatted updated timestamp
+func (j Journal) GetFormattedUpdatedAt() string {
+	if j.UpdatedAt == nil {
+		return ""
+	}
+	return j.UpdatedAt.Format("January 2, 2006 at 15:04")
 }
 
 // GetHTMLExcerpt returns a small extract of the entry rendered as HTML
@@ -231,11 +249,19 @@ func (js *Journals) Save(j Journal) Journal {
 		j.Slug = j.Slug + "-post"
 	}
 
+	// Manage timestamps
+	now := time.Now().UTC()
+
 	if j.ID == 0 {
+		// On insert, set both created_at and updated_at
+		j.CreatedAt = &now
+		j.UpdatedAt = &now
 		j.Slug = js.EnsureUniqueSlug(j.Slug, 0)
-		res, _ = js.Container.Db.Exec("INSERT INTO `"+journalTable+"` (`slug`, `title`, `date`, `content`) VALUES(?,?,?,?)", j.Slug, j.Title, j.Date, j.Content)
+		res, _ = js.Container.Db.Exec("INSERT INTO `"+journalTable+"` (`slug`, `title`, `date`, `content`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)", j.Slug, j.Title, j.Date, j.Content, j.CreatedAt, j.UpdatedAt)
 	} else {
-		res, _ = js.Container.Db.Exec("UPDATE `"+journalTable+"` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ? WHERE `id` = ?", j.Slug, j.Title, j.Date, j.Content, strconv.Itoa(j.ID))
+		// On update, only update updated_at
+		j.UpdatedAt = &now
+		res, _ = js.Container.Db.Exec("UPDATE `"+journalTable+"` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ?, `updated_at` = ? WHERE `id` = ?", j.Slug, j.Title, j.Date, j.Content, j.UpdatedAt, strconv.Itoa(j.ID))
 	}
 
 	// Store insert ID
@@ -252,7 +278,7 @@ func (js Journals) loadFromRows(rows rows.Rows) []Journal {
 	journals := []Journal{}
 	for rows.Next() {
 		j := Journal{}
-		rows.Scan(&j.ID, &j.Slug, &j.Title, &j.Date, &j.Content)
+		rows.Scan(&j.ID, &j.Slug, &j.Title, &j.Date, &j.Content, &j.CreatedAt, &j.UpdatedAt)
 		journals = append(journals, j)
 	}
 

@@ -41,11 +41,15 @@ func fixtures(t *testing.T) {
 	container.Db = db
 
 	js := model.Journals{Container: container}
+	ms := model.Migrations{Container: container}
 	vs := model.Visits{Container: container}
 	db.Exec("DROP TABLE journal")
+	db.Exec("DROP TABLE migration")
 	db.Exec("DROP TABLE visit")
 	js.CreateTable()
+	ms.CreateTable()
 	vs.CreateTable()
+	ms.MigrateAddTimestamps()
 
 	// Set up data
 	db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?)", "test", "Test", "<p>Test!</p>", "2018-01-01")
@@ -184,11 +188,14 @@ func TestApiV1Create(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `{"id":4,"slug":"test-4","title":"Test 4","date":"2018-06-01T00:00:00Z","content":"<p>Test 4!</p>"}`
+	bodyStr := string(body[:])
 
-	// Use contains to get rid of any extra whitespace that we can discount
-	if !strings.Contains(string(body[:]), expected) {
-		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
+	// Check for expected fields
+	expectedFields := []string{`"id":4`, `"slug":"test-4"`, `"title":"Test 4"`, `"date":"2018-06-01T00:00:00Z"`, `"content":"<p>Test 4!</p>"`, `"created_at"`, `"updated_at"`}
+	for _, field := range expectedFields {
+		if !strings.Contains(bodyStr, field) {
+			t.Errorf("Expected response to contain %s\nGot:\n\t%s", field, bodyStr)
+		}
 	}
 }
 
@@ -255,11 +262,14 @@ func TestApiV1Create_RepeatTitles(t *testing.T) {
 	}
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `{"url":"/api/v1/post/repeated-1","title":"Repeated","date":"2019-02-01T00:00:00Z","content":"<p>Repeated content test again!</p>"}`
+	bodyStr := string(body[:])
 
-	// Use contains to get rid of any extra whitespace that we can discount
-	if !strings.Contains(string(body[:]), expected) {
-		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
+	// Check for expected fields
+	expectedFields := []string{`"url":"/api/v1/post/repeated-1"`, `"title":"Repeated"`, `"date":"2019-02-01T00:00:00Z"`, `"content":"<p>Repeated content test again!</p>"`, `"created_at"`, `"updated_at"`}
+	for _, field := range expectedFields {
+		if !strings.Contains(bodyStr, field) {
+			t.Errorf("Expected response to contain %s\nGot:\n\t%s", field, bodyStr)
+		}
 	}
 }
 
@@ -280,11 +290,14 @@ func TestApiV1Update(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `{"id":1,"slug":"test","title":"A different title","date":"2018-01-01T00:00:00Z","content":"<p>Test!</p>"}`
+	bodyStr := string(body[:])
 
-	// Use contains to get rid of any extra whitespace that we can discount
-	if !strings.Contains(string(body[:]), expected) {
-		t.Errorf("Expected:\n\t%s\nGot:\n\t%s", expected, string(body[:]))
+	// Check for expected fields
+	expectedFields := []string{`"id":1`, `"slug":"test"`, `"title":"A different title"`, `"date":"2018-01-01T00:00:00Z"`, `"content":"<p>Test!</p>"`, `"updated_at"`}
+	for _, field := range expectedFields {
+		if !strings.Contains(bodyStr, field) {
+			t.Errorf("Expected response to contain %s\nGot:\n\t%s", field, bodyStr)
+		}
 	}
 }
 
