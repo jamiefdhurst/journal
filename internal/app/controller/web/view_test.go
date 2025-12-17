@@ -63,7 +63,7 @@ func TestView_Run(t *testing.T) {
 		t.Error("Expected previous and next links to be shown in page")
 	}
 
-	// Test that timestamp metadata section is NOT displayed when timestamps are nil
+	// Test that timestamp labels are displayed when timestamps are present
 	response.Reset()
 	request, _ = http.NewRequest("GET", "/slug", strings.NewReader(""))
 	// Reset database to single mode
@@ -72,10 +72,7 @@ func TestView_Run(t *testing.T) {
 	db.Rows = &database.MockJournal_SingleRow{}
 	controller.Init(container, []string{"", "slug"}, request)
 	controller.Run(response, request)
-	if strings.Contains(response.Content, "class=\"metadata\"") {
-		t.Error("Expected metadata section to NOT be displayed when timestamps are nil")
-	}
-	if strings.Contains(response.Content, "Created:") || strings.Contains(response.Content, "Last updated:") {
-		t.Error("Expected timestamp labels to NOT be displayed when timestamps are nil")
+	if !strings.Contains(response.Content, "Created:") || !strings.Contains(response.Content, "Last Updated:") {
+		t.Error("Expected timestamp labels to be displayed when timestamps are present")
 	}
 }

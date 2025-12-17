@@ -51,7 +51,7 @@ func (c *Update) Run(response http.ResponseWriter, request *http.Request) {
 				journal = js.Save(journal)
 				encoder := json.NewEncoder(response)
 				encoder.SetEscapeHTML(false)
-				encoder.Encode(journal)
+				encoder.Encode(MapJournalToJSON(journal))
 			}
 		}
 	}

@@ -96,7 +96,7 @@ func TestApiv1List(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `{"links":{},"pagination":{"current_page":1,"total_pages":1,"posts_per_page":20,"total_posts":3},"posts":[{"url":"/api/v1/post/test-3","title":"A Final Test","date":"2018-03-01T00:00:00Z","content":"<p>Test finally!</p>"},{"url":"/api/v1/post/test-2","title":"Another Test","date":"2018-02-01T00:00:00Z","content":"<p>Test again!</p>"},{"url":"/api/v1/post/test","title":"Test","date":"2018-01-01T00:00:00Z","content":"<p>Test!</p>"}]}`
+	expected := `{"links":{},"pagination":{"current_page":1,"total_pages":1,"posts_per_page":20,"total_posts":3},"posts":[{"url":"/api/v1/post/test-3","title":"A Final Test","date":"2018-03-01","content":"<p>Test finally!</p>"},{"url":"/api/v1/post/test-2","title":"Another Test","date":"2018-02-01","content":"<p>Test again!</p>"},{"url":"/api/v1/post/test","title":"Test","date":"2018-01-01","content":"<p>Test!</p>"}]}`
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {
@@ -122,7 +122,7 @@ func TestApiV1Single(t *testing.T) {
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	expected := `{"url":"/api/v1/post/test","title":"Test","date":"2018-01-01T00:00:00Z","content":"<p>Test!</p>"}`
+	expected := `{"url":"/api/v1/post/test","title":"Test","date":"2018-01-01","content":"<p>Test!</p>"}`
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {
@@ -191,7 +191,7 @@ func TestApiV1Create(t *testing.T) {
 	bodyStr := string(body[:])
 
 	// Check for expected fields
-	expectedFields := []string{`"id":4`, `"slug":"test-4"`, `"title":"Test 4"`, `"date":"2018-06-01T00:00:00Z"`, `"content":"<p>Test 4!</p>"`, `"created_at"`, `"updated_at"`}
+	expectedFields := []string{`"url":"/api/v1/post/test-4"`, `"title":"Test 4"`, `"date":"2018-06-01"`, `"content":"<p>Test 4!</p>"`, `"created_at"`, `"updated_at"`}
 	for _, field := range expectedFields {
 		if !strings.Contains(bodyStr, field) {
 			t.Errorf("Expected response to contain %s\nGot:\n\t%s", field, bodyStr)
@@ -265,7 +265,7 @@ func TestApiV1Create_RepeatTitles(t *testing.T) {
 	bodyStr := string(body[:])
 
 	// Check for expected fields
-	expectedFields := []string{`"url":"/api/v1/post/repeated-1"`, `"title":"Repeated"`, `"date":"2019-02-01T00:00:00Z"`, `"content":"<p>Repeated content test again!</p>"`, `"created_at"`, `"updated_at"`}
+	expectedFields := []string{`"url":"/api/v1/post/repeated-1"`, `"title":"Repeated"`, `"date":"2019-02-01"`, `"content":"<p>Repeated content test again!</p>"`, `"created_at"`, `"updated_at"`}
 	for _, field := range expectedFields {
 		if !strings.Contains(bodyStr, field) {
 			t.Errorf("Expected response to contain %s\nGot:\n\t%s", field, bodyStr)
@@ -293,7 +293,7 @@ func TestApiV1Update(t *testing.T) {
 	bodyStr := string(body[:])
 
 	// Check for expected fields
-	expectedFields := []string{`"id":1`, `"slug":"test"`, `"title":"A different title"`, `"date":"2018-01-01T00:00:00Z"`, `"content":"<p>Test!</p>"`, `"updated_at"`}
+	expectedFields := []string{`"url":"/api/v1/post/test"`, `"title":"A different title"`, `"date":"2018-01-01"`, `"content":"<p>Test!</p>"`, `"updated_at"`}
 	for _, field := range expectedFields {
 		if !strings.Contains(bodyStr, field) {
 			t.Errorf("Expected response to contain %s\nGot:\n\t%s", field, bodyStr)
@@ -359,7 +359,7 @@ func TestApiV1Stats(t *testing.T) {
 	now := time.Now()
 	date := now.Format("2006-01-02")
 	month := now.Format("2006-01")
-	expected := fmt.Sprintf(`{"posts":{"count":3,"first_post_date":"Monday January 1, 2018"},"configuration":{"title":"Jamie's Journal","description":"A private journal containing Jamie's innermost thoughts","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true},"visits":{"daily":[{"date":"%sT00:00:00Z","api_hits":1,"web_hits":0,"total":1}],"monthly":[{"month":"%s","api_hits":1,"web_hits":0,"total":1}]}}`, date, month)
+	expected := fmt.Sprintf(`{"posts":{"count":3,"first_post_date":"2018-01-01"},"configuration":{"title":"Jamie's Journal","description":"A private journal containing Jamie's innermost thoughts","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true},"visits":{"daily":[{"date":"%s","api_hits":1,"web_hits":0,"total":1}],"monthly":[{"month":"%s","api_hits":1,"web_hits":0,"total":1}]}}`, date, month)
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {

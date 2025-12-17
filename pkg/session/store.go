@@ -76,6 +76,8 @@ func (s *DefaultStore) Get(r *http.Request) (*Session, error) {
 		}
 		if err == nil {
 			s.cachedSession = session
+		} else {
+			s.cachedSession = NewSession()
 		}
 	}
 

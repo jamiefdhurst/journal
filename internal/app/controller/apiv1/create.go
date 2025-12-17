@@ -37,7 +37,7 @@ func (c *Create) Run(response http.ResponseWriter, request *http.Request) {
 			response.WriteHeader(http.StatusCreated)
 			encoder := json.NewEncoder(response)
 			encoder.SetEscapeHTML(false)
-			encoder.Encode(journal)
+			encoder.Encode(MapJournalToJSON(journal))
 		}
 	}
 }

@@ -21,7 +21,7 @@ func MapJournalToJSON(journal model.Journal) journalToJSON {
 	result := journalToJSON{
 		URL:     "/api/v1/post/" + journal.Slug,
 		Title:   journal.Title,
-		Date:    journal.Date,
+		Date:    journal.GetEditableDate(),
 		Content: journal.Content,
 	}
 
