@@ -90,8 +90,10 @@ func (m *MockJournal_SingleRow) Scan(dest ...interface{}) error {
 		*dest[2].(*string) = "Title"
 		*dest[3].(*string) = "2018-02-01"
 		*dest[4].(*string) = "Content"
-		*dest[5].(**time.Time) = nil
-		*dest[6].(**time.Time) = nil
+		createdAt := time.Date(2018, 2, 1, 10, 0, 0, 0, time.UTC)
+		updatedAt := time.Date(2018, 2, 1, 10, 0, 0, 0, time.UTC)
+		*dest[5].(**time.Time) = &createdAt
+		*dest[6].(**time.Time) = &updatedAt
 	}
 	return nil
 }

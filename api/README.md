@@ -50,7 +50,7 @@ information on the total posts, pages and posts per page.
         {
             "url": "/api/v1/post/example-post",
             "title": "An Example Post",
-            "date": "2018-05-18T00:00:00Z",
+            "date": "2018-05-18",
             "content": "TEST",
             "created_at": "2018-05-18T15:16:17Z",
             "updated_at": "2018-05-18T15:16:17Z"
@@ -79,7 +79,7 @@ Contains the single post.
 {
     "url": "/api/v1/post/example-post",
     "title": "An Example Post",
-    "date": "2018-05-18T00:00:00Z",
+    "date": "2018-05-18",
     "content": "TEST",
     "created_at": "2018-05-18T15:16:17Z",
     "updated_at": "2018-05-18T15:16:17Z"
@@ -117,7 +117,7 @@ The date can be provided in the following formats:
 {
     "url": "/api/v1/post/a-brand-new-post",
     "title": "A Brand New Post",
-    "date": "2018-06-28T00:42:12Z",
+    "date": "2018-06-28",
     "content": "This is a brand new post, completely."
 }
 ```
@@ -141,7 +141,7 @@ Contains a randomly selected post.
 {
     "url": "/api/v1/post/example-post",
     "title": "An Example Post",
-    "date": "2018-05-18T12:53:22Z",
+    "date": "2018-05-18",
     "content": "TEST"
 }
 ```
@@ -187,7 +187,7 @@ When updating the post, the slug remains constant, even when the title changes.
 {
     "url": "/api/v1/post/a-brand-new-post",
     "title": "Even Braver New World",
-    "date": "2018-06-21T09:12:00Z",
+    "date": "2018-06-21",
     "content": "I changed a bit more on this attempt."
 }
 ```

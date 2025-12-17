@@ -113,8 +113,8 @@ components:
           example: 'My Journal Post'
         date:
           type: string
-          format: date-time
-          example: '2018-06-21T09:12:00Z'
+          format: date
+          example: '2018-06-21'
         content:
           type: string
           example: 'Some post content.'
@@ -172,7 +172,7 @@ components:
         date:
           type: string
           format: date
-          example: '2018-06-2'
+          example: '2018-06-21'
         content:
           type: string
           example: 'Some post content.'
@@ -206,7 +206,8 @@ components:
               example: 42
             first_post_date:
               type: string
-              example: 'Monday January 1, 2018'
+              format: date
+              example: '2018-01-01'
         configuration:
           type: object
           required:
@@ -226,7 +227,7 @@ components:
               example: "A private journal containing Jamie's innermost thoughts"
             theme:
               type: string
-              example: "default"
+              example: 'default'
             posts_per_page:
               type: integer
               example: 20
@@ -251,7 +252,7 @@ components:
                   date:
                     type: string
                     format: date
-                    example: "2023-12-25"
+                    example: '2023-12-25'
                   api_hits:
                     type: integer
                     example: 15
@@ -269,7 +270,7 @@ components:
                 properties:
                   month:
                     type: string
-                    example: "2023-12"
+                    example: '2023-12'
                   api_hits:
                     type: integer
                     example: 450

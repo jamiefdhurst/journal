@@ -110,7 +110,7 @@ func (vs *Visits) GetDailyStats(days int) []DailyVisit {
 
 	query := `
 		SELECT 
-			date,
+			DATE(date),
 			COALESCE(SUM(CASE WHEN url LIKE '/api/%' THEN hits ELSE 0 END), 0) as api_hits,
 			COALESCE(SUM(CASE WHEN url NOT LIKE '/api/%' THEN hits ELSE 0 END), 0) as web_hits,
 			COALESCE(SUM(hits), 0) as total

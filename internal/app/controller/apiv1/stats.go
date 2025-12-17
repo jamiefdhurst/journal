@@ -52,7 +52,7 @@ func (c *Stats) Run(response http.ResponseWriter, request *http.Request) {
 
 	if stats.Posts.Count > 0 {
 		firstPost := allJournals[stats.Posts.Count-1]
-		stats.Posts.FirstPostDate = firstPost.GetDate()
+		stats.Posts.FirstPostDate = firstPost.GetEditableDate()
 	}
 
 	stats.Configuration.Title = container.Configuration.Title
