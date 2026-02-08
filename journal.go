@@ -22,10 +22,10 @@ func config() app.Configuration {
 	app.ApplyEnvConfiguration(&configuration)
 
 	if !configuration.EnableCreate {
-		log.Println("Article creating is disabled...")
+		log.Println("Post creating is disabled...")
 	}
 	if !configuration.EnableEdit {
-		log.Println("Article editing is disabled...")
+		log.Println("Post editing is disabled...")
 	}
 
 	return configuration

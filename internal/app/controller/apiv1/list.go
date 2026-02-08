@@ -23,7 +23,7 @@ type List struct {
 }
 
 func ListData(request *http.Request, js model.Journals) ([]model.Journal, database.PaginationInformation) {
-	paginationQuery := database.PaginationQuery{Page: 1, ResultsPerPage: js.Container.Configuration.ArticlesPerPage}
+	paginationQuery := database.PaginationQuery{Page: 1, ResultsPerPage: js.Container.Configuration.PostsPerPage}
 	query := request.URL.Query()
 	if query["page"] != nil {
 		page, err := strconv.Atoi(query["page"][0])

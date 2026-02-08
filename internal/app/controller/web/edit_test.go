@@ -73,7 +73,7 @@ func TestEdit_Run(t *testing.T) {
 	if strings.Contains(response.Content, "div class=\"error\"") {
 		t.Error("Expected no error to be shown in form")
 	}
-	if !strings.Contains(response.Content, "<title>Edit Title - Jamie's Journal</title>") {
+	if !strings.Contains(response.Content, "<title>Edit Title - A Fantastic Journal</title>") {
 		t.Error("Expected HTML title to be in place")
 	}
 

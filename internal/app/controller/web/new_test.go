@@ -41,7 +41,7 @@ func TestNew_Run(t *testing.T) {
 	if !strings.Contains(response.Content, "<form") {
 		t.Error("Expected form to be shown")
 	}
-	if !strings.Contains(response.Content, "<title>Create New Post - Jamie's Journal</title>") {
+	if !strings.Contains(response.Content, "<title>Create New Post - A Fantastic Journal</title>") {
 		t.Error("Expected HTML title to be in place")
 	}
 

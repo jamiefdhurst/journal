@@ -13,7 +13,7 @@ import (
 func TestStats_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	configuration := app.DefaultConfiguration()
-	configuration.ArticlesPerPage = 25
+	configuration.PostsPerPage = 25
 	configuration.GoogleAnalyticsCode = "UA-123456"
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
@@ -39,7 +39,7 @@ func TestStats_Run(t *testing.T) {
 	}
 
 	if !strings.Contains(response.Content, "<dt>Posts Per Page</dt>\n        <dd>25</dd>") {
-		t.Error("Expected custom articles per page setting to be displayed")
+		t.Error("Expected custom posts per page setting to be displayed")
 	}
 
 	if !strings.Contains(response.Content, "<dt>Google Analytics</dt>\n        <dd>Enabled</dd>") {

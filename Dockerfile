@@ -18,13 +18,13 @@ COPY --from=0 /go/src/github.com/jamiefdhurst/journal/web web
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --assume-yes libsqlite3-0
 
 ENV GOPATH "/go"
-ENV J_ARTICLES_PER_PAGE ""
 ENV J_CREATE ""
 ENV J_DB_PATH ""
 ENV J_DESCRIPTION ""
 ENV J_EDIT ""
 ENV J_GA_CODE ""
 ENV J_PORT ""
+ENV J_POSTS_PER_PAGE ""
 ENV J_THEME ""
 ENV J_TITLE ""
 
