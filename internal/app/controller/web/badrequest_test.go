@@ -35,7 +35,7 @@ func TestError_Run(t *testing.T) {
 	if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
 		t.Error("Expected 404 error when journal not found")
 	}
-	if !strings.Contains(response.Content, "<title>Page Not Found - Jamie's Journal</title>") {
+	if !strings.Contains(response.Content, "<title>Page Not Found - A Fantastic Journal</title>") {
 		t.Error("Expected HTML title to be in place")
 	}
 

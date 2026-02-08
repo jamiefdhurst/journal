@@ -36,7 +36,6 @@ type Container struct {
 
 // Configuration can be modified through environment variables
 type Configuration struct {
-	ArticlesPerPage     int
 	DatabasePath        string
 	Description         string
 	EnableCreate        bool
@@ -44,6 +43,7 @@ type Configuration struct {
 	ExcerptWords        int
 	GoogleAnalyticsCode string
 	Port                string
+	PostsPerPage        int
 	SSLCertificate      string
 	SSLKey              string
 	StaticPath          string
@@ -61,20 +61,20 @@ type Configuration struct {
 // DefaultConfiguration returns the default settings for the app
 func DefaultConfiguration() Configuration {
 	return Configuration{
-		ArticlesPerPage:     20,
 		DatabasePath:        os.Getenv("GOPATH") + "/data/journal.db",
-		Description:         "A private journal containing Jamie's innermost thoughts",
+		Description:         "A fantastic journal containing some thoughts, ideas and reflections",
 		EnableCreate:        true,
 		EnableEdit:          true,
 		ExcerptWords:        50,
 		GoogleAnalyticsCode: "",
 		Port:                "3000",
+		PostsPerPage:        20,
 		SSLCertificate:      "",
 		SSLKey:              "",
 		StaticPath:          "web/static",
 		Theme:               "default",
 		ThemePath:           "web/themes",
-		Title:               "Jamie's Journal",
+		Title:               "A Fantastic Journal",
 		SessionKey:          "",
 		SessionName:         "journal-session",
 		CookieDomain:        "",
@@ -99,9 +99,14 @@ func ApplyEnvConfiguration(config *Configuration) {
 		return dotenvVars[key]
 	}
 
+	// J_ARTICLES_PER_PAGE is deprecated, but it's checked first
 	articles, _ := strconv.Atoi(getEnv("J_ARTICLES_PER_PAGE"))
 	if articles > 0 {
-		config.ArticlesPerPage = articles
+		config.PostsPerPage = articles
+	}
+	posts, _ := strconv.Atoi(getEnv("J_POSTS_PER_PAGE"))
+	if posts > 0 {
+		config.PostsPerPage = posts
 	}
 	database := getEnv("J_DB_PATH")
 	if database != "" {
@@ -128,8 +133,25 @@ func ApplyEnvConfiguration(config *Configuration) {
 	if port != "" {
 		config.Port = port
 	}
+
 	config.SSLCertificate = getEnv("J_SSL_CERT")
 	config.SSLKey = getEnv("J_SSL_KEY")
+	staticPath := getEnv("J_STATIC_PATH")
+	if staticPath != "" {
+		config.StaticPath = staticPath
+	}
+	theme := getEnv("J_THEME")
+	if theme != "" {
+		config.Theme = theme
+	}
+	themePath := getEnv("J_THEME_PATH")
+	if themePath != "" {
+		config.ThemePath = themePath
+	}
+	title := getEnv("J_TITLE")
+	if title != "" {
+		config.Title = title
+	}
 
 	sessionKey := getEnv("J_SESSION_KEY")
 	if sessionKey != "" {
@@ -151,40 +173,19 @@ func ApplyEnvConfiguration(config *Configuration) {
 	if sessionName != "" {
 		config.SessionName = sessionName
 	}
-
 	cookieDomain := getEnv("J_COOKIE_DOMAIN")
 	if cookieDomain != "" {
 		config.CookieDomain = cookieDomain
 	}
-
 	cookieMaxAge, _ := strconv.Atoi(getEnv("J_COOKIE_MAX_AGE"))
 	if cookieMaxAge > 0 {
 		config.CookieMaxAge = cookieMaxAge
 	}
-
 	cookieHTTPOnly := getEnv("J_COOKIE_HTTPONLY")
 	if cookieHTTPOnly == "0" || cookieHTTPOnly == "false" {
 		config.CookieHTTPOnly = false
 	}
-
 	if config.SSLCertificate != "" {
 		config.CookieSecure = true
-	}
-
-	staticPath := getEnv("J_STATIC_PATH")
-	if staticPath != "" {
-		config.StaticPath = staticPath
-	}
-	theme := getEnv("J_THEME")
-	if theme != "" {
-		config.Theme = theme
-	}
-	themePath := getEnv("J_THEME_PATH")
-	if themePath != "" {
-		config.ThemePath = themePath
-	}
-	title := getEnv("J_TITLE")
-	if title != "" {
-		config.Title = title
 	}
 }

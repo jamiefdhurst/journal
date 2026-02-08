@@ -47,7 +47,7 @@ func TestView_Run(t *testing.T) {
 	if strings.Contains(response.Content, "div class=\"error\"") || !strings.Contains(response.Content, "Content") {
 		t.Error("Expected no error to be shown in page")
 	}
-	if !strings.Contains(response.Content, "<title>Title - Jamie's Journal</title>") {
+	if !strings.Contains(response.Content, "<title>Title - A Fantastic Journal</title>") {
 		t.Error("Expected HTML title to be in place")
 	}
 

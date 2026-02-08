@@ -9,11 +9,11 @@ import (
 func TestDefaultConfiguration(t *testing.T) {
 	config := DefaultConfiguration()
 
-	if config.ArticlesPerPage != 20 {
-		t.Errorf("Expected ArticlesPerPage 20, got %d", config.ArticlesPerPage)
-	}
 	if config.Port != "3000" {
 		t.Errorf("Expected Port '3000', got %q", config.Port)
+	}
+	if config.PostsPerPage != 20 {
+		t.Errorf("Expected PostsPerPage 20, got %d", config.PostsPerPage)
 	}
 	if config.SessionName != "journal-session" {
 		t.Errorf("Expected SessionName 'journal-session', got %q", config.SessionName)
@@ -389,8 +389,8 @@ J_COOKIE_MAX_AGE=3600
 	if config.Description != "A test journal" {
 		t.Errorf("Expected Description 'A test journal' from .env, got %q", config.Description)
 	}
-	if config.ArticlesPerPage != 15 {
-		t.Errorf("Expected ArticlesPerPage 15 from .env, got %d", config.ArticlesPerPage)
+	if config.PostsPerPage != 15 {
+		t.Errorf("Expected PostsPerPage 15 from .env, got %d", config.PostsPerPage)
 	}
 	if config.CookieMaxAge != 3600 {
 		t.Errorf("Expected CookieMaxAge 3600 from .env, got %d", config.CookieMaxAge)
@@ -453,5 +453,31 @@ func TestApplyEnvConfiguration_NoDotEnvFile(t *testing.T) {
 	// Should have default values
 	if config.Port != "3000" {
 		t.Errorf("Expected default Port '3000', got %q", config.Port)
+	}
+}
+
+func TestApplyEnvConfiguration_ArticlesDeprecated(t *testing.T) {
+	// Save current working directory
+	originalWd, _ := os.Getwd()
+	defer os.Chdir(originalWd)
+
+	// Create a temporary directory for testing
+	tmpDir := t.TempDir()
+	os.Chdir(tmpDir)
+
+	// Create a .env file
+	envContent := `
+J_POSTS_PER_PAGE=15
+J_ARTICLES_PER_PAGE=10
+`
+	if err := os.WriteFile(filepath.Join(tmpDir, ".env"), []byte(envContent), 0644); err != nil {
+		t.Fatalf("Failed to create .env file: %v", err)
+	}
+
+	config := DefaultConfiguration()
+	ApplyEnvConfiguration(&config)
+
+	if config.PostsPerPage != 15 {
+		t.Errorf("Expected PostsPerPage 15 from .env, got %d", config.PostsPerPage)
 	}
 }

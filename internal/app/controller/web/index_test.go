@@ -25,7 +25,7 @@ func init() {
 func TestIndex_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	configuration := app.DefaultConfiguration()
-	configuration.ArticlesPerPage = 2
+	configuration.PostsPerPage = 2
 	configuration.SessionKey = "12345678901234567890123456789012"
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := controller.NewMockResponse()
@@ -42,10 +42,10 @@ func TestIndex_Run(t *testing.T) {
 	if !strings.Contains(response.Content, "Title 2") {
 		t.Error("Expected all journals to be displayed on screen")
 	}
-	if !strings.Contains(response.Content, "<title>Jamie's Journal</title>") {
+	if !strings.Contains(response.Content, "<title>A Fantastic Journal</title>") {
 		t.Error("Expected default HTML title to be in place")
 	}
-	if !strings.Contains(response.Content, "<meta name=\"description\" content=\"A private journal") {
+	if !strings.Contains(response.Content, "<meta name=\"description\" content=\"A fantastic journal") {
 		t.Error("Expected default HTML description to be in place")
 	}
 

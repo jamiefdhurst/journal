@@ -359,7 +359,7 @@ func TestApiV1Stats(t *testing.T) {
 	now := time.Now()
 	date := now.Format("2006-01-02")
 	month := now.Format("2006-01")
-	expected := fmt.Sprintf(`{"posts":{"count":3,"first_post_date":"2018-01-01"},"configuration":{"title":"Jamie's Journal","description":"A private journal containing Jamie's innermost thoughts","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true},"visits":{"daily":[{"date":"%s","api_hits":1,"web_hits":0,"total":1}],"monthly":[{"month":"%s","api_hits":1,"web_hits":0,"total":1}]}}`, date, month)
+	expected := fmt.Sprintf(`{"posts":{"count":3,"first_post_date":"2018-01-01"},"configuration":{"title":"A Fantastic Journal","description":"A fantastic journal containing some thoughts, ideas and reflections","theme":"default","posts_per_page":20,"google_analytics":false,"create_enabled":true,"edit_enabled":true},"visits":{"daily":[{"date":"%s","api_hits":1,"web_hits":0,"total":1}],"monthly":[{"month":"%s","api_hits":1,"web_hits":0,"total":1}]}}`, date, month)
 
 	// Use contains to get rid of any extra whitespace that we can discount
 	if !strings.Contains(string(body[:]), expected) {

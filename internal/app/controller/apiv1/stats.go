@@ -34,7 +34,7 @@ type statsConfigJSON struct {
 	Title           string `json:"title"`
 	Description     string `json:"description"`
 	Theme           string `json:"theme"`
-	ArticlesPerPage int    `json:"posts_per_page"`
+	PostsPerPage    int    `json:"posts_per_page"`
 	GoogleAnalytics bool   `json:"google_analytics"`
 	CreateEnabled   bool   `json:"create_enabled"`
 	EditEnabled     bool   `json:"edit_enabled"`
@@ -58,7 +58,7 @@ func (c *Stats) Run(response http.ResponseWriter, request *http.Request) {
 	stats.Configuration.Title = container.Configuration.Title
 	stats.Configuration.Description = container.Configuration.Description
 	stats.Configuration.Theme = container.Configuration.Theme
-	stats.Configuration.ArticlesPerPage = container.Configuration.ArticlesPerPage
+	stats.Configuration.PostsPerPage = container.Configuration.PostsPerPage
 	stats.Configuration.GoogleAnalytics = container.Configuration.GoogleAnalyticsCode != ""
 	stats.Configuration.CreateEnabled = container.Configuration.EnableCreate
 	stats.Configuration.EditEnabled = container.Configuration.EnableEdit

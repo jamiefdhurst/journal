@@ -15,18 +15,18 @@ type Stats struct {
 }
 
 type statsTemplateData struct {
-	Container       *app.Container
-	PostCount       int
-	FirstPostDate   string
-	TitleSet        bool
-	DescriptionSet  bool
-	ThemeSet        bool
-	ArticlesPerPage int
-	GACodeSet       bool
-	CreateEnabled   bool
-	EditEnabled     bool
-	DailyVisits     []model.DailyVisit
-	MonthlyVisits   []model.MonthlyVisit
+	Container      *app.Container
+	PostCount      int
+	FirstPostDate  string
+	TitleSet       bool
+	DescriptionSet bool
+	ThemeSet       bool
+	PostsPerPage   int
+	GACodeSet      bool
+	CreateEnabled  bool
+	EditEnabled    bool
+	DailyVisits    []model.DailyVisit
+	MonthlyVisits  []model.MonthlyVisit
 }
 
 // Run Stats action
@@ -52,7 +52,7 @@ func (c *Stats) Run(response http.ResponseWriter, request *http.Request) {
 	data.TitleSet = container.Configuration.Title != defaultConfig.Title
 	data.DescriptionSet = container.Configuration.Description != defaultConfig.Description
 	data.ThemeSet = container.Configuration.Theme != defaultConfig.Theme
-	data.ArticlesPerPage = container.Configuration.ArticlesPerPage
+	data.PostsPerPage = container.Configuration.PostsPerPage
 	data.GACodeSet = container.Configuration.GoogleAnalyticsCode != ""
 	data.CreateEnabled = container.Configuration.EnableCreate
 	data.EditEnabled = container.Configuration.EnableEdit

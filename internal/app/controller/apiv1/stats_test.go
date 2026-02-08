@@ -13,7 +13,7 @@ import (
 func TestStats_Run(t *testing.T) {
 	db := &database.MockSqlite{}
 	configuration := app.DefaultConfiguration()
-	configuration.ArticlesPerPage = 25              // Custom setting
+	configuration.PostsPerPage = 25                 // Custom setting
 	configuration.GoogleAnalyticsCode = "UA-123456" // Custom GA code
 	container := &app.Container{Configuration: configuration, Db: db}
 	response := &controller.MockResponse{}
@@ -38,7 +38,7 @@ func TestStats_Run(t *testing.T) {
 		t.Errorf("Expected post count to be 2, got response %s", response.Content)
 	}
 	if !strings.Contains(response.Content, "posts_per_page\":25,") {
-		t.Errorf("Expected articles per page to be 25, got response %s", response.Content)
+		t.Errorf("Expected posts per page to be 25, got response %s", response.Content)
 	}
 	if !strings.Contains(response.Content, "google_analytics\":true") {
 		t.Error("Expected Google Analytics to be enabled")
