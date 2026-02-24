@@ -15,6 +15,7 @@ func NewRouter(app *app.Container) *pkgrouter.Router {
 	rtr.StaticPaths = []string{
 		app.Configuration.ThemePath + "/" + app.Configuration.Theme,
 		app.Configuration.StaticPath,
+		"api",
 	}
 
 	// API v1

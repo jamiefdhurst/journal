@@ -16,7 +16,7 @@ COPY . .
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --assume-yes build-essential libsqlite3-dev; \
     go mod download; \
-    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal .; \
+    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal ./cmd/journal; \
     go install github.com/tebeka/go2xunit@latest;\
     go install github.com/axw/gocov/gocov@latest; \
     go install github.com/AlekSi/gocov-xml@latest; \
