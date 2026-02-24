@@ -24,6 +24,7 @@ var (
 )
 
 func init() {
+	os.Chdir("../..") //nolint:errcheck
 	container = &app.Container{Configuration: app.DefaultConfiguration()}
 	rtr = router.NewRouter(container)
 	server = httptest.NewServer(rtr)

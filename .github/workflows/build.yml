@@ -6,11 +6,11 @@ on:
       - 'main'
     paths:
       - 'api/**'
+      - 'cmd/**'
       - 'internal/**'
       - 'pkg/**'
       - 'test/**'
       - 'web/**'
-      - '*.go'
       - 'go.*'
       - '*.md'
 
@@ -51,7 +51,7 @@ jobs:
         if: ${{ contains(steps.latest.outputs.name, '.') }}
         uses: datamonsters/replace-action@v2
         with:
-          files: 'journal.go'
+          files: 'cmd/journal/main.go'
           replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
       - name: Update Version in Files (2)
         if: ${{ contains(steps.latest.outputs.name, '.') }}
@@ -63,7 +63,7 @@ jobs:
         if: ${{ contains(steps.latest.outputs.name, '.') }}
         uses: datamonsters/replace-action@v2
         with:
-          files: 'web/static/openapi.yml'
+          files: 'api/openapi.yml'
           replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
       - name: File Save Delay
         uses: jakejarvis/wait-action@master
@@ -94,7 +94,7 @@ jobs:
         run: |
           sudo apt-get install -y build-essential libsqlite3-dev
           go mod download
-          GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal-bin_linux_x64-v${{ steps.version.outputs.value }} .
+          GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal-bin_linux_x64-v${{ steps.version.outputs.value }} ./cmd/journal
           cp journal-bin_linux_x64-v${{ steps.version.outputs.value }} bootstrap
           zip -r journal-lambda_al2023-v${{ steps.version.outputs.value }}.zip bootstrap web -x web/app/\*
       - name: Create Release
