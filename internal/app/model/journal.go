@@ -1,340 +1,340 @@
 package model
 
 import (
-	"database/sql"
-	"fmt"
-	"math"
-	"math/rand"
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
+    "database/sql"
+    "fmt"
+    "math"
+    "math/rand"
+    "regexp"
+    "strconv"
+    "strings"
+    "time"
 
-	"github.com/jamiefdhurst/journal/internal/app"
-	"github.com/jamiefdhurst/journal/pkg/database"
-	"github.com/jamiefdhurst/journal/pkg/database/rows"
-	"github.com/jamiefdhurst/journal/pkg/markdown"
+    "github.com/jamiefdhurst/journal/internal/app"
+    "github.com/jamiefdhurst/journal/pkg/database"
+    "github.com/jamiefdhurst/journal/pkg/database/rows"
+    "github.com/jamiefdhurst/journal/pkg/markdown"
 )
 
 const journalTable = "journal"
 
 // Journal model
 type Journal struct {
-	ID        int        `json:"id"`
-	Slug      string     `json:"slug"`
-	Title     string     `json:"title"`
-	Date      string     `json:"date"`
-	Content   string     `json:"content"`    // Now stores markdown content
-	CreatedAt *time.Time `json:"created_at"` // Automatically managed
-	UpdatedAt *time.Time `json:"updated_at"` // Automatically managed
+    ID        int        `json:"id"`
+    Slug      string     `json:"slug"`
+    Title     string     `json:"title"`
+    Date      string     `json:"date"`
+    Content   string     `json:"content"`    // Now stores markdown content
+    CreatedAt *time.Time `json:"created_at"` // Automatically managed
+    UpdatedAt *time.Time `json:"updated_at"` // Automatically managed
 }
 
 // GetHTML converts the Markdown content to HTML for display
 func (j Journal) GetHTML() string {
-	// This method will be rendered in templates, so we need a version that doesn't need container access
-	// In production, use the container's MarkdownProcessor when available through other methods
-	markdownProcessor := &markdown.Markdown{}
-	return markdownProcessor.ToHTML(j.Content)
+    // This method will be rendered in templates, so we need a version that doesn't need container access
+    // In production, use the container's MarkdownProcessor when available through other methods
+    markdownProcessor := &markdown.Markdown{}
+    return markdownProcessor.ToHTML(j.Content)
 }
 
 // GetDate Get the friendly date for the Journal
 func (j Journal) GetDate() string {
-	re := regexp.MustCompile(`\d{4}\-\d{2}\-\d{2}`)
-	date := re.FindString(j.Date)
-	timeObj, err := time.Parse("2006-01-02", date)
-	if err != nil {
-		return ""
-	}
-	return timeObj.Format("Monday January 2, 2006")
+    re := regexp.MustCompile(`\d{4}\-\d{2}\-\d{2}`)
+    date := re.FindString(j.Date)
+    timeObj, err := time.Parse("2006-01-02", date)
+    if err != nil {
+        return ""
+    }
+    return timeObj.Format("Monday January 2, 2006")
 }
 
 // GetEditableDate Get the date string for editing
 func (j Journal) GetEditableDate() string {
-	re := regexp.MustCompile(`\d{4}\-\d{2}\-\d{2}`)
-	return re.FindString(j.Date)
+    re := regexp.MustCompile(`\d{4}\-\d{2}\-\d{2}`)
+    return re.FindString(j.Date)
 }
 
 // GetFormattedCreatedAt returns the formatted created timestamp
 func (j Journal) GetFormattedCreatedAt() string {
-	if j.CreatedAt == nil {
-		return ""
-	}
-	return j.CreatedAt.Format("January 2, 2006 at 15:04")
+    if j.CreatedAt == nil {
+        return ""
+    }
+    return j.CreatedAt.Format("January 2, 2006 at 15:04")
 }
 
 // GetFormattedUpdatedAt returns the formatted updated timestamp
 func (j Journal) GetFormattedUpdatedAt() string {
-	if j.UpdatedAt == nil {
-		return ""
-	}
-	return j.UpdatedAt.Format("January 2, 2006 at 15:04")
+    if j.UpdatedAt == nil {
+        return ""
+    }
+    return j.UpdatedAt.Format("January 2, 2006 at 15:04")
 }
 
 // GetHTMLExcerpt returns a small extract of the entry rendered as HTML
 func (j Journal) GetHTMLExcerpt(maxWords int) string {
-	if j.Content == "" {
-		return ""
-	}
+    if j.Content == "" {
+        return ""
+    }
 
-	// Split content by paragraphs to preserve newlines
-	paragraphs := strings.Split(j.Content, "\n\n")
+    // Split content by paragraphs to preserve newlines
+    paragraphs := strings.Split(j.Content, "\n\n")
 
-	// Process each paragraph
-	wordCount := 0
-	resultParagraphs := []string{}
+    // Process each paragraph
+    wordCount := 0
+    resultParagraphs := []string{}
 
-	for _, paragraph := range paragraphs {
-		// Skip if we've already got 50+ words
-		if wordCount >= maxWords {
-			break
-		}
+    for _, paragraph := range paragraphs {
+        // Skip if we've already got 50+ words
+        if wordCount >= maxWords {
+            break
+        }
 
-		// Process the paragraph
-		lines := strings.Split(paragraph, "\n")
-		resultLines := []string{}
+        // Process the paragraph
+        lines := strings.Split(paragraph, "\n")
+        resultLines := []string{}
 
-		for _, line := range lines {
-			lineWords := strings.Fields(line)
+        for _, line := range lines {
+            lineWords := strings.Fields(line)
 
-			// Calculate how many words we can take from this line
-			wordsToTake := maxWords - wordCount
-			if wordsToTake <= 0 {
-				break
-			}
+            // Calculate how many words we can take from this line
+            wordsToTake := maxWords - wordCount
+            if wordsToTake <= 0 {
+                break
+            }
 
-			if len(lineWords) > wordsToTake {
-				lineWords = lineWords[:wordsToTake]
-				resultLines = append(resultLines, strings.Join(lineWords, " ")+"...")
-				wordCount += wordsToTake
-				break
-			} else {
-				resultLines = append(resultLines, strings.Join(lineWords, " "))
-				wordCount += len(lineWords)
-			}
-		}
+            if len(lineWords) > wordsToTake {
+                lineWords = lineWords[:wordsToTake]
+                resultLines = append(resultLines, strings.Join(lineWords, " ")+"...")
+                wordCount += wordsToTake
+                break
+            } else {
+                resultLines = append(resultLines, strings.Join(lineWords, " "))
+                wordCount += len(lineWords)
+            }
+        }
 
-		// Join the lines back together and add to result paragraphs
-		if len(resultLines) > 0 {
-			resultParagraphs = append(resultParagraphs, strings.Join(resultLines, "\n"))
-		}
-	}
+        // Join the lines back together and add to result paragraphs
+        if len(resultLines) > 0 {
+            resultParagraphs = append(resultParagraphs, strings.Join(resultLines, "\n"))
+        }
+    }
 
-	// Join the paragraphs with double newlines for markdown
-	excerpt := strings.Join(resultParagraphs, "\n\n")
+    // Join the paragraphs with double newlines for markdown
+    excerpt := strings.Join(resultParagraphs, "\n\n")
 
-	// Create a temporary markdown formatter and convert to HTML
-	markdownProcessor := &markdown.Markdown{}
-	return markdownProcessor.ToHTML(excerpt)
+    // Create a temporary markdown formatter and convert to HTML
+    markdownProcessor := &markdown.Markdown{}
+    return markdownProcessor.ToHTML(excerpt)
 }
 
 // Journals Common database resource link for Journal actions
 type Journals struct {
-	Container *app.Container
+    Container *app.Container
 }
 
 // CreateTable Create the actual table
 func (js *Journals) CreateTable() error {
-	_, err := js.Container.Db.Exec("CREATE TABLE IF NOT EXISTS `" + journalTable + "` (" +
-		"`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
-		"`slug` VARCHAR(255) NOT NULL, " +
-		"`title` VARCHAR(255) NOT NULL, " +
-		"`date` DATE NOT NULL, " +
-		"`content` TEXT NOT NULL" +
-		")")
+    _, err := js.Container.Db.Exec("CREATE TABLE IF NOT EXISTS `" + journalTable + "` (" +
+        "`id` INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        "`slug` VARCHAR(255) NOT NULL, " +
+        "`title` VARCHAR(255) NOT NULL, " +
+        "`date` DATE NOT NULL, " +
+        "`content` TEXT NOT NULL" +
+        ")")
 
-	return err
+    return err
 }
 
 // EnsureUniqueSlug Make sure the current slug is unique
 func (js *Journals) EnsureUniqueSlug(slug string, addition int) string {
-	newSlug := slug
-	if addition > 0 {
-		newSlug = strings.Join([]string{slug, "-", strconv.Itoa(addition)}, "")
-	}
-	exists := js.FindBySlug(newSlug)
-	if exists.ID > 0 {
-		addition++
-		return js.EnsureUniqueSlug(slug, addition)
-	}
+    newSlug := slug
+    if addition > 0 {
+        newSlug = strings.Join([]string{slug, "-", strconv.Itoa(addition)}, "")
+    }
+    exists := js.FindBySlug(newSlug)
+    if exists.ID > 0 {
+        addition++
+        return js.EnsureUniqueSlug(slug, addition)
+    }
 
-	return newSlug
+    return newSlug
 }
 
 // FetchAll Get all journals
 func (js *Journals) FetchAll() []Journal {
-	rows, err := js.Container.Db.Query("SELECT * FROM `" + journalTable + "` ORDER BY `date` DESC")
-	if err != nil {
-		return []Journal{}
-	}
+    rows, err := js.Container.Db.Query("SELECT * FROM `" + journalTable + "` ORDER BY `date` DESC")
+    if err != nil {
+        return []Journal{}
+    }
 
-	return js.loadFromRows(rows)
+    return js.loadFromRows(rows)
 }
 
 // FetchByDate Get all journal entries on a given date
 func (js *Journals) FetchByDate(date string) []Journal {
-	rows, err := js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `date` LIKE ? ORDER BY `id`", date+"%")
-	if err != nil {
-		return []Journal{}
-	}
+    rows, err := js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `date` LIKE ? ORDER BY `id`", date+"%")
+    if err != nil {
+        return []Journal{}
+    }
 
-	return js.loadFromRows(rows)
+    return js.loadFromRows(rows)
 }
 
 // FetchPaginated returns a set of paginated journal entries
 func (js *Journals) FetchPaginated(query database.PaginationQuery) ([]Journal, database.PaginationInformation) {
-	pagination := database.PaginationInformation{
-		Page:           query.Page,
-		ResultsPerPage: query.ResultsPerPage,
-	}
+    pagination := database.PaginationInformation{
+        Page:           query.Page,
+        ResultsPerPage: query.ResultsPerPage,
+    }
 
-	countResult, err := js.Container.Db.Query("SELECT COUNT(*) AS `total` FROM `" + journalTable + "`")
-	if err != nil {
-		return []Journal{}, pagination
-	}
-	countResult.Next()
-	countResult.Scan(&pagination.TotalResults)
-	countResult.Close()
-	pagination.TotalPages = int(math.Ceil(float64(pagination.TotalResults) / float64(query.ResultsPerPage)))
+    countResult, err := js.Container.Db.Query("SELECT COUNT(*) AS `total` FROM `" + journalTable + "`")
+    if err != nil {
+        return []Journal{}, pagination
+    }
+    countResult.Next()
+    countResult.Scan(&pagination.TotalResults)
+    countResult.Close()
+    pagination.TotalPages = int(math.Ceil(float64(pagination.TotalResults) / float64(query.ResultsPerPage)))
 
-	if query.Page > pagination.TotalPages {
-		return []Journal{}, pagination
-	}
+    if query.Page > pagination.TotalPages {
+        return []Journal{}, pagination
+    }
 
-	rows, _ := js.Container.Db.Query(fmt.Sprintf("SELECT * FROM `"+journalTable+"` ORDER BY `date` DESC LIMIT %d OFFSET %d", query.ResultsPerPage, (query.Page-1)*query.ResultsPerPage))
-	return js.loadFromRows(rows), pagination
+    rows, _ := js.Container.Db.Query(fmt.Sprintf("SELECT * FROM `"+journalTable+"` ORDER BY `date` DESC LIMIT %d OFFSET %d", query.ResultsPerPage, (query.Page-1)*query.ResultsPerPage))
+    return js.loadFromRows(rows), pagination
 }
 
 // FindBySlug Find a journal by slug
 func (js *Journals) FindBySlug(slug string) Journal {
-	return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `slug` = ? LIMIT 1", slug))
+    return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `slug` = ? LIMIT 1", slug))
 }
 
 // FindNext returns the next entry after an ID
 func (js *Journals) FindNext(id int) Journal {
-	return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `id` > ? ORDER BY `id` LIMIT 1", strconv.Itoa(id)))
+    return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `id` > ? ORDER BY `id` LIMIT 1", strconv.Itoa(id)))
 }
 
 // FindPrev returns the previous entry before an ID
 func (js *Journals) FindPrev(id int) Journal {
-	return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `id` < ? ORDER BY `id` DESC LIMIT 1", strconv.Itoa(id)))
+    return js.loadSingle(js.Container.Db.Query("SELECT * FROM `"+journalTable+"` WHERE `id` < ? ORDER BY `id` DESC LIMIT 1", strconv.Itoa(id)))
 }
 
 // FindRandom returns a random journal entry
 func (js *Journals) FindRandom() Journal {
-	allEntries := js.FetchAll()
-	if len(allEntries) == 0 {
-		return Journal{}
-	}
+    allEntries := js.FetchAll()
+    if len(allEntries) == 0 {
+        return Journal{}
+    }
 
-	// In a production environment, select a random entry
-	seed := time.Now().UnixNano()
-	r := rand.New(rand.NewSource(seed))
-	randomIndex := r.Intn(len(allEntries))
+    // In a production environment, select a random entry
+    seed := time.Now().UnixNano()
+    r := rand.New(rand.NewSource(seed))
+    randomIndex := r.Intn(len(allEntries))
 
-	return allEntries[randomIndex]
+    return allEntries[randomIndex]
 }
 
 // Save Save a journal entry, either inserting it or updating it in the database
 func (js *Journals) Save(j Journal) Journal {
-	var res sql.Result
+    var res sql.Result
 
-	// Convert content for saving
-	if j.Slug == "" {
-		j.Slug = Slugify(j.Title)
-	}
+    // Convert content for saving
+    if j.Slug == "" {
+        j.Slug = Slugify(j.Title)
+    }
 
-	// Ensure the slug is not reserved
-	if !ValidateSlug(j.Slug) {
-		// Append a number to the slug to make it valid
-		j.Slug = j.Slug + "-post"
-	}
+    // Ensure the slug is not reserved
+    if !ValidateSlug(j.Slug) {
+        // Append a number to the slug to make it valid
+        j.Slug = j.Slug + "-post"
+    }
 
-	// Manage timestamps
-	now := time.Now().UTC()
+    // Manage timestamps
+    now := time.Now().UTC()
 
-	if j.ID == 0 {
-		// On insert, set both created_at and updated_at
-		j.CreatedAt = &now
-		j.UpdatedAt = &now
-		j.Slug = js.EnsureUniqueSlug(j.Slug, 0)
-		res, _ = js.Container.Db.Exec("INSERT INTO `"+journalTable+"` (`slug`, `title`, `date`, `content`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)", j.Slug, j.Title, j.Date, j.Content, j.CreatedAt, j.UpdatedAt)
-	} else {
-		// On update, only update updated_at
-		j.UpdatedAt = &now
-		res, _ = js.Container.Db.Exec("UPDATE `"+journalTable+"` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ?, `updated_at` = ? WHERE `id` = ?", j.Slug, j.Title, j.Date, j.Content, j.UpdatedAt, strconv.Itoa(j.ID))
-	}
+    if j.ID == 0 {
+        // On insert, set both created_at and updated_at
+        j.CreatedAt = &now
+        j.UpdatedAt = &now
+        j.Slug = js.EnsureUniqueSlug(j.Slug, 0)
+        res, _ = js.Container.Db.Exec("INSERT INTO `"+journalTable+"` (`slug`, `title`, `date`, `content`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)", j.Slug, j.Title, j.Date, j.Content, j.CreatedAt, j.UpdatedAt)
+    } else {
+        // On update, only update updated_at
+        j.UpdatedAt = &now
+        res, _ = js.Container.Db.Exec("UPDATE `"+journalTable+"` SET `slug` = ?, `title` = ?, `date` = ?, `content` = ?, `updated_at` = ? WHERE `id` = ?", j.Slug, j.Title, j.Date, j.Content, j.UpdatedAt, strconv.Itoa(j.ID))
+    }
 
-	// Store insert ID
-	if j.ID == 0 {
-		id, _ := res.LastInsertId()
-		j.ID = int(id)
-	}
+    // Store insert ID
+    if j.ID == 0 {
+        id, _ := res.LastInsertId()
+        j.ID = int(id)
+    }
 
-	return j
+    return j
 }
 
 func (js Journals) loadFromRows(rows rows.Rows) []Journal {
-	defer rows.Close()
-	journals := []Journal{}
-	for rows.Next() {
-		j := Journal{}
-		rows.Scan(&j.ID, &j.Slug, &j.Title, &j.Date, &j.Content, &j.CreatedAt, &j.UpdatedAt)
-		journals = append(journals, j)
-	}
+    defer rows.Close()
+    journals := []Journal{}
+    for rows.Next() {
+        j := Journal{}
+        rows.Scan(&j.ID, &j.Slug, &j.Title, &j.Date, &j.Content, &j.CreatedAt, &j.UpdatedAt)
+        journals = append(journals, j)
+    }
 
-	return journals
+    return journals
 }
 
 func (js *Journals) loadSingle(rows rows.Rows, err error) Journal {
-	if err != nil {
-		return Journal{}
-	}
-	journals := js.loadFromRows(rows)
+    if err != nil {
+        return Journal{}
+    }
+    journals := js.loadFromRows(rows)
 
-	if len(journals) == 1 {
-		return journals[0]
-	}
+    if len(journals) == 1 {
+        return journals[0]
+    }
 
-	return Journal{}
+    return Journal{}
 }
 
 // Slugify Utility to convert a string into a slug
 func Slugify(s string) string {
-	re := regexp.MustCompile(`[\W+]`)
+    re := regexp.MustCompile(`[\W+]`)
 
-	return strings.ToLower(re.ReplaceAllString(s, "-"))
+    return strings.ToLower(re.ReplaceAllString(s, "-"))
 }
 
 // ValidateSlug ensures a slug is acceptable
 func ValidateSlug(slug string) bool {
-	// Check for reserved slugs
-	if slug == "random" || slug == "new" || slug == "stats" {
-		return false
-	}
+    // Check for reserved slugs
+    if slug == "random" || slug == "new" || slug == "stats" {
+        return false
+    }
 
-	// Check for slugs that would conflict with API routes
-	if strings.HasPrefix(slug, "api/") {
-		return false
-	}
+    // Check for slugs that would conflict with API routes
+    if strings.HasPrefix(slug, "api/") {
+        return false
+    }
 
-	return true
+    return true
 }
 
 // Validate data for inserting or updating a journal
 func Validate(title string, date string, content string) bool {
-	if title == "" || len(title) < 3 {
-		return false
-	}
-	re := regexp.MustCompile(`^\d{4}\-\d{2}\-\d{2}`)
-	if date == "" || !re.Match([]byte(date)) {
-		return false
-	}
-	if content == "" || len(content) < 3 {
-		return false
-	}
+    if title == "" || len(title) < 3 {
+        return false
+    }
+    re := regexp.MustCompile(`^\d{4}\-\d{2}\-\d{2}`)
+    if date == "" || !re.Match([]byte(date)) {
+        return false
+    }
+    if content == "" || len(content) < 3 {
+        return false
+    }
 
-	// Generate a slug and validate it
-	slug := Slugify(title)
+    // Generate a slug and validate it
+    slug := Slugify(title)
 
-	return ValidateSlug(slug)
+    return ValidateSlug(slug)
 }

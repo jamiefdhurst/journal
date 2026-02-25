@@ -1,451 +1,451 @@
 package model
 
 import (
-	"testing"
-	"time"
+    "testing"
+    "time"
 
-	"github.com/jamiefdhurst/journal/internal/app"
-	pkgDb "github.com/jamiefdhurst/journal/pkg/database"
-	"github.com/jamiefdhurst/journal/test/mocks/database"
+    "github.com/jamiefdhurst/journal/internal/app"
+    pkgDb "github.com/jamiefdhurst/journal/pkg/database"
+    "github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
 func TestJournal_GetDate(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"2018-05-10", "Thursday May 10, 2018"},
-		{"200-00-00", ""},
-		{"", ""},
-		{"0000-00-00", ""},
-	}
+    tables := []struct {
+        input  string
+        output string
+    }{
+        {"2018-05-10", "Thursday May 10, 2018"},
+        {"200-00-00", ""},
+        {"", ""},
+        {"0000-00-00", ""},
+    }
 
-	for _, table := range tables {
-		j := Journal{Date: table.input}
-		actual := j.GetDate()
-		if actual != table.output {
-			t.Errorf("Expected GetDate() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
+    for _, table := range tables {
+        j := Journal{Date: table.input}
+        actual := j.GetDate()
+        if actual != table.output {
+            t.Errorf("Expected GetDate() to produce result of '%s', got '%s'", table.output, actual)
+        }
+    }
 }
 
 func TestJournal_GetEditableDate(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"2018-05-10", "2018-05-10"},
-		{"2018-05-10EXTRATHINGS", "2018-05-10"},
-		{"200-00-00", ""},
-		{"", ""},
-		{"0000-00-00", "0000-00-00"},
-	}
+    tables := []struct {
+        input  string
+        output string
+    }{
+        {"2018-05-10", "2018-05-10"},
+        {"2018-05-10EXTRATHINGS", "2018-05-10"},
+        {"200-00-00", ""},
+        {"", ""},
+        {"0000-00-00", "0000-00-00"},
+    }
 
-	for _, table := range tables {
-		j := Journal{Date: table.input}
-		actual := j.GetEditableDate()
-		if actual != table.output {
-			t.Errorf("Expected GetEditableDate() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
+    for _, table := range tables {
+        j := Journal{Date: table.input}
+        actual := j.GetEditableDate()
+        if actual != table.output {
+            t.Errorf("Expected GetEditableDate() to produce result of '%s', got '%s'", table.output, actual)
+        }
+    }
 }
 
 func TestJournal_GetHTMLExcerpt(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"Some **bold** text", "<p>Some <strong>bold</strong> text</p>\n"},
-		{"Multiple\n\nparagraphs", "<p>Multiple</p>\n\n<p>paragraphs</p>\n"},
-		{"", ""},
-		{"*Italic* and **bold**", "<p><em>Italic</em> and <strong>bold</strong></p>\n"},
-		{"Line 1\nLine 2\nLine 3", "<p>Line 1\nLine 2\nLine 3</p>\n"},
-	}
+    tables := []struct {
+        input  string
+        output string
+    }{
+        {"Some **bold** text", "<p>Some <strong>bold</strong> text</p>\n"},
+        {"Multiple\n\nparagraphs", "<p>Multiple</p>\n\n<p>paragraphs</p>\n"},
+        {"", ""},
+        {"*Italic* and **bold**", "<p><em>Italic</em> and <strong>bold</strong></p>\n"},
+        {"Line 1\nLine 2\nLine 3", "<p>Line 1\nLine 2\nLine 3</p>\n"},
+    }
 
-	for _, table := range tables {
-		j := Journal{Content: table.input}
-		actual := j.GetHTMLExcerpt(50)
-		if actual != table.output {
-			t.Errorf("Expected GetHTMLExcerpt() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
+    for _, table := range tables {
+        j := Journal{Content: table.input}
+        actual := j.GetHTMLExcerpt(50)
+        if actual != table.output {
+            t.Errorf("Expected GetHTMLExcerpt() to produce result of '%s', got '%s'", table.output, actual)
+        }
+    }
 }
 
 func TestJournal_GetHTMLExcerpt_ShortWords(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"Some **bold** text", "<p>Some <strong>bold</strong>&hellip;</p>\n"},
-		{"Multiple\n\nparagraphs", "<p>Multiple</p>\n\n<p>paragraphs</p>\n"},
-		{"", ""},
-		{"*Italic* and **bold**", "<p><em>Italic</em> and&hellip;</p>\n"},
-		{"Line 1\nLine 2\nLine 3", "<p>Line 1</p>\n"},
-	}
+    tables := []struct {
+        input  string
+        output string
+    }{
+        {"Some **bold** text", "<p>Some <strong>bold</strong>&hellip;</p>\n"},
+        {"Multiple\n\nparagraphs", "<p>Multiple</p>\n\n<p>paragraphs</p>\n"},
+        {"", ""},
+        {"*Italic* and **bold**", "<p><em>Italic</em> and&hellip;</p>\n"},
+        {"Line 1\nLine 2\nLine 3", "<p>Line 1</p>\n"},
+    }
 
-	for _, table := range tables {
-		j := Journal{Content: table.input}
-		actual := j.GetHTMLExcerpt(2)
-		if actual != table.output {
-			t.Errorf("Expected GetHTMLExcerpt() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
+    for _, table := range tables {
+        j := Journal{Content: table.input}
+        actual := j.GetHTMLExcerpt(2)
+        if actual != table.output {
+            t.Errorf("Expected GetHTMLExcerpt() to produce result of '%s', got '%s'", table.output, actual)
+        }
+    }
 }
 
 func TestJournals_CreateTable(t *testing.T) {
-	db := &database.MockSqlite{}
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
-	js.CreateTable()
-	if db.Queries != 1 {
-		t.Errorf("Expected 1 query to have been run")
-	}
+    db := &database.MockSqlite{}
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
+    js.CreateTable()
+    if db.Queries != 1 {
+        t.Errorf("Expected 1 query to have been run")
+    }
 }
 
 func TestJournals_EnsureUniqueSlug(t *testing.T) {
-	db := &database.MockSqlite{}
-	db.ErrorMode = false
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
+    db := &database.MockSqlite{}
+    db.ErrorMode = false
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
 
-	// Test no result
-	db.Rows = &database.MockRowsEmpty{}
-	actual := js.EnsureUniqueSlug("test", 0)
-	if actual != "test" {
-		t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test", actual)
-	}
+    // Test no result
+    db.Rows = &database.MockRowsEmpty{}
+    actual := js.EnsureUniqueSlug("test", 0)
+    if actual != "test" {
+        t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test", actual)
+    }
 
-	// Test simple
-	db.Rows = &database.MockJournal_SingleRow{}
-	db.ExpectedArgument = "test"
-	actual = js.EnsureUniqueSlug("test", 0)
-	if actual != "test-1" {
-		t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test-1", actual)
-	}
+    // Test simple
+    db.Rows = &database.MockJournal_SingleRow{}
+    db.ExpectedArgument = "test"
+    actual = js.EnsureUniqueSlug("test", 0)
+    if actual != "test-1" {
+        t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test-1", actual)
+    }
 
-	db.Rows = &database.MockJournal_SingleRow{}
-	db.ExpectedArgument = "test-2"
-	actual = js.EnsureUniqueSlug("test", 2)
-	if actual != "test-3" {
-		t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test-3", actual)
-	}
+    db.Rows = &database.MockJournal_SingleRow{}
+    db.ExpectedArgument = "test-2"
+    actual = js.EnsureUniqueSlug("test", 2)
+    if actual != "test-3" {
+        t.Errorf("Expected EnsureUniqueSlug() to produce result of '%s', got '%s'", "test-3", actual)
+    }
 }
 
 func TestJournals_FetchAll(t *testing.T) {
 
-	// Test error
-	db := &database.MockSqlite{}
-	db.ErrorMode = true
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
-	journals := js.FetchAll()
-	if len(journals) > 0 {
-		t.Errorf("Expected empty result set returned when error received")
-	}
+    // Test error
+    db := &database.MockSqlite{}
+    db.ErrorMode = true
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
+    journals := js.FetchAll()
+    if len(journals) > 0 {
+        t.Errorf("Expected empty result set returned when error received")
+    }
 
-	// Test empty result
-	db.ErrorMode = false
-	db.Rows = &database.MockRowsEmpty{}
-	journals = js.FetchAll()
-	if len(journals) > 0 {
-		t.Errorf("Expected empty result set returned")
-	}
+    // Test empty result
+    db.ErrorMode = false
+    db.Rows = &database.MockRowsEmpty{}
+    journals = js.FetchAll()
+    if len(journals) > 0 {
+        t.Errorf("Expected empty result set returned")
+    }
 
-	// Test successful result
-	db.Rows = &database.MockJournal_MultipleRows{}
-	journals = js.FetchAll()
-	if len(journals) < 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" {
-		t.Errorf("Expected 2 rows returned and with correct data")
-	}
+    // Test successful result
+    db.Rows = &database.MockJournal_MultipleRows{}
+    journals = js.FetchAll()
+    if len(journals) < 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" {
+        t.Errorf("Expected 2 rows returned and with correct data")
+    }
 }
 
 func TestJournals_FetchByDate(t *testing.T) {
-	// Test error
-	db := &database.MockSqlite{}
-	db.ErrorMode = true
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
-	journals := js.FetchByDate("2001-01-01")
-	if len(journals) > 0 {
-		t.Errorf("Expected empty result set returned when error received")
-	}
+    // Test error
+    db := &database.MockSqlite{}
+    db.ErrorMode = true
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
+    journals := js.FetchByDate("2001-01-01")
+    if len(journals) > 0 {
+        t.Errorf("Expected empty result set returned when error received")
+    }
 
-	// Test empty result
-	db.ErrorMode = false
-	db.Rows = &database.MockRowsEmpty{}
-	journals = js.FetchByDate("2001-01-01")
-	if len(journals) > 0 {
-		t.Errorf("Expected empty result set returned")
-	}
+    // Test empty result
+    db.ErrorMode = false
+    db.Rows = &database.MockRowsEmpty{}
+    journals = js.FetchByDate("2001-01-01")
+    if len(journals) > 0 {
+        t.Errorf("Expected empty result set returned")
+    }
 
-	// Test successful result
-	db.Rows = &database.MockJournal_MultipleRows{}
-	journals = js.FetchByDate("2001-01-01")
-	if len(journals) < 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" {
-		t.Errorf("Expected 2 rows returned and with correct data")
-	}
+    // Test successful result
+    db.Rows = &database.MockJournal_MultipleRows{}
+    journals = js.FetchByDate("2001-01-01")
+    if len(journals) < 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" {
+        t.Errorf("Expected 2 rows returned and with correct data")
+    }
 }
 
 func TestJournals_FetchPaginated(t *testing.T) {
 
-	// Test error
-	db := &database.MockSqlite{}
-	db.ErrorMode = true
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
-	journals, pagination := js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
-	if len(journals) > 0 || pagination.TotalPages > 0 {
-		t.Error("Expected empty result set returned when error received")
-	}
+    // Test error
+    db := &database.MockSqlite{}
+    db.ErrorMode = true
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
+    journals, pagination := js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
+    if len(journals) > 0 || pagination.TotalPages > 0 {
+        t.Error("Expected empty result set returned when error received")
+    }
 
-	// Test empty result
-	db.ErrorMode = false
-	db.Rows = &database.MockPagination_Result{TotalResults: 0}
-	journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
-	if len(journals) > 0 || pagination.TotalPages > 0 {
-		t.Error("Expected empty result set returned when no pages received")
-	}
+    // Test empty result
+    db.ErrorMode = false
+    db.Rows = &database.MockPagination_Result{TotalResults: 0}
+    journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
+    if len(journals) > 0 || pagination.TotalPages > 0 {
+        t.Error("Expected empty result set returned when no pages received")
+    }
 
-	// Test pages out of bounds
-	db.Rows = &database.MockPagination_Result{TotalResults: 2}
-	journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 4, ResultsPerPage: 2})
-	if len(journals) > 0 || pagination.TotalPages != 1 {
-		t.Errorf("Expected empty result set with correct pages returned, instead received +%v", pagination)
-	}
+    // Test pages out of bounds
+    db.Rows = &database.MockPagination_Result{TotalResults: 2}
+    journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 4, ResultsPerPage: 2})
+    if len(journals) > 0 || pagination.TotalPages != 1 {
+        t.Errorf("Expected empty result set with correct pages returned, instead received +%v", pagination)
+    }
 
-	// Test successful result
-	db.EnableMultiMode()
-	db.AppendResult(&database.MockPagination_Result{TotalResults: 4})
-	db.AppendResult(&database.MockJournal_MultipleRows{})
-	journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
-	if len(journals) != 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" || pagination.TotalPages != 2 || pagination.TotalResults != 4 {
-		t.Errorf("Expected 2 rows returned and with correct data")
-	}
+    // Test successful result
+    db.EnableMultiMode()
+    db.AppendResult(&database.MockPagination_Result{TotalResults: 4})
+    db.AppendResult(&database.MockJournal_MultipleRows{})
+    journals, pagination = js.FetchPaginated(pkgDb.PaginationQuery{Page: 1, ResultsPerPage: 2})
+    if len(journals) != 2 || journals[0].ID != 1 || journals[1].Content != "Content 2" || pagination.TotalPages != 2 || pagination.TotalResults != 4 {
+        t.Errorf("Expected 2 rows returned and with correct data")
+    }
 }
 
 func TestJournals_FindBySlug(t *testing.T) {
-	// Test error
-	db := &database.MockSqlite{}
-	db.ErrorMode = true
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
-	journal := js.FindBySlug("example")
-	if journal.ID > 0 {
-		t.Errorf("Expected empty result set returned when error received")
-	}
+    // Test error
+    db := &database.MockSqlite{}
+    db.ErrorMode = true
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
+    journal := js.FindBySlug("example")
+    if journal.ID > 0 {
+        t.Errorf("Expected empty result set returned when error received")
+    }
 
-	// Test empty result
-	db.ErrorMode = false
-	db.Rows = &database.MockRowsEmpty{}
-	journal = js.FindBySlug("example")
-	if journal.ID > 0 {
-		t.Errorf("Expected empty result set returned")
-	}
+    // Test empty result
+    db.ErrorMode = false
+    db.Rows = &database.MockRowsEmpty{}
+    journal = js.FindBySlug("example")
+    if journal.ID > 0 {
+        t.Errorf("Expected empty result set returned")
+    }
 
-	// Test successful result
-	db.Rows = &database.MockJournal_SingleRow{}
-	db.ExpectedArgument = "slug"
-	journal = js.FindBySlug("slug")
-	if journal.ID != 1 || journal.Content != "Content" {
-		t.Errorf("Expected 1 row returned and with correct data")
-	}
+    // Test successful result
+    db.Rows = &database.MockJournal_SingleRow{}
+    db.ExpectedArgument = "slug"
+    journal = js.FindBySlug("slug")
+    if journal.ID != 1 || journal.Content != "Content" {
+        t.Errorf("Expected 1 row returned and with correct data")
+    }
 
-	// Test unexpected amount of rows
-	db.Rows = &database.MockJournal_MultipleRows{}
-	journal = js.FindBySlug("slug")
-	if journal.ID > 0 {
-		t.Errorf("Expected no rows when query returns more than one result")
-	}
+    // Test unexpected amount of rows
+    db.Rows = &database.MockJournal_MultipleRows{}
+    journal = js.FindBySlug("slug")
+    if journal.ID > 0 {
+        t.Errorf("Expected no rows when query returns more than one result")
+    }
 }
 
 func TestJournals_FindNext(t *testing.T) {
-	// Test error
-	db := &database.MockSqlite{}
-	db.ErrorMode = true
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
-	journal := js.FindNext(100)
-	if journal.ID > 0 {
-		t.Error("Expected empty result set returned when error received")
-	}
+    // Test error
+    db := &database.MockSqlite{}
+    db.ErrorMode = true
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
+    journal := js.FindNext(100)
+    if journal.ID > 0 {
+        t.Error("Expected empty result set returned when error received")
+    }
 
-	// Test empty result
-	db.ErrorMode = false
-	db.Rows = &database.MockRowsEmpty{}
-	journal = js.FindNext(100)
-	if journal.ID > 0 {
-		t.Error("Expected empty result set returned")
-	}
+    // Test empty result
+    db.ErrorMode = false
+    db.Rows = &database.MockRowsEmpty{}
+    journal = js.FindNext(100)
+    if journal.ID > 0 {
+        t.Error("Expected empty result set returned")
+    }
 
-	// Test successful result
-	db.Rows = &database.MockJournal_SingleRow{}
-	db.ExpectedArgument = "0"
-	journal = js.FindNext(0)
-	if journal.ID != 1 || journal.Content != "Content" {
-		t.Error("Expected 1 row returned and with correct data")
-	}
+    // Test successful result
+    db.Rows = &database.MockJournal_SingleRow{}
+    db.ExpectedArgument = "0"
+    journal = js.FindNext(0)
+    if journal.ID != 1 || journal.Content != "Content" {
+        t.Error("Expected 1 row returned and with correct data")
+    }
 
-	// Test unexpected amount of rows
-	db.Rows = &database.MockJournal_MultipleRows{}
-	journal = js.FindNext(0)
-	if journal.ID > 0 {
-		t.Error("Expected no rows when query returns more than one result")
-	}
+    // Test unexpected amount of rows
+    db.Rows = &database.MockJournal_MultipleRows{}
+    journal = js.FindNext(0)
+    if journal.ID > 0 {
+        t.Error("Expected no rows when query returns more than one result")
+    }
 }
 
 func TestJournals_FindPrev(t *testing.T) {
-	// Test error
-	db := &database.MockSqlite{}
-	db.ErrorMode = true
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
-	journal := js.FindPrev(100)
-	if journal.ID > 0 {
-		t.Error("Expected empty result set returned when error received")
-	}
+    // Test error
+    db := &database.MockSqlite{}
+    db.ErrorMode = true
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
+    journal := js.FindPrev(100)
+    if journal.ID > 0 {
+        t.Error("Expected empty result set returned when error received")
+    }
 
-	// Test empty result
-	db.ErrorMode = false
-	db.Rows = &database.MockRowsEmpty{}
-	journal = js.FindPrev(100)
-	if journal.ID > 0 {
-		t.Error("Expected empty result set returned")
-	}
+    // Test empty result
+    db.ErrorMode = false
+    db.Rows = &database.MockRowsEmpty{}
+    journal = js.FindPrev(100)
+    if journal.ID > 0 {
+        t.Error("Expected empty result set returned")
+    }
 
-	// Test successful result
-	db.Rows = &database.MockJournal_SingleRow{}
-	db.ExpectedArgument = "2"
-	journal = js.FindPrev(2)
-	if journal.ID != 1 || journal.Content != "Content" {
-		t.Error("Expected 1 row returned and with correct data")
-	}
+    // Test successful result
+    db.Rows = &database.MockJournal_SingleRow{}
+    db.ExpectedArgument = "2"
+    journal = js.FindPrev(2)
+    if journal.ID != 1 || journal.Content != "Content" {
+        t.Error("Expected 1 row returned and with correct data")
+    }
 
-	// Test unexpected amount of rows
-	db.Rows = &database.MockJournal_MultipleRows{}
-	journal = js.FindPrev(0)
-	if journal.ID > 0 {
-		t.Error("Expected no rows when query returns more than one result")
-	}
+    // Test unexpected amount of rows
+    db.Rows = &database.MockJournal_MultipleRows{}
+    journal = js.FindPrev(0)
+    if journal.ID > 0 {
+        t.Error("Expected no rows when query returns more than one result")
+    }
 }
 
 func TestJournals_Save(t *testing.T) {
-	db := &database.MockSqlite{Result: &database.MockResult{}}
-	db.Rows = &database.MockRowsEmpty{}
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
+    db := &database.MockSqlite{Result: &database.MockResult{}}
+    db.Rows = &database.MockRowsEmpty{}
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
 
-	// Test with new Journal
-	journal := js.Save(Journal{ID: 0, Title: "Testing"})
-	if journal.ID != 1 || journal.Title != "Testing" {
-		t.Error("Expected same Journal to have been returned with new ID")
-	}
+    // Test with new Journal
+    journal := js.Save(Journal{ID: 0, Title: "Testing"})
+    if journal.ID != 1 || journal.Title != "Testing" {
+        t.Error("Expected same Journal to have been returned with new ID")
+    }
 
-	// Test with same Journal
-	journal = js.Save(Journal{ID: 2, Title: "Testing 2"})
-	if journal.ID != 2 || journal.Title != "Testing 2" {
-		t.Error("Expected same Journal to have been returned with new ID")
-	}
+    // Test with same Journal
+    journal = js.Save(Journal{ID: 2, Title: "Testing 2"})
+    if journal.ID != 2 || journal.Title != "Testing 2" {
+        t.Error("Expected same Journal to have been returned with new ID")
+    }
 }
 
 func TestSlugify(t *testing.T) {
-	tables := []struct {
-		input  string
-		output string
-	}{
-		{"A SIMPLE TITLE", "a-simple-title"},
-		{"already-slugified", "already-slugified"},
-		{"   ", "---"},
-		{"lower cased", "lower-cased"},
-		{"Special!!!Characters@$%^&*(", "special---characters-------"},
-	}
+    tables := []struct {
+        input  string
+        output string
+    }{
+        {"A SIMPLE TITLE", "a-simple-title"},
+        {"already-slugified", "already-slugified"},
+        {"   ", "---"},
+        {"lower cased", "lower-cased"},
+        {"Special!!!Characters@$%^&*(", "special---characters-------"},
+    }
 
-	for _, table := range tables {
-		actual := Slugify(table.input)
-		if actual != table.output {
-			t.Errorf("Expected Slugify() to produce result of '%s', got '%s'", table.output, actual)
-		}
-	}
+    for _, table := range tables {
+        actual := Slugify(table.input)
+        if actual != table.output {
+            t.Errorf("Expected Slugify() to produce result of '%s', got '%s'", table.output, actual)
+        }
+    }
 }
 
 func TestJournal_GetFormattedCreatedAt(t *testing.T) {
-	// Test with nil timestamp
-	j := Journal{}
-	actual := j.GetFormattedCreatedAt()
-	if actual != "" {
-		t.Errorf("Expected empty string for nil timestamp, got '%s'", actual)
-	}
+    // Test with nil timestamp
+    j := Journal{}
+    actual := j.GetFormattedCreatedAt()
+    if actual != "" {
+        t.Errorf("Expected empty string for nil timestamp, got '%s'", actual)
+    }
 
-	// Test with valid timestamp
-	testTime := time.Date(2025, 1, 10, 15, 45, 30, 0, time.UTC)
-	j.CreatedAt = &testTime
-	actual = j.GetFormattedCreatedAt()
-	expected := "January 10, 2025 at 15:45"
-	if actual != expected {
-		t.Errorf("Expected GetFormattedCreatedAt() to produce result of '%s', got '%s'", expected, actual)
-	}
+    // Test with valid timestamp
+    testTime := time.Date(2025, 1, 10, 15, 45, 30, 0, time.UTC)
+    j.CreatedAt = &testTime
+    actual = j.GetFormattedCreatedAt()
+    expected := "January 10, 2025 at 15:45"
+    if actual != expected {
+        t.Errorf("Expected GetFormattedCreatedAt() to produce result of '%s', got '%s'", expected, actual)
+    }
 }
 
 func TestJournal_GetFormattedUpdatedAt(t *testing.T) {
-	// Test with nil timestamp
-	j := Journal{}
-	actual := j.GetFormattedUpdatedAt()
-	if actual != "" {
-		t.Errorf("Expected empty string for nil timestamp, got '%s'", actual)
-	}
+    // Test with nil timestamp
+    j := Journal{}
+    actual := j.GetFormattedUpdatedAt()
+    if actual != "" {
+        t.Errorf("Expected empty string for nil timestamp, got '%s'", actual)
+    }
 
-	// Test with valid timestamp
-	testTime := time.Date(2025, 1, 10, 15, 45, 30, 0, time.UTC)
-	j.UpdatedAt = &testTime
-	actual = j.GetFormattedUpdatedAt()
-	expected := "January 10, 2025 at 15:45"
-	if actual != expected {
-		t.Errorf("Expected GetFormattedUpdatedAt() to produce result of '%s', got '%s'", expected, actual)
-	}
+    // Test with valid timestamp
+    testTime := time.Date(2025, 1, 10, 15, 45, 30, 0, time.UTC)
+    j.UpdatedAt = &testTime
+    actual = j.GetFormattedUpdatedAt()
+    expected := "January 10, 2025 at 15:45"
+    if actual != expected {
+        t.Errorf("Expected GetFormattedUpdatedAt() to produce result of '%s', got '%s'", expected, actual)
+    }
 }
 
 func TestJournals_Save_Timestamps(t *testing.T) {
-	db := &database.MockSqlite{Result: &database.MockResult{}}
-	db.Rows = &database.MockRowsEmpty{}
-	container := &app.Container{Db: db}
-	js := Journals{Container: container}
+    db := &database.MockSqlite{Result: &database.MockResult{}}
+    db.Rows = &database.MockRowsEmpty{}
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
 
-	// Test new Journal gets timestamps set
-	beforeCreate := time.Now().UTC()
-	journal := js.Save(Journal{ID: 0, Title: "Testing", Date: "2025-01-10", Content: "Test content"})
-	afterCreate := time.Now().UTC()
+    // Test new Journal gets timestamps set
+    beforeCreate := time.Now().UTC()
+    journal := js.Save(Journal{ID: 0, Title: "Testing", Date: "2025-01-10", Content: "Test content"})
+    afterCreate := time.Now().UTC()
 
-	if journal.CreatedAt == nil {
-		t.Error("Expected CreatedAt to be set on new journal")
-	}
-	if journal.UpdatedAt == nil {
-		t.Error("Expected UpdatedAt to be set on new journal")
-	}
+    if journal.CreatedAt == nil {
+        t.Error("Expected CreatedAt to be set on new journal")
+    }
+    if journal.UpdatedAt == nil {
+        t.Error("Expected UpdatedAt to be set on new journal")
+    }
 
-	// Verify timestamps are within reasonable range
-	if journal.CreatedAt.Before(beforeCreate) || journal.CreatedAt.After(afterCreate) {
-		t.Error("CreatedAt timestamp is outside expected time range")
-	}
-	if journal.UpdatedAt.Before(beforeCreate) || journal.UpdatedAt.After(afterCreate) {
-		t.Error("UpdatedAt timestamp is outside expected time range")
-	}
+    // Verify timestamps are within reasonable range
+    if journal.CreatedAt.Before(beforeCreate) || journal.CreatedAt.After(afterCreate) {
+        t.Error("CreatedAt timestamp is outside expected time range")
+    }
+    if journal.UpdatedAt.Before(beforeCreate) || journal.UpdatedAt.After(afterCreate) {
+        t.Error("UpdatedAt timestamp is outside expected time range")
+    }
 
-	// Test updating Journal only updates UpdatedAt
-	time.Sleep(10 * time.Millisecond) // Small delay to ensure different timestamp
+    // Test updating Journal only updates UpdatedAt
+    time.Sleep(10 * time.Millisecond) // Small delay to ensure different timestamp
 
-	beforeUpdate := time.Now().UTC()
-	journal.Title = "Updated Title"
-	updatedJournal := js.Save(journal)
-	afterUpdate := time.Now().UTC()
+    beforeUpdate := time.Now().UTC()
+    journal.Title = "Updated Title"
+    updatedJournal := js.Save(journal)
+    afterUpdate := time.Now().UTC()
 
-	if updatedJournal.UpdatedAt == nil {
-		t.Error("Expected UpdatedAt to be set on updated journal")
-	}
+    if updatedJournal.UpdatedAt == nil {
+        t.Error("Expected UpdatedAt to be set on updated journal")
+    }
 
-	// Verify UpdatedAt changed but CreatedAt didn't
-	if updatedJournal.UpdatedAt.Before(beforeUpdate) || updatedJournal.UpdatedAt.After(afterUpdate) {
-		t.Error("UpdatedAt timestamp is outside expected time range after update")
-	}
+    // Verify UpdatedAt changed but CreatedAt didn't
+    if updatedJournal.UpdatedAt.Before(beforeUpdate) || updatedJournal.UpdatedAt.After(afterUpdate) {
+        t.Error("UpdatedAt timestamp is outside expected time range after update")
+    }
 
-	// Note: In the mock, CreatedAt won't be preserved since we're not actually reading from DB,
-	// but in real usage the query would only update updated_at
+    // Note: In the mock, CreatedAt won't be preserved since we're not actually reading from DB,
+    // but in real usage the query would only update updated_at
 }
