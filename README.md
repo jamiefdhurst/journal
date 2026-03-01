@@ -122,8 +122,6 @@ the binary itself.
 The application has the following dependencies (using go.mod and go.sum):
 
 - [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3)
-- [github.com/akrylysov/algnhsa](https://github.com/akrylysov/algnhsa)
-- [github.com/aws/aws-lambda-go](https://github.com/aws/aws-lambda-go)
 - [github.com/gomarkdown/markdown](https://github.com/gomarkdown/markdown)
 
 This can be installed using the following commands from the journal folder:
@@ -158,26 +156,3 @@ To test locally, simply use:
 go test -v ./...
 ```
 
-### Building for Lambda
-
-The application is designed to run as a Lambda connected to an EFS for SQLite 
-storage. This requires a different method of building to ensure it includes the 
-appropriate libraries and is built for the correct architecture.
-
-To build for Lambda, you will need the x86_64-unknown-linux-gnu cross compiler
-(if you're on a Mac):
-
-```bash
-brew tap SergioBenitez/osxct
-brew install x86_64-unknown-linux-gnu
-```
-
-To build, simply run:
-
-```bash
-make build
-```
-
-This will produce a Lambda output: `lambda.zip`, that you can upload onto an 
-Amazon Linux 2023 (al2023) runtime Lambda, if you configure the appropriate 
-environment variables.
