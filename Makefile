@@ -1,13 +1,11 @@
 .PHONY: build test
 
 build:
-	@CC=x86_64-unknown-linux-gnu-gcc GOARCH=amd64 GOOS=linux go build -v -o bootstrap ./cmd/journal
-	@zip -r lambda.zip bootstrap web -x web/app/\*
+	@go build -v -o journal ./cmd/journal
 
 test:
 	@2>&1 go test -coverprofile=cover.out -coverpkg=./internal/...,./pkg/... -v ./... | go2xunit > tests.xml
 	@gocov convert cover.out | gocov-xml > coverage.xml
 
 clean:
-	@rm -f bootstrap
-	@rm -f lambda.zip
+	@rm -f journal
