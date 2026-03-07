@@ -23,7 +23,7 @@ html {
 body {
     color: #000;
     font-family: 'Roboto', sans-serif;
-    font-size: 1.25rem;
+    font-size: 1rem;
     margin: 0;
 }
 
@@ -144,9 +144,14 @@ article p.date {
     color: #777;
     font-size: .9rem;
     font-weight: 400;
+    line-height: 1.15rem;
     margin: 0 auto 2rem;
     max-width: 700px;
     padding: 0 0 1rem;
+}
+
+article p.date em {
+    font-size: .75rem;
 }
 
 article .summary,
@@ -549,13 +554,14 @@ section.stats {
 }
 
 .calendar-top {
+    border-bottom: 1px solid #dedede;
     clear: both;
     position: relative;
     text-align: center;
 }
 
 .calendar-top h2 {
-    margin: 0 auto 2rem;
+    margin: .5rem 0;
 }
 
 .calendar-top .prev {
@@ -573,9 +579,10 @@ section.stats {
 }
 
 .calendar {
-    border: 2px solid #111;
+    border: 1px solid #dedede;
+    border-top: 2px solid #111;
     border-collapse: collapse;
-    margin-top: 4rem;
+    margin-top: 2rem;
     width: 100%;
 }
 
@@ -598,7 +605,7 @@ section.stats {
 
 .calendar td {
     display: block;
-    padding: 1.75rem 1rem .5rem;
+    min-height: 1.125rem;
     position: relative;
 }
 
@@ -607,12 +614,15 @@ section.stats {
 }
 
 .calendar td h3 {
-    font-size: 1.25rem;
+    background-color: #dedede;
+    font-size: .9rem;
     margin: 0;
+    min-width: 1rem;
+    padding: .25rem;
     position: absolute;
-    right: .5rem;
-    text-align: right;
-    top: .5rem;
+    right: 0;
+    text-align: center;
+    top: 0;
 }
 
 @media screen and (min-width: 768px) {
@@ -628,7 +638,7 @@ section.stats {
     }
 
     .calendar td a {
-        font-size: 1rem;
+        font-size: .9rem;
         line-height: 1.25rem;
     }
 }
