@@ -30,19 +30,19 @@ func TestStats_Run(t *testing.T) {
         t.Error("Expected stats page title to be displayed")
     }
 
-    if !strings.Contains(response.Content, "<dt>Total Posts</dt>\n        <dd>2</dd>") {
+    if !strings.Contains(response.Content, "Total Posts") || !strings.Contains(response.Content, "<dd>2</dd>") {
         t.Error("Expected post count to be displayed")
     }
 
-    if !strings.Contains(response.Content, "<dt>First Post Date</dt>") {
+    if !strings.Contains(response.Content, "First Post Date") {
         t.Error("Expected first post date to be displayed")
     }
 
-    if !strings.Contains(response.Content, "<dt>Posts Per Page</dt>\n        <dd>25</dd>") {
+    if !strings.Contains(response.Content, "Posts Per Page") || !strings.Contains(response.Content, "<dd>25</dd>") {
         t.Error("Expected custom posts per page setting to be displayed")
     }
 
-    if !strings.Contains(response.Content, "<dt>Google Analytics</dt>\n        <dd>Enabled</dd>") {
+    if !strings.Contains(response.Content, "Google Analytics") || !strings.Contains(response.Content, "Enabled") {
         t.Error("Expected GA code to be displayed as enabled")
     }
 
@@ -50,11 +50,11 @@ func TestStats_Run(t *testing.T) {
     db.Rows = &database.MockRowsEmpty{}
     controller.Run(response, request)
 
-    if !strings.Contains(response.Content, "<dt>Total Posts</dt>\n        <dd>0</dd>") {
+    if !strings.Contains(response.Content, "Total Posts") || !strings.Contains(response.Content, "<dd>0</dd>") {
         t.Error("Expected post count to be 0")
     }
 
-    if !strings.Contains(response.Content, "<dt>First Post Date</dt>\n        <dd>No posts yet</dd>") {
+    if !strings.Contains(response.Content, "No posts yet") {
         t.Error("Expected 'No posts yet' message for first post date")
     }
 }

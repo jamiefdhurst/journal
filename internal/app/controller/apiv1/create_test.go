@@ -16,7 +16,6 @@ func TestCreate_Run(t *testing.T) {
     db.Rows = &database.MockRowsEmpty{}
     container := &app.Container{Configuration: app.DefaultConfiguration(), Db: db}
     response := controller.NewMockResponse()
-    response.Reset()
     controller := &Create{}
     controller.DisableTracking()
 

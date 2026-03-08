@@ -2,24 +2,12 @@ package web
 
 import (
     "net/http"
-    "os"
-    "path"
-    "runtime"
     "strings"
     "testing"
 
     "github.com/jamiefdhurst/journal/internal/app"
     "github.com/jamiefdhurst/journal/test/mocks/controller"
 )
-
-func init() {
-    _, filename, _, _ := runtime.Caller(0)
-    dir := path.Join(path.Dir(filename), "../../../..")
-    err := os.Chdir(dir)
-    if err != nil {
-        panic(err)
-    }
-}
 
 func TestError_Run(t *testing.T) {
     response := controller.NewMockResponse()

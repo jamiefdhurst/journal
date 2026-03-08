@@ -456,6 +456,50 @@ func TestApplyEnvConfiguration_NoDotEnvFile(t *testing.T) {
     }
 }
 
+func TestApplyEnvConfiguration_OtherVars(t *testing.T) {
+    os.Setenv("J_DB_PATH", "/path/to/db.sqlite")
+    os.Setenv("J_CREATE", "0")
+    os.Setenv("J_EDIT", "0")
+    os.Setenv("J_EXCERPT_WORDS", "30")
+    os.Setenv("J_STATIC_PATH", "/static")
+    os.Setenv("J_THEME", "custom")
+    os.Setenv("J_THEME_PATH", "/themes")
+    defer func() {
+        os.Unsetenv("J_DB_PATH")
+        os.Unsetenv("J_CREATE")
+        os.Unsetenv("J_EDIT")
+        os.Unsetenv("J_EXCERPT_WORDS")
+        os.Unsetenv("J_STATIC_PATH")
+        os.Unsetenv("J_THEME")
+        os.Unsetenv("J_THEME_PATH")
+    }()
+
+    config := DefaultConfiguration()
+    ApplyEnvConfiguration(&config)
+
+    if config.DatabasePath != "/path/to/db.sqlite" {
+        t.Errorf("Expected DatabasePath '/path/to/db.sqlite', got %q", config.DatabasePath)
+    }
+    if config.EnableCreate != false {
+        t.Error("Expected EnableCreate to be false when J_CREATE=0")
+    }
+    if config.EnableEdit != false {
+        t.Error("Expected EnableEdit to be false when J_EDIT=0")
+    }
+    if config.ExcerptWords != 30 {
+        t.Errorf("Expected ExcerptWords 30, got %d", config.ExcerptWords)
+    }
+    if config.StaticPath != "/static" {
+        t.Errorf("Expected StaticPath '/static', got %q", config.StaticPath)
+    }
+    if config.Theme != "custom" {
+        t.Errorf("Expected Theme 'custom', got %q", config.Theme)
+    }
+    if config.ThemePath != "/themes" {
+        t.Errorf("Expected ThemePath '/themes', got %q", config.ThemePath)
+    }
+}
+
 func TestApplyEnvConfiguration_ArticlesDeprecated(t *testing.T) {
     // Save current working directory
     originalWd, _ := os.Getwd()

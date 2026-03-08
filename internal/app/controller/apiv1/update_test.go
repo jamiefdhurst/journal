@@ -13,8 +13,7 @@ import (
 func TestUpdate_Run(t *testing.T) {
     db := &database.MockSqlite{}
     container := &app.Container{Configuration: app.DefaultConfiguration(), Db: db}
-    response := &controller.MockResponse{}
-    response.Reset()
+    response := controller.NewMockResponse()
     controller := &Update{}
     controller.DisableTracking()
 
@@ -46,6 +45,16 @@ func TestUpdate_Run(t *testing.T) {
     controller.Run(response, request)
     if response.StatusCode != 400 {
         t.Error("Expected 400 error when invalid JSON provided")
+    }
+
+    // Test validation failure (reserved slug)
+    response.Reset()
+    request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("{\"title\":\"random\"}"))
+    request.Header.Add("Content-Type", "application/json")
+    db.Rows = &database.MockJournal_SingleRow{}
+    controller.Run(response, request)
+    if response.StatusCode != 400 {
+        t.Error("Expected 400 when updated data fails validation")
     }
 
     // Test Journal is retrieved on save

@@ -75,6 +75,6 @@ func (m *MockResponse) WriteHeader(statusCode int) {
 // NewMockResponse Make a mock response
 func NewMockResponse() *MockResponse {
     m := &MockResponse{}
-    m.Headers = make(http.Header)
+    m.Reset()
     return m
 }

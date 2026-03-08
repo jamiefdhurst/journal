@@ -2,9 +2,6 @@ package web
 
 import (
     "net/http"
-    "os"
-    "path"
-    "runtime"
     "strings"
     "testing"
 
@@ -12,15 +9,6 @@ import (
     "github.com/jamiefdhurst/journal/test/mocks/controller"
     "github.com/jamiefdhurst/journal/test/mocks/database"
 )
-
-func init() {
-    _, filename, _, _ := runtime.Caller(0)
-    dir := path.Join(path.Dir(filename), "../../../..")
-    err := os.Chdir(dir)
-    if err != nil {
-        panic(err)
-    }
-}
 
 func TestEdit_Run(t *testing.T) {
     db := &database.MockSqlite{}
@@ -32,9 +20,21 @@ func TestEdit_Run(t *testing.T) {
     controller := &Edit{}
     controller.DisableTracking()
 
-    // Test not found/error with GET/POST
+    // Test forbidden when editing is disabled
     db.Rows = &database.MockRowsEmpty{}
-    request := &http.Request{Method: "GET"}
+    container.Configuration.EnableEdit = false
+    request, _ := http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
+    controller.Init(container, []string{"", "slug"}, request)
+    controller.Run(response, request)
+    if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
+        t.Error("Expected error page when editing is disabled")
+    }
+    container.Configuration.EnableEdit = true
+
+    // Test not found/error with GET/POST
+    response.Reset()
+    db.Rows = &database.MockRowsEmpty{}
+    request = &http.Request{Method: "GET"}
     controller.Init(container, []string{"", "0"}, request)
     controller.Run(response, request)
     if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
@@ -64,6 +64,24 @@ func TestEdit_Run(t *testing.T) {
         t.Error("Expected error to be shown in form")
     }
 
+    // Display error with form data pre-populated from session
+    // Sets flash + form_data directly on the in-memory session, then calls Run,
+    // which exercises the RenderFromSession form_data branch.
+    response.Reset()
+    request, _ = http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
+    db.Rows = &database.MockJournal_SingleRow{}
+    controller.Init(container, []string{"", "slug"}, request)
+    controller.Session().AddFlash("error")
+    controller.Session().Set("form_data", map[string]string{
+        "title":   "Restored Title",
+        "date":    "2025-01-01",
+        "content": "Restored Content",
+    })
+    controller.Run(response, request)
+    if !strings.Contains(response.Content, "Restored Title") {
+        t.Error("Expected form to be pre-populated with title from session")
+    }
+
     // Display no error
     response.Reset()
     request, _ = http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
@@ -87,16 +105,6 @@ func TestEdit_Run(t *testing.T) {
     if response.StatusCode != 302 || response.Headers.Get("Location") != "/slug/edit" {
         t.Error("Expected redirect back to same page")
     }
-
-    // Validate error cookie on redirect
-    // We need to create a new controller with the cookie to test flash values
-    newController := &Edit{}
-    newController.DisableTracking()
-    request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
-    request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
-    newController.Init(container, []string{"", "0"}, request)
-    // Skip GetFlash since we only care that an error flash was added
-    // We can verify the redirect is correct
 
     // Test form data preservation when validation fails
     response.Reset()
@@ -144,12 +152,4 @@ func TestEdit_Run(t *testing.T) {
         t.Error("Expected redirect back to home with saved banner shown")
     }
 
-    // Validate saved cookie on redirect
-    // We need to create a new controller with the cookie to test flash values
-    saveController := &Edit{}
-    request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
-    request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
-    saveController.Init(container, []string{"", "0"}, request)
-    // Skip GetFlash since we only care that a saved flash was added
-    // We can verify the redirect is correct
 }

@@ -2,9 +2,6 @@ package web
 
 import (
     "net/http"
-    "os"
-    "path"
-    "runtime"
     "strconv"
     "strings"
     "testing"
@@ -14,15 +11,6 @@ import (
     "github.com/jamiefdhurst/journal/test/mocks/controller"
     "github.com/jamiefdhurst/journal/test/mocks/database"
 )
-
-func init() {
-    _, filename, _, _ := runtime.Caller(0)
-    dir := path.Join(path.Dir(filename), "../../../..")
-    err := os.Chdir(dir)
-    if err != nil {
-        panic(err)
-    }
-}
 
 func TestCalendarRun(t *testing.T) {
     db := &database.MockSqlite{}
@@ -120,6 +108,15 @@ func TestCalendarRun(t *testing.T) {
     }
     if !strings.Contains(response.Content, "class=\"next next-month\"") {
         t.Error("Expected next month link to be shown")
+    }
+
+    // Test invalid month name triggers error
+    response.Reset()
+    request, _ = http.NewRequest("GET", "/calendar/2019/notamonth", strings.NewReader(""))
+    controller.Init(container, []string{"", "2019", "notamonth"}, request)
+    controller.Run(response, request)
+    if response.StatusCode != 404 {
+        t.Error("Expected 404 for invalid month name")
     }
 
     // Test year only

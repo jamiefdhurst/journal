@@ -1,8 +1,34 @@
 package database
 
 import (
+    "os"
+    "path/filepath"
     "testing"
 )
+
+func TestSqliteConnect_NewFile(t *testing.T) {
+    tmpDir := t.TempDir()
+    dbPath := filepath.Join(tmpDir, "new.db")
+
+    sqlite := &Sqlite{}
+    err := sqlite.Connect(dbPath)
+    if err != nil {
+        t.Errorf("Expected successful connect to new file, got: %s", err)
+    }
+    sqlite.Close()
+
+    if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+        t.Error("Expected database file to have been created")
+    }
+}
+
+func TestSqliteConnect_Error(t *testing.T) {
+    sqlite := &Sqlite{}
+    err := sqlite.Connect("/nonexistent/directory/test.db")
+    if err == nil {
+        t.Error("Expected error when connecting to uncreateable path")
+    }
+}
 
 func TestSqliteClose(t *testing.T) {
     sqlite := &Sqlite{}

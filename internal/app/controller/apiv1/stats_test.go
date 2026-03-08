@@ -16,8 +16,7 @@ func TestStats_Run(t *testing.T) {
     configuration.PostsPerPage = 25                 // Custom setting
     configuration.GoogleAnalyticsCode = "UA-123456" // Custom GA code
     container := &app.Container{Configuration: configuration, Db: db}
-    response := &controller.MockResponse{}
-    response.Reset()
+    response := controller.NewMockResponse()
     controller := &Stats{}
     controller.DisableTracking()
 

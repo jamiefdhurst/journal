@@ -1,6 +1,7 @@
 package model
 
 import (
+    "strings"
     "testing"
     "time"
 
@@ -68,6 +69,18 @@ func TestJournal_GetHTMLExcerpt(t *testing.T) {
         if actual != table.output {
             t.Errorf("Expected GetHTMLExcerpt() to produce result of '%s', got '%s'", table.output, actual)
         }
+    }
+}
+
+func TestJournal_GetHTMLExcerpt_OuterBreak(t *testing.T) {
+    // First paragraph exhausts the word budget exactly — outer loop should break
+    j := Journal{Content: "word1 word2\n\nmore words here"}
+    result := j.GetHTMLExcerpt(2)
+    if !strings.Contains(result, "word1") {
+        t.Errorf("Expected first paragraph in excerpt, got: %s", result)
+    }
+    if strings.Contains(result, "more") {
+        t.Errorf("Expected second paragraph to be excluded, got: %s", result)
     }
 }
 
@@ -345,6 +358,12 @@ func TestJournals_Save(t *testing.T) {
     if journal.ID != 2 || journal.Title != "Testing 2" {
         t.Error("Expected same Journal to have been returned with new ID")
     }
+
+    // Test with reserved slug — should be renamed
+    journal = js.Save(Journal{ID: 0, Slug: "random", Title: "Random"})
+    if journal.Slug != "random-post" {
+        t.Errorf("Expected reserved slug to be renamed to 'random-post', got %q", journal.Slug)
+    }
 }
 
 func TestSlugify(t *testing.T) {
@@ -363,6 +382,88 @@ func TestSlugify(t *testing.T) {
         actual := Slugify(table.input)
         if actual != table.output {
             t.Errorf("Expected Slugify() to produce result of '%s', got '%s'", table.output, actual)
+        }
+    }
+}
+
+func TestJournal_GetHTML(t *testing.T) {
+    j := Journal{Content: "**Bold** and *italic*"}
+    result := j.GetHTML()
+    if !strings.Contains(result, "<strong>Bold</strong>") {
+        t.Errorf("Expected bold HTML tag in output, got: %s", result)
+    }
+    if !strings.Contains(result, "<em>italic</em>") {
+        t.Errorf("Expected italic HTML tag in output, got: %s", result)
+    }
+}
+
+func TestJournals_FindRandom(t *testing.T) {
+    db := &database.MockSqlite{}
+    container := &app.Container{Db: db}
+    js := Journals{Container: container}
+
+    // No entries — returns empty journal
+    db.Rows = &database.MockRowsEmpty{}
+    journal := js.FindRandom()
+    if journal.ID != 0 {
+        t.Error("Expected empty journal when no entries exist")
+    }
+
+    // With entries — returns a valid journal
+    db.Rows = &database.MockJournal_MultipleRows{}
+    journal = js.FindRandom()
+    if journal.ID == 0 {
+        t.Error("Expected a journal entry to be returned when entries exist")
+    }
+}
+
+func TestValidateSlug(t *testing.T) {
+    tables := []struct {
+        slug  string
+        valid bool
+    }{
+        {"random", false},
+        {"new", false},
+        {"stats", false},
+        {"api/something", false},
+        {"api/v1/post", false},
+        {"normal-slug", true},
+        {"hello-world-2025", true},
+        {"my-journal-entry", true},
+    }
+
+    for _, table := range tables {
+        actual := ValidateSlug(table.slug)
+        if actual != table.valid {
+            t.Errorf("ValidateSlug(%q): expected %v, got %v", table.slug, table.valid, actual)
+        }
+    }
+}
+
+func TestValidate(t *testing.T) {
+    tables := []struct {
+        title   string
+        date    string
+        content string
+        valid   bool
+    }{
+        {"", "2025-01-01", "Some content here", false},          // empty title
+        {"Ab", "2025-01-01", "Some content here", false},        // title too short
+        {"Valid Title", "", "Some content here", false},          // empty date
+        {"Valid Title", "not-a-date", "Some content here", false}, // bad date format
+        {"Valid Title", "2025-01-01", "", false},                 // empty content
+        {"Valid Title", "2025-01-01", "Ab", false},              // content too short
+        {"Valid Title", "2025-01-01", "Some content here", true}, // valid
+        {"random", "2025-01-01", "Some content here", false},    // reserved slug
+        {"new", "2025-01-01", "Some content here", false},       // reserved slug
+        {"stats", "2025-01-01", "Some content here", false},     // reserved slug
+    }
+
+    for _, table := range tables {
+        actual := Validate(table.title, table.date, table.content)
+        if actual != table.valid {
+            t.Errorf("Validate(%q, %q, %q): expected %v, got %v",
+                table.title, table.date, table.content, table.valid, actual)
         }
     }
 }
@@ -430,8 +531,6 @@ func TestJournals_Save_Timestamps(t *testing.T) {
     }
 
     // Test updating Journal only updates UpdatedAt
-    time.Sleep(10 * time.Millisecond) // Small delay to ensure different timestamp
-
     beforeUpdate := time.Now().UTC()
     journal.Title = "Updated Title"
     updatedJournal := js.Save(journal)

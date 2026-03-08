@@ -13,8 +13,7 @@ import (
 func TestSingle_Run(t *testing.T) {
     db := &database.MockSqlite{}
     container := &app.Container{Db: db}
-    response := &controller.MockResponse{}
-    response.Reset()
+    response := controller.NewMockResponse()
     controller := &Single{}
     controller.DisableTracking()
 

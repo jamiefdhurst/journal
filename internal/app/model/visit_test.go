@@ -44,6 +44,13 @@ func TestVisits_FindByDateAndURL(t *testing.T) {
     if emptyVisit.ID != 0 {
         t.Errorf("Expected empty visit ID to be 0, got %d", emptyVisit.ID)
     }
+
+    // Test error case
+    db.ErrorMode = true
+    errorVisit := visits.FindByDateAndURL("2023-01-01", "/error")
+    if errorVisit.ID != 0 {
+        t.Errorf("Expected zero-value visit on error, got ID %d", errorVisit.ID)
+    }
 }
 
 func TestVisits_RecordVisit(t *testing.T) {
@@ -75,7 +82,15 @@ func TestVisits_GetDailyStats(t *testing.T) {
     container := &app.Container{Db: db}
     visits := Visits{Container: container}
 
+    // Test error case
+    db.ErrorMode = true
+    errorStats := visits.GetDailyStats(14)
+    if len(errorStats) != 0 {
+        t.Errorf("Expected empty stats on error, got %d", len(errorStats))
+    }
+
     // Test with mock data
+    db.ErrorMode = false
     db.Rows = &database.MockVisitStats_DailyRows{}
 
     dailyStats := visits.GetDailyStats(14)
@@ -99,7 +114,15 @@ func TestVisits_GetMonthlyStats(t *testing.T) {
     container := &app.Container{Db: db}
     visits := Visits{Container: container}
 
+    // Test error case
+    db.ErrorMode = true
+    errorStats := visits.GetMonthlyStats()
+    if len(errorStats) != 0 {
+        t.Errorf("Expected empty stats on error, got %d", len(errorStats))
+    }
+
     // Test with mock data
+    db.ErrorMode = false
     db.Rows = &database.MockVisitStats_MonthlyRows{}
 
     monthlyStats := visits.GetMonthlyStats()

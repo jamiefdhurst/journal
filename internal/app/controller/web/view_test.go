@@ -2,9 +2,6 @@ package web
 
 import (
     "net/http"
-    "os"
-    "path"
-    "runtime"
     "strings"
     "testing"
 
@@ -12,15 +9,6 @@ import (
     "github.com/jamiefdhurst/journal/test/mocks/controller"
     "github.com/jamiefdhurst/journal/test/mocks/database"
 )
-
-func init() {
-    _, filename, _, _ := runtime.Caller(0)
-    dir := path.Join(path.Dir(filename), "../../../..")
-    err := os.Chdir(dir)
-    if err != nil {
-        panic(err)
-    }
-}
 
 func TestView_Run(t *testing.T) {
     db := &database.MockSqlite{}

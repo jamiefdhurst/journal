@@ -4,6 +4,34 @@ import (
     "testing"
 )
 
+func TestLinksPagination(t *testing.T) {
+    tables := []struct {
+        url      string
+        info     PaginationInformation
+        previous string
+        next     string
+    }{
+        // Single page — no links
+        {"/posts", PaginationInformation{1, 1, 20, 20}, "", ""},
+        // First page of many — only next
+        {"/posts", PaginationInformation{1, 3, 20, 60}, "", "/posts?page=2"},
+        // Last page — only previous
+        {"/posts", PaginationInformation{3, 3, 20, 60}, "/posts?page=2", ""},
+        // Middle page — both links
+        {"/posts", PaginationInformation{2, 3, 20, 60}, "/posts?page=1", "/posts?page=3"},
+    }
+
+    for _, table := range tables {
+        links := LinksPagination(table.url, table.info)
+        if links.Previous != table.previous {
+            t.Errorf("LinksPagination(%v): expected Previous %q, got %q", table.info, table.previous, links.Previous)
+        }
+        if links.Next != table.next {
+            t.Errorf("LinksPagination(%v): expected Next %q, got %q", table.info, table.next, links.Next)
+        }
+    }
+}
+
 func TestDisplayPagination(t *testing.T) {
     tables := []struct {
         input  PaginationInformation

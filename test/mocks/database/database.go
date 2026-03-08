@@ -8,27 +8,6 @@ import (
     "github.com/jamiefdhurst/journal/pkg/database/rows"
 )
 
-// MockDatabase Mock for model.Database
-type MockDatabase struct{}
-
-// Close Mock the close method
-func (m *MockDatabase) Close() {}
-
-// Connect Mock the connect method
-func (m *MockDatabase) Connect(dbFile string) error {
-    return nil
-}
-
-// Exec Mock empty exec
-func (m *MockDatabase) Exec(sql string, args ...interface{}) (sql.Result, error) {
-    return nil, nil
-}
-
-// Query Mock empty query
-func (m *MockDatabase) Query(sql string, args ...interface{}) (rows.Rows, error) {
-    return nil, nil
-}
-
 // MockJournal_MultipleRows Mock multiple rows returned for a Journal
 type MockJournal_MultipleRows struct {
     MockRowsEmpty
@@ -132,7 +111,7 @@ func (m *MockResult) LastInsertId() (int64, error) {
 
 // RowsAffected Mock the rows affected
 func (m *MockResult) RowsAffected() (int64, error) {
-    return 0, nil
+    return 1, nil
 }
 
 // MockRowsEmpty An empty row set
@@ -223,7 +202,8 @@ func (m *MockSqlite) Query(sql string, args ...interface{}) (rows.Rows, error) {
 
 func (m *MockSqlite) inArgs(slice []interface{}) bool {
     for _, v := range slice {
-        if v.(string) == m.ExpectedArgument {
+        s, ok := v.(string)
+        if ok && s == m.ExpectedArgument {
             return true
         }
     }
@@ -231,6 +211,9 @@ func (m *MockSqlite) inArgs(slice []interface{}) bool {
 }
 
 func (m *MockSqlite) popResult() rows.Rows {
+    if len(m.multiResults) == 0 {
+        return &MockRowsEmpty{}
+    }
     result := m.multiResults[0]
     if len(m.multiResults) > 1 {
         m.multiResults = m.multiResults[1:]
@@ -239,6 +222,28 @@ func (m *MockSqlite) popResult() rows.Rows {
     }
 
     return result
+}
+
+// MockMigration_SingleRow Mock single row returned for a Migration (applied=true)
+type MockMigration_SingleRow struct {
+    MockRowsEmpty
+    RowNumber int
+}
+
+// Next Mock 1 row
+func (m *MockMigration_SingleRow) Next() bool {
+    m.RowNumber++
+    return m.RowNumber < 2
+}
+
+// Scan Return the migration data
+func (m *MockMigration_SingleRow) Scan(dest ...interface{}) error {
+    if m.RowNumber == 1 {
+        *dest[0].(*int) = 1
+        *dest[1].(*string) = "test_migration"
+        *dest[2].(*bool) = true
+    }
+    return nil
 }
 
 // MockVisit_SingleRow Mock single row returned for a Visit

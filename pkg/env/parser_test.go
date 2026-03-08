@@ -151,6 +151,14 @@ func TestParseNonExistentFile(t *testing.T) {
     }
 }
 
+func TestParseInvalidPath(t *testing.T) {
+    // A path with a null byte is invalid on all platforms, returning non-IsNotExist error
+    _, err := Parse("/tmp/test\x00file")
+    if err == nil {
+        t.Error("Expected error for path with embedded null byte")
+    }
+}
+
 func TestUnquote(t *testing.T) {
     tests := []struct {
         input    string

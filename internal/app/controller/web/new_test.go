@@ -2,9 +2,6 @@ package web
 
 import (
     "net/http"
-    "os"
-    "path"
-    "runtime"
     "strings"
     "testing"
 
@@ -12,15 +9,6 @@ import (
     "github.com/jamiefdhurst/journal/test/mocks/controller"
     "github.com/jamiefdhurst/journal/test/mocks/database"
 )
-
-func init() {
-    _, filename, _, _ := runtime.Caller(0)
-    dir := path.Join(path.Dir(filename), "../../../..")
-    err := os.Chdir(dir)
-    if err != nil {
-        panic(err)
-    }
-}
 
 func TestNew_Run(t *testing.T) {
     db := &database.MockSqlite{}
@@ -34,8 +22,19 @@ func TestNew_Run(t *testing.T) {
     controller := &New{}
     controller.DisableTracking()
 
-    // Display form
+    // Test forbidden when creation is disabled
+    container.Configuration.EnableCreate = false
     request, _ := http.NewRequest("GET", "/new", strings.NewReader(""))
+    controller.Init(container, []string{"", "0"}, request)
+    controller.Run(response, request)
+    if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
+        t.Error("Expected error page when creation is disabled")
+    }
+    container.Configuration.EnableCreate = true
+
+    // Display form
+    response.Reset()
+    request, _ = http.NewRequest("GET", "/new", strings.NewReader(""))
     controller.Init(container, []string{"", "0"}, request)
     controller.Run(response, request)
     if !strings.Contains(response.Content, "<form") {
@@ -68,15 +67,6 @@ func TestNew_Run(t *testing.T) {
     if response.StatusCode != 302 || response.Headers.Get("Location") != "/new" {
         t.Error("Expected redirect back to same page")
     }
-
-    // Validate error cookie on redirect
-    // We need to create a new controller with the cookie to test flash values
-    newController := &New{}
-    request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
-    request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
-    newController.Init(container, []string{"", "0"}, request)
-    // Skip GetFlash since we only care that an error flash was added
-    // We can verify the redirect is correct
 
     // Test form data preservation when validation fails
     response.Reset()
@@ -122,12 +112,4 @@ func TestNew_Run(t *testing.T) {
         t.Error("Expected redirect back to home with saved banner shown")
     }
 
-    // Validate saved cookie on redirect
-    // We need to create a new controller with the cookie to test flash values
-    saveController := &New{}
-    request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
-    request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
-    saveController.Init(container, []string{"", "0"}, request)
-    // Skip GetFlash since we only care that a saved flash was added
-    // We can verify the redirect is correct
 }

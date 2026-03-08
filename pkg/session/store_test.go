@@ -1,6 +1,7 @@
 package session
 
 import (
+    "encoding/base64"
     "net/http"
     "net/http/httptest"
     "testing"
@@ -300,6 +301,52 @@ func TestGetSession(t *testing.T) {
             t.Errorf("Expected user 'testuser', got %v", user)
         }
     })
+}
+
+func TestDecrypt_AuthFailure(t *testing.T) {
+    // Valid base64 that decodes to >= nonce size (12 bytes) but is not a valid ciphertext
+    key := "12345678901234567890123456789012"
+    store, _ := NewDefaultStore(key, CookieConfig{Name: "test-session", HTTPOnly: true})
+
+    garbage := base64.URLEncoding.EncodeToString(make([]byte, 20))
+    var out map[string]interface{}
+    err := store.decrypt(garbage, &out)
+    if err == nil {
+        t.Error("Expected error when decrypting invalid ciphertext")
+    }
+}
+
+func TestEncrypt_UnencodableType(t *testing.T) {
+    key := "12345678901234567890123456789012"
+    store, _ := NewDefaultStore(key, CookieConfig{Name: "test-session", HTTPOnly: true})
+
+    // Channels cannot be gob-encoded; this should trigger the encode error path
+    _, err := store.encrypt(make(chan int))
+    if err == nil {
+        t.Error("Expected error when encoding unregisterable type")
+    }
+}
+
+func TestGetSession_CorruptCookie(t *testing.T) {
+	key := "12345678901234567890123456789012"
+	config := CookieConfig{Name: "test-session", MaxAge: 3600, HTTPOnly: true}
+
+	store, err := NewDefaultStore(key, config)
+	if err != nil {
+		t.Fatalf("Failed to create store: %v", err)
+	}
+
+	req := httptest.NewRequest("GET", "/", nil)
+	req.AddCookie(&http.Cookie{Name: "test-session", Value: "!!notvalidbase64!!"})
+
+	session, err := store.Get(req)
+	if session == nil {
+		t.Error("Expected a new empty session to be returned on corrupt cookie")
+	}
+	// Session should be empty since the cookie could not be decrypted
+	if len(session.Values) != 0 {
+		t.Errorf("Expected empty session values after corrupt cookie, got %v", session.Values)
+	}
 }
 
 func TestSessionCaching(t *testing.T) {
