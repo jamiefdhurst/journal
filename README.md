@@ -12,6 +12,12 @@ It makes use of a SQLite database to store the journal entries.
 [API Documentation](api/README.md) - also available via `openapi.yml` as a URL
 when deployed.
 
+[Installation Guide](docs/installation.md) - binary and Docker installation
+with configuration reference.
+
+[User Guide](docs/user-guide.md) - creating and editing entries, and
+navigating the journal.
+
 ## Purpose
 
 Journal serves as an easy-to-read and simple Golang program for new developers 
