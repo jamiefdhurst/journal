@@ -1,123 +1,108 @@
 package main
 
 import (
-    "crypto/tls"
-    "fmt"
-    "log"
-    "net/http"
-    "os"
+	"crypto/tls"
+	"fmt"
+	"log"
+	"net/http"
 
-    "github.com/jamiefdhurst/journal/internal/app"
-    "github.com/jamiefdhurst/journal/internal/app/model"
-    "github.com/jamiefdhurst/journal/internal/app/router"
-    "github.com/jamiefdhurst/journal/pkg/database"
-    "github.com/jamiefdhurst/journal/pkg/markdown"
+	"github.com/jamiefdhurst/journal/internal/app"
+	"github.com/jamiefdhurst/journal/internal/app/model"
+	"github.com/jamiefdhurst/journal/internal/app/router"
+	"github.com/jamiefdhurst/journal/pkg/database"
+	"github.com/jamiefdhurst/journal/pkg/markdown"
 )
 
 var container *app.Container = &app.Container{}
 
 func config() app.Configuration {
-    // Define default configuration
-    configuration := app.DefaultConfiguration()
-    app.ApplyEnvConfiguration(&configuration)
+	configuration := app.DefaultConfiguration()
+	app.ApplyEnvConfiguration(&configuration)
 
-    if !configuration.EnableCreate {
-        log.Println("Post creating is disabled...")
-    }
-    if !configuration.EnableEdit {
-        log.Println("Post editing is disabled...")
-    }
+	if !configuration.EnableCreate {
+		log.Println("Post creating is disabled...")
+	}
+	if !configuration.EnableEdit {
+		log.Println("Post editing is disabled...")
+	}
 
-    return configuration
+	return configuration
 }
 
-func loadDatabase() func() {
-    container.Db = &database.Sqlite{}
+func bootstrap(c *app.Container, db app.Database, mp app.MarkdownProcessor) (func(), error) {
+	c.Db = db
+	c.MarkdownProcessor = mp
 
-    // Set up the markdown processor
-    container.MarkdownProcessor = &markdown.Markdown{}
+	log.Printf("Loading DB from %s...\n", c.Configuration.DatabasePath)
+	if err := c.Db.Connect(c.Configuration.DatabasePath); err != nil {
+		return nil, fmt.Errorf("database connect: %w", err)
+	}
 
-    log.Printf("Loading DB from %s...\n", container.Configuration.DatabasePath)
-    if err := container.Db.Connect(container.Configuration.DatabasePath); err != nil {
-        log.Printf("Database error - please verify that the %s path is available and writeable.\nError: %s\n", container.Configuration.DatabasePath, err)
-        os.Exit(1)
-    }
+	js := model.Journals{Container: c}
+	if err := js.CreateTable(); err != nil {
+		return nil, fmt.Errorf("journal table: %w", err)
+	}
+	ms := model.Migrations{Container: c}
+	if err := ms.CreateTable(); err != nil {
+		return nil, fmt.Errorf("migrations table: %w", err)
+	}
+	vs := model.Visits{Container: c}
+	if err := vs.CreateTable(); err != nil {
+		return nil, fmt.Errorf("visits table: %w", err)
+	}
 
-    // Create needed tables
-    js := model.Journals{Container: container}
-    if err := js.CreateTable(); err != nil {
-        log.Printf("Error creating journal table: %s\n", err)
-        log.Panicln(err)
-    }
-    ms := model.Migrations{Container: container}
-    if err := ms.CreateTable(); err != nil {
-        log.Printf("Error creating migrations table: %s\n", err)
-        log.Panicln(err)
-    }
-    vs := model.Visits{Container: container}
-    if err := vs.CreateTable(); err != nil {
-        log.Printf("Error creating visits table: %s\n", err)
-        log.Panicln(err)
-    }
+	if err := ms.MigrateHTMLToMarkdown(); err != nil {
+		return nil, fmt.Errorf("html to markdown migration: %w", err)
+	}
+	if err := ms.MigrateRandomSlugs(); err != nil {
+		return nil, fmt.Errorf("random slug migration: %w", err)
+	}
+	if err := ms.MigrateAddTimestamps(); err != nil {
+		return nil, fmt.Errorf("add timestamps migration: %w", err)
+	}
 
-    // Run migrations
-    if err := ms.MigrateHTMLToMarkdown(); err != nil {
-        log.Printf("Error during HTML to Markdown migration: %s\n", err)
-        log.Panicln(err)
-    }
-    if err := ms.MigrateRandomSlugs(); err != nil {
-        log.Printf("Error during random slug migration: %s\n", err)
-        log.Panicln(err)
-    }
-    if err := ms.MigrateAddTimestamps(); err != nil {
-        log.Printf("Error during add timestamps migration: %s\n", err)
-        log.Panicln(err)
-    }
-
-    return func() {
-        container.Db.Close()
-    }
+	return func() { c.Db.Close() }, nil
 }
 
 func main() {
-    const version = "0.9.6"
-    fmt.Printf("Journal v%s\n-------------------\n\n", version)
+	const version = "0.9.6"
+	fmt.Printf("Journal v%s\n-------------------\n\n", version)
 
-    configuration := config()
+	configuration := config()
+	container.Configuration = configuration
+	container.Version = version
 
-    // Create/define container
-    container.Configuration = configuration
-    container.Version = version
+	closeFunc, err := bootstrap(container, &database.Sqlite{}, &markdown.Markdown{})
+	if err != nil {
+		log.Fatalf("Setup failed: %s\n", err)
+	}
+	defer closeFunc()
 
-    closeFunc := loadDatabase()
-    defer closeFunc()
+	rtr := router.NewRouter(container)
 
-    router := router.NewRouter(container)
+	var protocols http.Protocols
+	protocols.SetHTTP1(true)
+	protocols.SetHTTP2(true)
+	protocols.SetUnencryptedHTTP2(true)
+	server := &http.Server{
+		Addr:    ":" + configuration.Port,
+		Handler: rtr,
+		Protocols: &protocols,
+		TLSConfig: &tls.Config{
+			MinVersion: tls.VersionTLS13,
+		},
+	}
+	log.Printf("Ready and listening on port %s...\n", configuration.Port)
+	if configuration.SSLCertificate == "" {
+		err = rtr.StartAndServe(server)
+	} else {
+		log.Printf("Certificate: %s\n", configuration.SSLCertificate)
+		log.Printf("Certificate Key: %s\n", configuration.SSLKey)
+		log.Println("Serving with SSL enabled...")
+		err = rtr.StartAndServeTLS(server, configuration.SSLCertificate, configuration.SSLKey)
+	}
 
-    var err error
-    var protocols http.Protocols
-    protocols.SetHTTP1(true)
-    protocols.SetHTTP2(true)
-    protocols.SetUnencryptedHTTP2(true)
-    server := &http.Server{
-        Addr:      ":" + configuration.Port,
-        Handler:   router,
-        Protocols: &protocols,
-        TLSConfig: &tls.Config{
-            MinVersion: tls.VersionTLS13,
-        },
-    }
-    log.Printf("Ready and listening on port %s...\n", configuration.Port)
-    if configuration.SSLCertificate == "" {
-        err = router.StartAndServe(server)
-    } else {
-        log.Printf("Certificate: %s\n", configuration.SSLCertificate)
-        log.Printf("Certificate Key: %s\n", configuration.SSLKey)
-        log.Println("Serving with SSL enabled...")
-        err = router.StartAndServeTLS(server, configuration.SSLCertificate, configuration.SSLKey)
-    }
-
-    if err != nil {
-        log.Fatal("Error reported: ", err)
-    }
+	if err != nil {
+		log.Fatal("Error reported: ", err)
+	}
 }

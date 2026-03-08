@@ -15,6 +15,7 @@ import (
     "github.com/jamiefdhurst/journal/internal/app/model"
     "github.com/jamiefdhurst/journal/internal/app/router"
     "github.com/jamiefdhurst/journal/pkg/database"
+    "github.com/jamiefdhurst/journal/pkg/markdown"
     pkgrouter "github.com/jamiefdhurst/journal/pkg/router"
 )
 
@@ -74,10 +75,22 @@ func TestConfig(t *testing.T) {
     }
 }
 
-func TestLoadDatabase(t *testing.T) {
+func TestBootstrap(t *testing.T) {
     container.Configuration.DatabasePath = "test/data/test.db"
-    closeFunc := loadDatabase()
+    closeFunc, err := bootstrap(container, &database.Sqlite{}, &markdown.Markdown{})
+    if err != nil {
+        t.Fatalf("Expected bootstrap to succeed, got: %s", err)
+    }
     closeFunc()
+}
+
+func TestBootstrap_ConnectError(t *testing.T) {
+    c := &app.Container{Configuration: app.DefaultConfiguration()}
+    c.Configuration.DatabasePath = "/nonexistent/path/test.db"
+    _, err := bootstrap(c, &database.Sqlite{}, &markdown.Markdown{})
+    if err == nil {
+        t.Error("Expected bootstrap to fail with invalid database path")
+    }
 }
 
 func TestApiv1List(t *testing.T) {
