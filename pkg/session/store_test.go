@@ -328,25 +328,25 @@ func TestEncrypt_UnencodableType(t *testing.T) {
 }
 
 func TestGetSession_CorruptCookie(t *testing.T) {
-	key := "12345678901234567890123456789012"
-	config := CookieConfig{Name: "test-session", MaxAge: 3600, HTTPOnly: true}
+    key := "12345678901234567890123456789012"
+    config := CookieConfig{Name: "test-session", MaxAge: 3600, HTTPOnly: true}
 
-	store, err := NewDefaultStore(key, config)
-	if err != nil {
-		t.Fatalf("Failed to create store: %v", err)
-	}
+    store, err := NewDefaultStore(key, config)
+    if err != nil {
+        t.Fatalf("Failed to create store: %v", err)
+    }
 
-	req := httptest.NewRequest("GET", "/", nil)
-	req.AddCookie(&http.Cookie{Name: "test-session", Value: "!!notvalidbase64!!"})
+    req := httptest.NewRequest("GET", "/", nil)
+    req.AddCookie(&http.Cookie{Name: "test-session", Value: "!!notvalidbase64!!"})
 
-	session, err := store.Get(req)
-	if session == nil {
-		t.Error("Expected a new empty session to be returned on corrupt cookie")
-	}
-	// Session should be empty since the cookie could not be decrypted
-	if len(session.Values) != 0 {
-		t.Errorf("Expected empty session values after corrupt cookie, got %v", session.Values)
-	}
+    session, err := store.Get(req)
+    if session == nil {
+        t.Error("Expected a new empty session to be returned on corrupt cookie")
+    }
+    // Session should be empty since the cookie could not be decrypted
+    if len(session.Values) != 0 {
+        t.Errorf("Expected empty session values after corrupt cookie, got %v", session.Values)
+    }
 }
 
 func TestSessionCaching(t *testing.T) {
