@@ -65,6 +65,12 @@ jobs:
         with:
           files: 'api/openapi.yml'
           replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
+      - name: Generate Changelog
+        if: ${{ contains(steps.latest.outputs.name, '.') }}
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --output CHANGELOG.md --tag ${{ steps.version.outputs.value }}
       - name: File Save Delay
         uses: jakejarvis/wait-action@master
         with:
@@ -82,9 +88,9 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker build -t ghcr.io/jamiefdhurst/journal:latest .
-          docker tag ghcr.io/jamiefdhurst/journal:latest ghcr.io/jamiefdhurst/journal:v${{ steps.version.outputs.value }}
+          docker tag ghcr.io/jamiefdhurst/journal:latest ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
           docker push ghcr.io/jamiefdhurst/journal:latest
-          docker push ghcr.io/jamiefdhurst/journal:v${{ steps.version.outputs.value }}
+          docker push ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
@@ -93,13 +99,20 @@ jobs:
       - name: Build Binary
         run: |
           go mod download
-          GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal-bin_linux_x64-v${{ steps.version.outputs.value }} ./cmd/journal
+          GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal-bin_linux_x64-${{ steps.version.outputs.value }} ./cmd/journal
+      - name: Generate Release Notes
+        uses: orhun/git-cliff-action@v3
+        id: cliff
+        with:
+          config: cliff.toml
+          args: --unreleased --strip header --latest
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true
           draft: false
           makeLatest: true
-          tag: v${{ steps.version.outputs.value }}
-          name: v${{ steps.version.outputs.value }}
-          artifacts: "journal-bin_linux_x64-v${{ steps.version.outputs.value }}"
+          tag: ${{ steps.version.outputs.value }}
+          name: ${{ steps.version.outputs.value }}
+          body: ${{ steps.cliff.outputs.changelog }}
+          artifacts: "journal-bin_linux_x64-${{ steps.version.outputs.value }}"
