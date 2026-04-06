@@ -79,6 +79,10 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "[skip ci] Update version to v${{ steps.version.outputs.value }}"
+      - name: Set Up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Docker Login
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
@@ -86,20 +90,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.PAT }}
       - name: Build and Push Docker Image
-        run: |
-          docker build -t ghcr.io/jamiefdhurst/journal:latest .
-          docker tag ghcr.io/jamiefdhurst/journal:latest ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
-          docker push ghcr.io/jamiefdhurst/journal:latest
-          docker push ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/jamiefdhurst/journal:latest
+            ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
           cache-dependency-path: go.sum
-      - name: Build Binary
+      - name: Build Binaries
         run: |
           go mod download
-          GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal-bin_linux_x64-${{ steps.version.outputs.value }} ./cmd/journal
+          GOOS=linux  GOARCH=amd64 go build -ldflags="-w -s" -o journal_linux_amd64-${{ steps.version.outputs.value }}   ./cmd/journal
+          GOOS=linux  GOARCH=arm64 go build -ldflags="-w -s" -o journal_linux_arm64-${{ steps.version.outputs.value }}   ./cmd/journal
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-w -s" -o journal_darwin_arm64-${{ steps.version.outputs.value }} ./cmd/journal
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-w -s" -o journal_darwin_amd64-${{ steps.version.outputs.value }} ./cmd/journal
       - name: Generate Release Notes
         uses: orhun/git-cliff-action@v3
         id: cliff
@@ -115,4 +125,4 @@ jobs:
           tag: ${{ steps.version.outputs.value }}
           name: ${{ steps.version.outputs.value }}
           body: ${{ steps.cliff.outputs.changelog }}
-          artifacts: "journal-bin_linux_x64-${{ steps.version.outputs.value }}"
+          artifacts: "journal_linux_amd64-${{ steps.version.outputs.value }},journal_linux_arm64-${{ steps.version.outputs.value }},journal_darwin_arm64-${{ steps.version.outputs.value }},journal_darwin_amd64-${{ steps.version.outputs.value }}"
