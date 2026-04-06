@@ -1,11 +1,10 @@
-FROM golang:1.22-bookworm
+FROM golang:1.24-bookworm
 
 WORKDIR /go/src/github.com/jamiefdhurst/journal
 COPY . .
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --assume-yes build-essential libsqlite3-dev; \
-    go mod download; \
-    CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -v -o journal ./cmd/journal; \
+RUN go mod download; \
+    CGO_ENABLED=0 go build -ldflags="-w -s" -o journal ./cmd/journal; \
     mv journal /go/bin/journal
 
 FROM debian:bookworm
@@ -15,8 +14,6 @@ WORKDIR /go/src/github.com/jamiefdhurst/journal
 COPY --from=0 /go/bin/journal /usr/local/bin/
 COPY --from=0 /go/src/github.com/jamiefdhurst/journal/api api
 COPY --from=0 /go/src/github.com/jamiefdhurst/journal/web web
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --assume-yes libsqlite3-0
 
 ENV GOPATH "/go"
 ENV J_CREATE ""
