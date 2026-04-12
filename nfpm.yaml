@@ -1,0 +1,27 @@
+name: journal
+arch: ${ARCH}
+platform: linux
+version: ${VERSION}
+maintainer: Jamie Hurst
+description: Simple personal journal web application
+homepage: https://github.com/jamiefdhurst/journal
+license: MIT
+contents:
+  - src: ./journal_linux_${ARCH}-${VERSION}
+    dst: /usr/lib/journal/journal
+    file_info:
+      mode: 0755
+  - src: ./packaging/journal.sh
+    dst: /usr/local/bin/journal
+    file_info:
+      mode: 0755
+  - src: ./web/static
+    dst: /usr/share/journal/web/static
+  - src: ./web/templates
+    dst: /usr/share/journal/web/templates
+  - src: ./web/themes
+    dst: /usr/share/journal/web/themes
+deb:
+  fields:
+    Section: web
+    Priority: optional
