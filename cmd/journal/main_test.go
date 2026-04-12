@@ -59,6 +59,24 @@ func fixtures(t *testing.T) {
     db.Exec("INSERT INTO journal (slug, title, content, date) VALUES (?, ?, ?, ?)", "test-3", "A Final Test", "<p>Test finally!</p>", "2018-03-01")
 }
 
+func TestDataPath_WithEnvVar(t *testing.T) {
+    os.Setenv("J_WEB_PATH", "/custom/data/path")
+    defer os.Unsetenv("J_WEB_PATH")
+
+    if dataPath() != "/custom/data/path" {
+        t.Errorf("Expected /custom/data/path, got %s", dataPath())
+    }
+}
+
+func TestDataPath_Default(t *testing.T) {
+    os.Unsetenv("J_WEB_PATH")
+
+    path := dataPath()
+    if path == "" {
+        t.Error("Expected non-empty path from dataPath()")
+    }
+}
+
 func TestConfig(t *testing.T) {
     os.Setenv("J_TITLE", "A Test Title")
 

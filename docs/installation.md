@@ -10,10 +10,126 @@ need to make that path available to the process.
 
 ---
 
-## Option 1: Binary (Linux x86-64)
+## Option 1: Homebrew (macOS)
+
+The simplest way to install Journal on macOS is via [Homebrew](https://brew.sh).
+
+```bash
+brew tap jamiefdhurst/journal
+brew install journal
+```
+
+Run the journal:
+
+```bash
+J_DB_PATH=/path/to/journal.db journal
+```
+
+Upgrade to a new release at any time with:
+
+```bash
+brew upgrade journal
+```
+
+---
+
+## Option 2: Debian / Ubuntu (apt)
+
+Add the package repository and install:
+
+```bash
+# Import the signing key
+curl -fsSL https://jamiefdhurst.github.io/packages/journal.asc \
+  | sudo tee /usr/share/keyrings/journal.asc > /dev/null
+
+# Add the repository
+echo "deb [signed-by=/usr/share/keyrings/journal.asc] \
+  https://jamiefdhurst.github.io/packages stable main" \
+  | sudo tee /etc/apt/sources.list.d/journal.list
+
+# Install
+sudo apt update && sudo apt install journal
+```
+
+The package installs:
+- Binary to `/usr/lib/journal/journal`
+- Web assets (templates, static files, themes) to `/usr/share/journal/web/`
+- Wrapper script at `/usr/local/bin/journal` (sets `J_WEB_PATH` automatically)
+
+Configure via `/etc/journal/.env` or environment variables, then run:
+
+```bash
+J_DB_PATH=/var/lib/journal/journal.db journal
+```
+
+---
+
+## Option 3: CentOS / RHEL / Fedora (yum/dnf)
+
+Add the package repository and install:
+
+```bash
+# Add the repository
+sudo tee /etc/yum.repos.d/journal.repo > /dev/null <<'EOF'
+[journal]
+name=Journal
+baseurl=https://jamiefdhurst.github.io/packages/yum
+enabled=1
+gpgcheck=1
+gpgkey=https://jamiefdhurst.github.io/packages/journal.asc
+EOF
+
+# Install
+sudo yum install journal
+# or on Fedora/RHEL 8+:
+sudo dnf install journal
+```
+
+The package installs the same layout as the Debian package above.
+
+---
+
+## Option 4: ZIP Archive (all platforms)
+
+Pre-built ZIP archives for Linux and macOS (amd64 and arm64) are attached to
+every [GitHub release](https://github.com/jamiefdhurst/journal/releases).
+
+Each archive contains the `journal` binary and a `web/` directory with all
+required assets. Download and extract the archive for your platform, then run
+the binary from the extracted folder:
+
+```bash
+# Example for Linux amd64 — replace <version> with the release number
+curl -L -o journal.zip \
+  https://github.com/jamiefdhurst/journal/releases/download/v<version>/journal-<version>-linux-amd64.zip
+unzip journal.zip
+cd journal-<version>-linux-amd64/
+J_DB_PATH=/var/lib/journal/journal.db ./journal
+```
+
+Available archive names:
+- `journal-<version>-linux-amd64.zip`
+- `journal-<version>-linux-arm64.zip`
+- `journal-<version>-darwin-amd64.zip`
+- `journal-<version>-darwin-arm64.zip`
+
+---
+
+## Option 5: Binary (Linux x86-64)
 
 Pre-built binaries for Linux x86-64 are attached to every
 [GitHub release](https://github.com/jamiefdhurst/journal/releases).
+
+Pre-built binaries for all supported platforms are attached to every
+[GitHub release](https://github.com/jamiefdhurst/journal/releases):
+
+- `journal_linux_amd64-<version>`
+- `journal_linux_arm64-<version>`
+- `journal_darwin_amd64-<version>`
+- `journal_darwin_arm64-<version>`
+
+For a self-contained install including web assets, use the ZIP archives instead
+(see Option 4 above).
 
 ### Download and run
 
@@ -22,12 +138,12 @@ Replace `<version>` with the release you want (e.g. `1.0.0`):
 ```bash
 # Download the binary
 curl -L -o journal \
-  https://github.com/jamiefdhurst/journal/releases/download/v<version>/journal-bin_linux_x64-v<version>
+  https://github.com/jamiefdhurst/journal/releases/download/v<version>/journal_linux_amd64-<version>
 
 # Make it executable
 chmod +x journal
 
-# Run it
+# Run it (web assets must be present in ./web/ relative to the binary)
 ./journal
 ```
 
@@ -36,8 +152,7 @@ The application listens on port `3000` by default. Open
 
 ### Persistent data
 
-By default Journal writes its SQLite database to `$GOPATH/data/journal.db`.
-Set `J_DB_PATH` to an absolute path to store it wherever you like:
+Set `J_DB_PATH` to an absolute path to store the database wherever you like:
 
 ```bash
 J_DB_PATH=/var/lib/journal/journal.db ./journal
@@ -69,14 +184,17 @@ sudo systemctl enable --now journal
 
 ---
 
-## Option 2: Docker / Container Runtime
+## Option 6: Docker / Container Runtime
 
-A Docker image is published to the GitHub Container Registry on every release:
+Docker images for `linux/amd64` and `linux/arm64` are published on every
+release to both Docker Hub and the GitHub Container Registry:
 
-```
-ghcr.io/jamiefdhurst/journal:latest
-ghcr.io/jamiefdhurst/journal:v<version>
-```
+| Registry | Image |
+|---|---|
+| Docker Hub | `jamiefdhurst/journal:latest` |
+| Docker Hub | `jamiefdhurst/journal:<version>` |
+| GHCR | `ghcr.io/jamiefdhurst/journal:latest` |
+| GHCR | `ghcr.io/jamiefdhurst/journal:<version>` |
 
 ### Docker
 
@@ -85,7 +203,7 @@ docker run -d \
   --name journal \
   -p 3000:3000 \
   -v /var/lib/journal:/go/data \
-  ghcr.io/jamiefdhurst/journal:latest
+  jamiefdhurst/journal:latest
 ```
 
 Pass configuration via `-e` flags:
@@ -165,7 +283,8 @@ J_SESSION_KEY=a-random-32-character-string-here
 | `J_TITLE` | Title displayed in the journal UI | _(empty)_ |
 | `J_DESCRIPTION` | HTML description shown in the journal UI | _(empty)_ |
 | `J_PORT` | HTTP port to listen on | `3000` |
-| `J_DB_PATH` | Path to the SQLite database file | `$GOPATH/data/journal.db` |
+| `J_WEB_PATH` | Directory containing the `web/` assets folder. Defaults to the directory of the binary if assets are found there, otherwise the current working directory. | _(binary dir or CWD)_ |
+| `J_DB_PATH` | Path to the SQLite database file | `./data/journal.db` |
 | `J_CREATE` | Set to `0` to disable creating new entries | _(enabled)_ |
 | `J_EDIT` | Set to `0` to disable editing entries | _(enabled)_ |
 | `J_POSTS_PER_PAGE` | Number of entries shown per page | `20` |

@@ -12,8 +12,8 @@ It makes use of a SQLite database to store the journal entries.
 [API Documentation](api/README.md) - also available via `openapi.yml` as a URL
 when deployed.
 
-[Installation Guide](docs/installation.md) - binary and Docker installation
-with configuration reference.
+[Installation Guide](docs/installation.md) - full installation guide covering
+all methods, configuration reference, and reverse proxy setup.
 
 [User Guide](docs/user-guide.md) - creating and editing entries, and
 navigating the journal.
@@ -28,27 +28,74 @@ be understood through standard Golang libraries.
 It's also a nice little Journal that you can use to keep your thoughts in, or 
 as a basic blog platform.
 
-## Installation and Setup (local method)
+## Installation
 
-1. Clone the repository.
-2. Make sure the `$GOPATH/data` directory exists.
-3. Run `go get ./...` to install dependencies
-4. Run `go build journal.go` to create the executable.
-5. Run `./journal` to load the application on port 3000. You should now be able
-    to fully access it at [http://localhost:3000](http://localhost:3000)
+See the [Installation Guide](docs/installation.md) for full details, including
+configuration, running as a service, and setting up a reverse proxy.
 
-## Installation and Setup (Docker method)
+### Homebrew (macOS)
 
-_Please note: you will need Docker installed on your local machine._
+```bash
+brew tap jamiefdhurst/journal
+brew install journal
+```
 
-1. Clone the repository to your chosen folder.
-2. Build the container with `docker build -t journal:latest .`
-3. Run the following to load the application and serve it on port 3000. You
-    should now be able to fully access it at [http://localhost:3000](http://localhost:3000)
+### Docker / Container Runtime
 
-    ```bash
-    docker run --rm -v ./data:/go/data -p 3000:3000 -it journal:latest
-    ```
+```bash
+docker run -d \
+  --name journal \
+  -p 3000:3000 \
+  -v /var/lib/journal:/go/data \
+  jamiefdhurst/journal:latest
+```
+
+Images are also published to the GitHub Container Registry as
+`ghcr.io/jamiefdhurst/journal:latest`.
+
+### Debian / Ubuntu (apt)
+
+```bash
+curl -fsSL https://jamiefdhurst.github.io/packages/journal.asc \
+  | sudo tee /usr/share/keyrings/journal.asc > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/journal.asc] \
+  https://jamiefdhurst.github.io/packages stable main" \
+  | sudo tee /etc/apt/sources.list.d/journal.list
+
+sudo apt update && sudo apt install journal
+```
+
+### CentOS / RHEL / Fedora (yum/dnf)
+
+```bash
+sudo tee /etc/yum.repos.d/journal.repo > /dev/null <<'EOF'
+[journal]
+name=Journal
+baseurl=https://jamiefdhurst.github.io/packages/yum
+enabled=1
+gpgcheck=1
+gpgkey=https://jamiefdhurst.github.io/packages/journal.asc
+EOF
+
+sudo yum install journal
+```
+
+### ZIP archive (all platforms)
+
+Pre-built archives for Linux and macOS (amd64 and arm64) are attached to every
+[GitHub release](https://github.com/jamiefdhurst/journal/releases). Download
+the archive for your platform, extract it, and run the `journal` binary inside.
+
+### Build from source
+
+```bash
+git clone https://github.com/jamiefdhurst/journal.git
+cd journal
+go mod download
+go build -o journal ./cmd/journal
+./journal
+```
 
 ## Configuration through Environment Variables
 
@@ -60,7 +107,8 @@ any additional environment variables.
 ### General Configuration
 
 * `J_CREATE` - Set to `0` to disable post creation
-* `J_DB_PATH` - Path to SQLite DB - default is `$GOPATH/data/journal.db`
+* `J_WEB_PATH` - Override the directory used to locate web assets (templates, static files, themes). Defaults to the directory containing the binary, or the current working directory.
+* `J_DB_PATH` - Path to SQLite DB - default is `./data/journal.db`
 * `J_DESCRIPTION` - Set the HTML description of the Journal
 * `J_EDIT` - Set to `0` to disable post modification
 * `J_EXCERPT_WORDS` - The length of the post shown as a preview/excerpt in the index, default `50`
@@ -113,11 +161,11 @@ The back-end can be extended and modified following the folder structure above.
 Tests for each file live alongside and are designed to be easy to read and as 
 functionally complete as possible.
 
-The easiest way to develop incrementally is to use a local go installation and 
+The easiest way to develop incrementally is to use a local go installation and
 run your Journal as follows:
 
 ```bash
-go run journal.go
+go run ./cmd/journal
 ```
 
 Naturally, any changes to the logic or functionality will require a restart of 

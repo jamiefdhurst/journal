@@ -5,6 +5,8 @@ import (
     "fmt"
     "log"
     "net/http"
+    "os"
+    "path/filepath"
 
     "github.com/jamiefdhurst/journal/internal/app"
     "github.com/jamiefdhurst/journal/internal/app/model"
@@ -64,9 +66,31 @@ func bootstrap(c *app.Container, db app.Database, mp app.MarkdownProcessor) (fun
     return func() { c.Db.Close() }, nil
 }
 
+func dataPath() string {
+    if p := os.Getenv("J_WEB_PATH"); p != "" {
+        return p
+    }
+    exe, err := os.Executable()
+    if err == nil {
+        resolved, err := filepath.EvalSymlinks(exe)
+        if err == nil {
+            exe = resolved
+        }
+        dir := filepath.Dir(exe)
+        if _, statErr := os.Stat(filepath.Join(dir, "web", "templates")); statErr == nil {
+            return dir
+        }
+    }
+    return "."
+}
+
 func main() {
     const version = "0.9.6"
     fmt.Printf("Journal v%s\n-------------------\n\n", version)
+
+    if err := os.Chdir(dataPath()); err != nil {
+        log.Fatalf("Could not change to data directory: %s\n", err)
+    }
 
     configuration := config()
     container.Configuration = configuration

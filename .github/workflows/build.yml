@@ -117,6 +117,21 @@ jobs:
           GOOS=linux  GOARCH=arm64 go build -ldflags="-w -s" -o journal_linux_arm64-${{ steps.version.outputs.value }}   ./cmd/journal
           GOOS=darwin GOARCH=arm64 go build -ldflags="-w -s" -o journal_darwin_arm64-${{ steps.version.outputs.value }} ./cmd/journal
           GOOS=darwin GOARCH=amd64 go build -ldflags="-w -s" -o journal_darwin_amd64-${{ steps.version.outputs.value }} ./cmd/journal
+      - name: Bundle Release Archives
+        if: ${{ contains(steps.latest.outputs.name, '.') }}
+        run: |
+          VERSION=${{ steps.version.outputs.value }}
+          for target in linux_amd64 linux_arm64 darwin_arm64 darwin_amd64; do
+            os="${target%_*}"
+            arch="${target#*_}"
+            dir="journal-${VERSION}-${os}-${arch}"
+            mkdir -p "${dir}/web"
+            cp "journal_${os}_${arch}-${VERSION}" "${dir}/journal"
+            chmod +x "${dir}/journal"
+            cp -r web/static web/templates web/themes "${dir}/web/"
+            zip -r "${dir}.zip" "${dir}/"
+            rm -rf "${dir}"
+          done
       - name: Install nfpm
         run: |
           echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | sudo tee /etc/apt/sources.list.d/goreleaser.list
@@ -145,7 +160,7 @@ jobs:
           tag: ${{ steps.version.outputs.value }}
           name: ${{ steps.version.outputs.value }}
           body: ${{ steps.cliff.outputs.changelog }}
-          artifacts: "journal_linux_amd64-${{ steps.version.outputs.value }},journal_linux_arm64-${{ steps.version.outputs.value }},journal_darwin_arm64-${{ steps.version.outputs.value }},journal_darwin_amd64-${{ steps.version.outputs.value }},journal_${{ steps.version.outputs.value }}_amd64.deb,journal_${{ steps.version.outputs.value }}_arm64.deb,journal-${{ steps.version.outputs.value }}-1.x86_64.rpm,journal-${{ steps.version.outputs.value }}-1.aarch64.rpm"
+          artifacts: "journal_linux_amd64-${{ steps.version.outputs.value }},journal_linux_arm64-${{ steps.version.outputs.value }},journal_darwin_arm64-${{ steps.version.outputs.value }},journal_darwin_amd64-${{ steps.version.outputs.value }},journal-${{ steps.version.outputs.value }}-linux-amd64.zip,journal-${{ steps.version.outputs.value }}-linux-arm64.zip,journal-${{ steps.version.outputs.value }}-darwin-arm64.zip,journal-${{ steps.version.outputs.value }}-darwin-amd64.zip,journal_${{ steps.version.outputs.value }}_amd64.deb,journal_${{ steps.version.outputs.value }}_arm64.deb,journal-${{ steps.version.outputs.value }}-1.x86_64.rpm,journal-${{ steps.version.outputs.value }}-1.aarch64.rpm"
       - name: Update Homebrew Tap
         uses: Justintime50/homebrew-releaser@v2
         with:
@@ -155,7 +170,10 @@ jobs:
           github_token: ${{ secrets.PAT }}
           commit_owner: github-actions[bot]
           commit_email: github-actions[bot]@users.noreply.github.com
-          install: bin.install Dir["journal_darwin_*"].first => "journal"
+          install: |
+            libexec.install "journal" => "journal-bin"
+            libexec.install "web"
+            (bin/"journal").write "#!/bin/sh\ncd \"#{libexec}\"\nexec \"#{libexec}/journal-bin\" \"$@\"\n"
           test: |
             output = shell_output("#{bin}/journal 2>&1", 1)
             assert_match "Journal v#{version}", output
