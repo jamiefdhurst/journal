@@ -24,6 +24,12 @@ jobs:
         with:
           fetch-depth: 1
           path: go/src/github.com/jamiefdhurst/journal
+      - name: Calculate Version Impact
+        id: version
+        working-directory: go/src/github.com/jamiefdhurst/journal
+        run: |
+          chmod +x .github/scripts/calculate-version.sh
+          .github/scripts/calculate-version.sh
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
@@ -68,3 +74,18 @@ jobs:
           summary-file: './coverage-results/Summary.md'
           check-name: 'Code Coverage'
           line-threshold: 80
+      - name: Comment PR with Version Impact
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            ## 📦 Version Impact
+
+            **Current version:** `${{ steps.version.outputs.previous_version }}`
+            **Next version:** `${{ steps.version.outputs.version }}`
+            **Bump type:** `${{ steps.version.outputs.bump_type }}`
+            **Will release:** ${{ steps.version.outputs.should_release == 'true' && '✅ Yes' || '⚪️ No (non-releasable changes only)' }}
+
+            ---
+
+            <sub>This PR will ${{ steps.version.outputs.should_release == 'true' && format('trigger a **{0}** version bump from `{1}` to `{2}`', steps.version.outputs.bump_type, steps.version.outputs.previous_version, steps.version.outputs.version) || 'not trigger a release (only docs/test/chore/build/ci/style/revert changes)' }}</sub>
+          comment-tag: version_impact

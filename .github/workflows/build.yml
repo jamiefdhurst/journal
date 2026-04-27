@@ -25,76 +25,57 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.PAT }}
-      - name: Get Latest Version
-        id: latest
-        uses: gregziegan/fetch-latest-release@v2.0.0
       - name: Calculate Next Version
-        id: calculate
-        uses: paulhatch/semantic-version@v5.3.0
-        with:
-          version_format: "${major}.${minor}.${patch}"
-      - name: Determine Next Version
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
         id: version
-        uses: haya14busa/action-cond@v1
-        with:
-          cond: ${{ contains(steps.latest.outputs.name, '.') }}
-          if_true: ${{ steps.calculate.outputs.version }}
-          if_false: '0.0.1'
-      - name: Remove Leading "v" from Latest Version
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
-        id: latest_clean
         run: |
-          export version=$(echo ${{ steps.latest.outputs.name }} | sed 's/^v//')
-          echo ::set-output name=name::$version
-      - name: Update Version in Files (1)
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
-        uses: datamonsters/replace-action@v2
-        with:
-          files: 'cmd/journal/main.go'
-          replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
-      - name: Update Version in Files (2)
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
-        uses: datamonsters/replace-action@v2
-        with:
-          files: 'web/app/package.json'
-          replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
-      - name: Update Version in Files (3)
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
-        uses: datamonsters/replace-action@v2
-        with:
-          files: 'api/openapi.yml'
-          replacements: '${{ steps.latest_clean.outputs.name }}=${{ steps.version.outputs.value }}'
+          chmod +x .github/scripts/calculate-version.sh
+          .github/scripts/calculate-version.sh
+      - name: Update Version in Files
+        if: steps.version.outputs.should_release == 'true'
+        run: |
+          OLD_VERSION=$(echo "${{ steps.version.outputs.previous_version }}" | sed 's/^v//')
+          NEW_VERSION="${{ steps.version.outputs.version }}"
+          sed -i "s/${OLD_VERSION}/${NEW_VERSION}/g" cmd/journal/main.go
+          sed -i "s/${OLD_VERSION}/${NEW_VERSION}/g" web/app/package.json
+          sed -i "s/${OLD_VERSION}/${NEW_VERSION}/g" api/openapi.yml
       - name: Generate Changelog
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
-        uses: orhun/git-cliff-action@v3
+        if: steps.version.outputs.should_release == 'true'
+        uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
-          args: --output CHANGELOG.md --tag ${{ steps.version.outputs.value }}
+          args: --output CHANGELOG.md --tag ${{ steps.version.outputs.version }}
       - name: File Save Delay
+        if: steps.version.outputs.should_release == 'true'
         uses: jakejarvis/wait-action@master
         with:
           time: '2s'
       - name: Commit Version Changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        if: steps.version.outputs.should_release == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: "[skip ci] Update version to v${{ steps.version.outputs.value }}"
+          commit_message: "[skip ci] Update version to v${{ steps.version.outputs.version }}"
+          file_pattern: "cmd/journal/main.go web/app/package.json api/openapi.yml CHANGELOG.md"
       - name: Set Up QEMU
+        if: steps.version.outputs.should_release == 'true'
         uses: docker/setup-qemu-action@v3
       - name: Set Up Docker Buildx
+        if: steps.version.outputs.should_release == 'true'
         uses: docker/setup-buildx-action@v3
       - name: Docker Login (GHCR)
+        if: steps.version.outputs.should_release == 'true'
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.PAT }}
       - name: Docker Login (Docker Hub)
+        if: steps.version.outputs.should_release == 'true'
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and Push Docker Image
+        if: steps.version.outputs.should_release == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -102,25 +83,27 @@ jobs:
           push: true
           tags: |
             ghcr.io/jamiefdhurst/journal:latest
-            ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.value }}
+            ghcr.io/jamiefdhurst/journal:${{ steps.version.outputs.version }}
             ${{ secrets.DOCKERHUB_USERNAME }}/journal:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/journal:${{ steps.version.outputs.value }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/journal:${{ steps.version.outputs.version }}
       - name: Setup Go
+        if: steps.version.outputs.should_release == 'true'
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
           cache-dependency-path: go.sum
       - name: Build Binaries
+        if: steps.version.outputs.should_release == 'true'
         run: |
           go mod download
-          GOOS=linux  GOARCH=amd64 go build -ldflags="-w -s" -o journal_linux_amd64-${{ steps.version.outputs.value }}   ./cmd/journal
-          GOOS=linux  GOARCH=arm64 go build -ldflags="-w -s" -o journal_linux_arm64-${{ steps.version.outputs.value }}   ./cmd/journal
-          GOOS=darwin GOARCH=arm64 go build -ldflags="-w -s" -o journal_darwin_arm64-${{ steps.version.outputs.value }} ./cmd/journal
-          GOOS=darwin GOARCH=amd64 go build -ldflags="-w -s" -o journal_darwin_amd64-${{ steps.version.outputs.value }} ./cmd/journal
+          GOOS=linux  GOARCH=amd64 go build -ldflags="-w -s" -o journal_linux_amd64-${{ steps.version.outputs.version }}   ./cmd/journal
+          GOOS=linux  GOARCH=arm64 go build -ldflags="-w -s" -o journal_linux_arm64-${{ steps.version.outputs.version }}   ./cmd/journal
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-w -s" -o journal_darwin_arm64-${{ steps.version.outputs.version }} ./cmd/journal
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-w -s" -o journal_darwin_amd64-${{ steps.version.outputs.version }} ./cmd/journal
       - name: Bundle Release Archives
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
+        if: steps.version.outputs.should_release == 'true'
         run: |
-          VERSION=${{ steps.version.outputs.value }}
+          VERSION=${{ steps.version.outputs.version }}
           for target in linux_amd64 linux_arm64 darwin_arm64 darwin_amd64; do
             os="${target%_*}"
             arch="${target#*_}"
@@ -133,35 +116,38 @@ jobs:
             rm -rf "${dir}"
           done
       - name: Install nfpm
+        if: steps.version.outputs.should_release == 'true'
         run: |
           echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | sudo tee /etc/apt/sources.list.d/goreleaser.list
           sudo apt-get update -q
           sudo apt-get install -y nfpm
       - name: Build Packages
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
+        if: steps.version.outputs.should_release == 'true'
         run: |
-          VERSION=${{ steps.version.outputs.value }}
+          VERSION=${{ steps.version.outputs.version }}
           ARCH=amd64 VERSION=$VERSION nfpm pkg --packager deb --target journal_${VERSION}_amd64.deb
           ARCH=arm64 VERSION=$VERSION nfpm pkg --packager deb --target journal_${VERSION}_arm64.deb
           ARCH=amd64 VERSION=$VERSION nfpm pkg --packager rpm --target journal-${VERSION}-1.x86_64.rpm
           ARCH=arm64 VERSION=$VERSION nfpm pkg --packager rpm --target journal-${VERSION}-1.aarch64.rpm
       - name: Generate Release Notes
-        uses: orhun/git-cliff-action@v3
-        id: cliff
-        with:
-          config: cliff.toml
-          args: --unreleased --strip header --latest
+        if: steps.version.outputs.should_release == 'true'
+        id: release_notes
+        run: |
+          chmod +x .github/scripts/release-notes.sh
+          .github/scripts/release-notes.sh ${{ steps.version.outputs.version }}
       - name: Create Release
+        if: steps.version.outputs.should_release == 'true'
         uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true
           draft: false
           makeLatest: true
-          tag: ${{ steps.version.outputs.value }}
-          name: ${{ steps.version.outputs.value }}
-          body: ${{ steps.cliff.outputs.changelog }}
-          artifacts: "journal_linux_amd64-${{ steps.version.outputs.value }},journal_linux_arm64-${{ steps.version.outputs.value }},journal_darwin_arm64-${{ steps.version.outputs.value }},journal_darwin_amd64-${{ steps.version.outputs.value }},journal-${{ steps.version.outputs.value }}-linux-amd64.zip,journal-${{ steps.version.outputs.value }}-linux-arm64.zip,journal-${{ steps.version.outputs.value }}-darwin-arm64.zip,journal-${{ steps.version.outputs.value }}-darwin-amd64.zip,journal_${{ steps.version.outputs.value }}_amd64.deb,journal_${{ steps.version.outputs.value }}_arm64.deb,journal-${{ steps.version.outputs.value }}-1.x86_64.rpm,journal-${{ steps.version.outputs.value }}-1.aarch64.rpm"
+          tag: ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
+          bodyFile: 'release_notes.md'
+          artifacts: "journal_linux_amd64-${{ steps.version.outputs.version }},journal_linux_arm64-${{ steps.version.outputs.version }},journal_darwin_arm64-${{ steps.version.outputs.version }},journal_darwin_amd64-${{ steps.version.outputs.version }},journal-${{ steps.version.outputs.version }}-linux-amd64.zip,journal-${{ steps.version.outputs.version }}-linux-arm64.zip,journal-${{ steps.version.outputs.version }}-darwin-arm64.zip,journal-${{ steps.version.outputs.version }}-darwin-amd64.zip,journal_${{ steps.version.outputs.version }}_amd64.deb,journal_${{ steps.version.outputs.version }}_arm64.deb,journal-${{ steps.version.outputs.version }}-1.x86_64.rpm,journal-${{ steps.version.outputs.version }}-1.aarch64.rpm"
       - name: Update Homebrew Tap
+        if: steps.version.outputs.should_release == 'true'
         uses: Justintime50/homebrew-releaser@v2
         with:
           homebrew_owner: jamiefdhurst
@@ -182,11 +168,11 @@ jobs:
           target_linux_amd64: false
           target_linux_arm64: false
       - name: Trigger Package Repository Update
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
+        if: steps.version.outputs.should_release == 'true'
         run: |
           gh api repos/jamiefdhurst/packages/dispatches \
             --method POST \
             -f event_type=new-release \
-            -f "client_payload[version]=${{ steps.version.outputs.value }}"
+            -f "client_payload[version]=${{ steps.version.outputs.version }}"
         env:
           GH_TOKEN: ${{ secrets.PAT }}
