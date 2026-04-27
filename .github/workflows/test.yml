@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           path: go/src/github.com/jamiefdhurst/journal
       - name: Calculate Version Impact
         id: version
