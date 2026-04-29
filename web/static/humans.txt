@@ -1,13 +1,13 @@
 /* TEAM */
 
-    Owner: Jamie Hurst
+    Original developer: Jamie Hurst
     Contact: jamie@jamiehurst.co.uk
-    Twitter: @JamieFDHurst
+    Github: @jamiefdhurst
     Location: Newcastle upon Tyne, United Kingdom
 
 /* SITE */
 
     Language: English
-    Standards: HTML5
-    Tooling: golang, gulp
-    Software: Visual Studio Code, Jenkins, GitHub
+    Standards: HTML5, CSS3
+    Tooling: golang
+    Software: Visual Studio Code, GitHub

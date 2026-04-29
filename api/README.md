@@ -20,7 +20,7 @@ and editing.
 ### URL Parameters
 
 When specified within endpoints, URL parameters are shown within `{}` curly
-brackets. URLs are parameterised to include post slugs, as opposed to IDs.
+brackets. URLs are parametrised to include post slugs, as opposed to IDs.
 
 ## Available Endpoints
 
@@ -30,18 +30,33 @@ brackets. URLs are parameterised to include post slugs, as opposed to IDs.
 
 **Successful Response:** `200`
 
-Contains all current post reources in reverse date order.
+Contains all current post resources in reverse date order, paginated. The
+`links` property containers next and previous links, and `pagination` contains
+information on the total posts, pages and posts per page.
 
 ```json
-[
-    {
-        "id": 1,
-        "slug": "example-post",
-        "title": "An Example Post",
-        "date": "2018-05-18T12:53:22Z",
-        "content": "<p>TEST</p><p>:gif:id:cE1qRt8nl6Neo:</p>"
-    }
-]
+{
+    "links": {
+        "prev": "/api/v1/post?page=1",
+        "next": "/api/v1/post?page=3"
+    },
+    "pagination": {
+        "current_page": 2,
+        "total_pages": 3,
+        "posts_per_page": 1,
+        "total_posts": 3
+    },
+    "posts": [
+        {
+            "url": "/api/v1/post/example-post",
+            "title": "An Example Post",
+            "date": "2018-05-18",
+            "content": "TEST",
+            "created_at": "2018-05-18T15:16:17Z",
+            "updated_at": "2018-05-18T15:16:17Z"
+        }
+    ]
+}
 ```
 
 **Error Responses:** *None*
@@ -62,11 +77,12 @@ Contains the single post.
 
 ```json
 {
-    "id": 1,
-    "slug": "example-post",
+    "url": "/api/v1/post/example-post",
     "title": "An Example Post",
-    "date": "2018-05-18T12:53:22Z",
-    "content": "<p>TEST</p><p>:gif:id:cE1qRt8nl6Neo:</p>"
+    "date": "2018-05-18",
+    "content": "TEST",
+    "created_at": "2018-05-18T15:16:17Z",
+    "updated_at": "2018-05-18T15:16:17Z"
 }
 ```
 
@@ -80,7 +96,7 @@ Contains the single post.
 
 **Method/URL:** `PUT /api/v1/post`
 
-Post is provided as JSON, ommitting the ID and slug:
+Post is provided as JSON, omitting the ID and slug:
 
 ```json
 {
@@ -99,11 +115,10 @@ The date can be provided in the following formats:
 
 ```json
 {
-    "id": 2,
-    "slug": "a-brand-new-post",
+    "url": "/api/v1/post/a-brand-new-post",
     "title": "A Brand New Post",
-    "date": "2018-06-28T00:42:12Z",
-    "content": "<p>This is a brand new post, completely.</p>"
+    "date": "2018-06-28",
+    "content": "This is a brand new post, completely."
 }
 ```
 
@@ -111,6 +126,29 @@ The date can be provided in the following formats:
 
 * `400` - Incorrect parameters supplied - the date, title and content must be
 provided.
+
+--
+
+### Retrieve a random post
+
+**Method/URL:** `GET /api/v1/post/random`
+
+**Successful Response:** `200`
+
+Contains a randomly selected post.
+
+```json
+{
+    "url": "/api/v1/post/example-post",
+    "title": "An Example Post",
+    "date": "2018-05-18",
+    "content": "TEST"
+}
+```
+
+**Error Responses:**
+
+`404` - No posts exist in the system.
 
 --
 
@@ -127,7 +165,7 @@ Keys to update within the post can be one or more of `date`, `title` and
 
 ```json
 {
-    "content": "<p>I'm only changing the content this time.</p>"
+    "content": "I'm only changing the content this time."
 }
 ```
 
@@ -137,7 +175,7 @@ Or:
 {
     "date": "2018-06-21T09:12:00Z",
     "title": "Even Braver New World",
-    "content": "<p>I changed a bit more on this attempt.</p>"
+    "content": "I changed a bit more on this attempt."
 }
 ```
 
@@ -147,11 +185,10 @@ When updating the post, the slug remains constant, even when the title changes.
 
 ```json
 {
-    "id": 2,
-    "slug": "a-brand-new-post",
+    "url": "/api/v1/post/a-brand-new-post",
     "title": "Even Braver New World",
-    "date": "2018-06-21T09:12:00Z",
-    "content": "<p>I changed a bit more on this attempt.</p>"
+    "date": "2018-06-21",
+    "content": "I changed a bit more on this attempt."
 }
 ```
 
@@ -160,3 +197,52 @@ When updating the post, the slug remains constant, even when the title changes.
 * `400` - Incorrect parameters supplied - at least one or more of the date,
 title and content must be provided.
 * `404` - Post with provided slug could not be found.
+
+---
+
+### Stats
+
+**Method/URL:** `GET /api/v1/stats`
+
+**Successful Response:** `200`
+
+Retrieve statistics, configuration information and visit summaries for the
+current installation.
+
+```json
+{
+    "posts": {
+        "count": 3,
+        "first_post_date": "Monday January 1, 2018"
+    },
+    "configuration": {
+        "title": "Jamie's Journal",
+        "description": "A private journal containing Jamie's innermost thoughts",
+        "theme": "default",
+        "posts_per_page": 20,
+        "google_analytics": false,
+        "create_enabled": true,
+        "edit_enabled": true
+    },
+    "visits": {
+        "daily": [
+            {
+                "date": "2025-01-01",
+                "api_hits": 20,
+                "web_hits": 30,
+                "total": 50
+            }
+        ],
+        "monthly": [
+            {
+                "month": "2025-01",
+                "api_hits": 200,
+                "web_hits": 300,
+                "total": 500
+            }
+        ]
+    }
+}
+```
+
+**Error Responses:** *None*

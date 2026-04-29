@@ -1,108 +1,155 @@
 package web
 
 import (
-	"net/http"
-	"os"
-	"strings"
-	"testing"
+    "net/http"
+    "strings"
+    "testing"
 
-	"github.com/jamiefdhurst/journal/internal/app"
-	"github.com/jamiefdhurst/journal/test/mocks/controller"
-	"github.com/jamiefdhurst/journal/test/mocks/database"
+    "github.com/jamiefdhurst/journal/internal/app"
+    "github.com/jamiefdhurst/journal/test/mocks/controller"
+    "github.com/jamiefdhurst/journal/test/mocks/database"
 )
 
 func TestEdit_Run(t *testing.T) {
-	db := &database.MockSqlite{}
-	configuration := app.DefaultConfiguration()
-	configuration.EnableEdit = true
-	container := &app.Container{Configuration: configuration, Db: db}
-	response := controller.NewMockResponse()
-	controller := &Edit{}
-	os.Chdir(os.Getenv("GOPATH") + "/src/github.com/jamiefdhurst/journal")
+    db := &database.MockSqlite{}
+    configuration := app.DefaultConfiguration()
+    configuration.EnableEdit = true
+    configuration.SessionKey = "12345678901234567890123456789012"
+    container := &app.Container{Configuration: configuration, Db: db}
+    response := controller.NewMockResponse()
+    controller := &Edit{}
+    controller.DisableTracking()
 
-	// Test not found/error with GET/POST
-	db.Rows = &database.MockRowsEmpty{}
-	request := &http.Request{Method: "GET"}
-	controller.Init(container, []string{"", "0"}, request)
-	controller.Run(response, request)
-	if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
-		t.Error("Expected 404 error when journal not found")
-	}
+    // Test forbidden when editing is disabled
+    db.Rows = &database.MockRowsEmpty{}
+    container.Configuration.EnableEdit = false
+    request, _ := http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
+    controller.Init(container, []string{"", "slug"}, request)
+    controller.Run(response, request)
+    if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
+        t.Error("Expected error page when editing is disabled")
+    }
+    container.Configuration.EnableEdit = true
 
-	response.Reset()
-	request = &http.Request{Method: "POST"}
-	controller.Init(container, []string{"", "0"}, request)
-	controller.Run(response, request)
-	if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
-		t.Error("Expected 404 error when journal not found")
-	}
+    // Test not found/error with GET/POST
+    response.Reset()
+    db.Rows = &database.MockRowsEmpty{}
+    request = &http.Request{Method: "GET"}
+    controller.Init(container, []string{"", "0"}, request)
+    controller.Run(response, request)
+    if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
+        t.Error("Expected 404 error when journal not found")
+    }
 
-	// Display error when cookie was set
-	response.Reset()
-	controller.Init(container, []string{"", "0"}, request)
-	controller.Session.AddFlash("error")
-	controller.SessionStore.Save(response)
-	request, _ = http.NewRequest("GET", "/test/edit", strings.NewReader(""))
-	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
-	response.Reset()
-	db.Rows = &database.MockJournal_SingleRow{}
-	controller.Init(container, []string{"", "0"}, request)
-	controller.Run(response, request)
-	if !controller.Error || !strings.Contains(response.Content, "div class=\"error\"") {
-		t.Error("Expected error to be shown in form")
-	}
+    response.Reset()
+    request = &http.Request{Method: "POST"}
+    controller.Init(container, []string{"", "0"}, request)
+    controller.Run(response, request)
+    if response.StatusCode != 404 || !strings.Contains(response.Content, "Page Not Found") {
+        t.Error("Expected 404 error when journal not found")
+    }
 
-	// Display no error
-	response.Reset()
-	request, _ = http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
-	db.Rows = &database.MockJournal_SingleRow{}
-	controller.Error = false
-	controller.Init(container, []string{"", "0"}, request)
-	controller.Run(response, request)
-	if controller.Error || strings.Contains(response.Content, "div class=\"error\"") {
-		t.Error("Expected no error to be shown in form")
-	}
-	if !strings.Contains(response.Content, "<title>Edit Title - Jamie's Journal</title>") {
-		t.Error("Expected HTML title to be in place")
-	}
+    // Display error when cookie was set
+    response.Reset()
+    controller.Init(container, []string{"", "0"}, request)
+    controller.Session().AddFlash("error")
+    controller.SaveSession(response)
+    request, _ = http.NewRequest("GET", "/test/edit", strings.NewReader(""))
+    request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
+    response.Reset()
+    db.Rows = &database.MockJournal_SingleRow{}
+    controller.Init(container, []string{"", "0"}, request)
+    controller.Run(response, request)
+    if !strings.Contains(response.Content, "div class=\"error\"") {
+        t.Error("Expected error to be shown in form")
+    }
 
-	// Redirect if empty content on POST
-	response.Reset()
-	request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("title=&date=&content="))
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	db.Rows = &database.MockJournal_SingleRow{}
-	controller.Init(container, []string{"", "0"}, request)
-	controller.Run(response, request)
-	if response.StatusCode != 302 || response.Headers.Get("Location") != "/slug/edit" {
-		t.Error("Expected redirect back to same page")
-	}
+    // Display error with form data pre-populated from session
+    // Sets flash + form_data directly on the in-memory session, then calls Run,
+    // which exercises the RenderFromSession form_data branch.
+    response.Reset()
+    request, _ = http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
+    db.Rows = &database.MockJournal_SingleRow{}
+    controller.Init(container, []string{"", "slug"}, request)
+    controller.Session().AddFlash("error")
+    controller.Session().Set("form_data", map[string]string{
+        "title":   "Restored Title",
+        "date":    "2025-01-01",
+        "content": "Restored Content",
+    })
+    controller.Run(response, request)
+    if !strings.Contains(response.Content, "Restored Title") {
+        t.Error("Expected form to be pre-populated with title from session")
+    }
 
-	// Validate error cookie on redirect
-	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
-	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
-	controller.Init(container, []string{"", "0"}, request)
-	flash := controller.Session.GetFlash()
-	if flash == nil || flash[0] != "error" {
-		t.Error("Expected cookie to contain error value")
-	}
+    // Display no error
+    response.Reset()
+    request, _ = http.NewRequest("GET", "/slug/edit", strings.NewReader(""))
+    db.Rows = &database.MockJournal_SingleRow{}
+    controller.Init(container, []string{"", "0"}, request)
+    controller.Run(response, request)
+    if strings.Contains(response.Content, "div class=\"error\"") {
+        t.Error("Expected no error to be shown in form")
+    }
+    if !strings.Contains(response.Content, "<title>Edit Title - A Fantastic Journal</title>") {
+        t.Error("Expected HTML title to be in place")
+    }
 
-	// Redirect on success
-	response.Reset()
-	request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("title=Title&date=2018-02-01&content=Test+again"))
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	db.Rows = &database.MockJournal_SingleRow{}
-	controller.Init(container, []string{"", "0"}, request)
-	controller.Run(response, request)
-	if response.StatusCode != 302 || response.Headers.Get("Location") != "/" {
-		t.Error("Expected redirect back to home with saved banner shown")
-	}
+    // Redirect if empty content on POST
+    response.Reset()
+    request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("title=&date=&content="))
+    request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+    db.Rows = &database.MockJournal_SingleRow{}
+    controller.Init(container, []string{"", "0"}, request)
+    controller.Run(response, request)
+    if response.StatusCode != 302 || response.Headers.Get("Location") != "/slug/edit" {
+        t.Error("Expected redirect back to same page")
+    }
 
-	// Validate saved cookie on redirect
-	request, _ = http.NewRequest("GET", "/", strings.NewReader(""))
-	request.Header.Add("Cookie", response.Headers.Get("Set-Cookie"))
-	controller.Init(container, []string{"", "0"}, request)
-	flash = controller.Session.GetFlash()
-	if flash == nil || flash[0] != "saved" {
-		t.Error("Expected cookie to contain saved value")
-	}
+    // Test form data preservation when validation fails
+    response.Reset()
+    // Create a new controller instance for this test
+    prevController := &Edit{}
+    prevController.DisableTracking()
+    // Submit a form with a missing field (date is empty)
+    request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("title=Updated+Title&date=&content=Updated+Content"))
+    request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+    db.Rows = &database.MockJournal_SingleRow{}
+    prevController.Init(container, []string{"", "slug"}, request)
+
+    // Verify form data is saved in session
+    prevController.Run(response, request)
+    if response.StatusCode != 302 || response.Headers.Get("Location") != "/slug/edit" {
+        t.Error("Expected redirect back to edit page")
+    }
+
+    // Check if form_data was set in the session
+    formData := prevController.Session().Get("form_data")
+    if formData == nil {
+        t.Error("Expected form_data to be set in session")
+    } else {
+        // Cast and verify form data values
+        formMap := formData.(map[string]string)
+        if formMap["title"] != "Updated Title" {
+            t.Errorf("Expected title to be 'Updated Title', got '%s'", formMap["title"])
+        }
+        if formMap["content"] != "Updated Content" {
+            t.Errorf("Expected content to be 'Updated Content', got '%s'", formMap["content"])
+        }
+        if formMap["date"] != "" {
+            t.Errorf("Expected date to be empty, got '%s'", formMap["date"])
+        }
+    }
+
+    // Redirect on success
+    response.Reset()
+    request, _ = http.NewRequest("POST", "/slug/edit", strings.NewReader("title=Title&date=2018-02-01&content=Test+again"))
+    request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+    db.Rows = &database.MockJournal_SingleRow{}
+    controller.Init(container, []string{"", "0"}, request)
+    controller.Run(response, request)
+    if response.StatusCode != 302 || response.Headers.Get("Location") != "/" {
+        t.Error("Expected redirect back to home with saved banner shown")
+    }
+
 }

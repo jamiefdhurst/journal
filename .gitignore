@@ -24,12 +24,13 @@ _testmain.go
 !Dockerfile.test
 *.out
 *.prof
+coverage.xml
 data
-journal
+/journal
 node_modules
 test/data/test.db
+tests.xml
 .vscode
 .DS_Store
 .history
-bootstrap
-*.zip
+.env

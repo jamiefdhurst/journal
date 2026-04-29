@@ -1,0 +1,58 @@
+{{define "title"}}Calendar - {{end}}
+{{define "content"}}
+
+<div id="calendar">
+    <nav class="calendar-top">
+        <h2>{{.CurrentDate.Year}}</h2>
+        {{if .PrevYear}}
+            <a class="prev prev-year" href="/calendar/{{.PrevYearUrl}}">{{.PrevYear}}</a>
+        {{end}}
+        {{if .NextYear}}
+            <a class="next next-year" href="/calendar/{{.NextYearUrl}}">{{.NextYear}}</a>
+        {{end}}
+    </nav>
+    <nav class="calendar-top">
+        <h2>{{.CurrentDate.Month}}</h2>
+        {{if .PrevMonth}}
+            <a class="prev prev-month" href="/calendar/{{.PrevMonthUrl}}">{{.PrevMonth}}</a>
+        {{end}}
+        {{if .NextMonth}}
+            <a class="next next-month" href="/calendar/{{.NextMonthUrl}}">{{.NextMonth}}</a>
+        {{end}}
+    </nav>
+
+    <table class="calendar">
+        <thead>
+            <tr>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Weeks}}
+                <tr>
+                    {{range .}}
+                        {{if .IsEmpty}}
+                            <td class="empty">&nbsp;</td>
+                        {{else}}
+                            <td>
+                                <h3>{{.Date.Day}}</h3>
+                                {{range (index $.Days .Date.Day)}}
+                                    <a href="/{{.Slug}}">{{.Title}}</a>
+                                {{end}}
+                            </td>
+                        {{end}}
+                    {{end}}
+                </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+
+
+{{end}}

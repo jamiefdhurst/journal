@@ -1,10 +1,6 @@
 name: Test
 
 on:
-  push:
-    branches:
-      - '*'
-      - '!main'
   pull_request: {}
 
 permissions:
@@ -17,7 +13,6 @@ env:
   GOPATH: /home/runner/work/journal/journal/go
   J_ARTICLES_PER_PAGE: ''
   J_DB_PATH: ''
-  J_GIPHY_API_KEY: ''
   J_PORT: ''
   J_TITLE: ''
 
@@ -27,12 +22,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           path: go/src/github.com/jamiefdhurst/journal
+      - name: Calculate Version Impact
+        id: version
+        working-directory: go/src/github.com/jamiefdhurst/journal
+        run: |
+          chmod +x .github/scripts/calculate-version.sh
+          .github/scripts/calculate-version.sh
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.22'
+          go-version: '1.24'
           cache-dependency-path: go/src/github.com/jamiefdhurst/journal/go.sum
       - name: Install Dependencies
         working-directory: go/src/github.com/jamiefdhurst/journal
@@ -44,12 +45,12 @@ jobs:
         working-directory: go/src/github.com/jamiefdhurst/journal
         run: make test
       - name: Upload Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tests
           path: go/src/github.com/jamiefdhurst/journal/tests.xml
       - name: Upload Coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage
           path: go/src/github.com/jamiefdhurst/journal/coverage.xml
@@ -60,21 +61,31 @@ jobs:
           action_fail: true
           files: |
             go/src/github.com/jamiefdhurst/journal/tests.xml
-      - name: Publush Code Coverage
-        uses: irongut/CodeCoverageSummary@v1.3.0
+      - name: Create Code Coverage Report
+        uses: im-open/code-coverage-report-generator@4.9.0
         with:
-          filename: go/src/github.com/jamiefdhurst/journal/coverage.xml
-          badge: false
-          fail_below_min: true
-          format: markdown
-          hide_branch_rate: false
-          hide_complexity: true
-          indicators: true
-          output: both
-          thresholds: '80 90'
-      - name: Add Coverage PR Comment
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
+          reports: go/src/github.com/jamiefdhurst/journal/coverage.xml
+          reporttypes: MarkdownSummary
+          title: Go Test Code Coverage
+      - name: Publish Code Coverage
+        uses: im-open/process-code-coverage-summary@v2.2.3
         with:
-          recreate: true
-          path: code-coverage-results.md
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          summary-file: './coverage-results/Summary.md'
+          check-name: 'Code Coverage'
+          line-threshold: 80
+      - name: Comment PR with Version Impact
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            ## 📦 Version Impact
+
+            **Current version:** `${{ steps.version.outputs.previous_version }}`
+            **Next version:** `${{ steps.version.outputs.version }}`
+            **Bump type:** `${{ steps.version.outputs.bump_type }}`
+            **Will release:** ${{ steps.version.outputs.should_release == 'true' && '✅ Yes' || '⚪️ No (non-releasable changes only)' }}
+
+            ---
+
+            <sub>This PR will ${{ steps.version.outputs.should_release == 'true' && format('trigger a **{0}** version bump from `{1}` to `{2}`', steps.version.outputs.bump_type, steps.version.outputs.previous_version, steps.version.outputs.version) || 'not trigger a release (only docs/test/chore/build/ci/style/revert changes)' }}</sub>
+          comment-tag: version_impact

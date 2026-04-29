@@ -1,0 +1,282 @@
+openapi: '3.0.3'
+info:
+  title: Journal
+  version: 'v0.9.6'
+paths:
+  /api/v1/post:
+    get:
+      description: Retrieve all posts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Posts'
+    put:
+      description: Create a post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequest'
+      responses:
+        '200':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Incorrect parameters supplied - the date, title and content must be provided.
+  /api/v1/post/random:
+    get:
+      description: Retrieve a random post
+      responses:
+        '200':
+          description: Contains the single post.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: No posts available
+  /api/v1/post/{slug}:
+    get:
+      description: Retrieve a single post
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of post
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Contains the single post.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          description: Post with provided slug could not be found.
+    post:
+      description: Update a post
+      parameters:
+        - name: slug
+          in: path
+          description: Slug of post
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostRequestPartial'
+      responses:
+        '200':
+          description: Post updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Incorrect parameters supplied - the date, title and content must be provided.
+        '404':
+          description: Post with provided slug could not be found.
+  /api/v1/stats:
+    get:
+      description: Retrieve statistics about the journal system
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+components:
+  schemas:
+    Post:
+      required:
+        - url
+        - title
+        - date
+        - content
+      type: object
+      properties:
+        url:
+          type: string
+          example: /api/v1/post/my-journal-post
+        title:
+          type: string
+          example: 'My Journal Post'
+        date:
+          type: string
+          format: date
+          example: '2018-06-21'
+        content:
+          type: string
+          example: 'Some post content.'
+        created_at:
+          type: string
+          format: date-time
+          example: '2018-06-21T09:12:00Z'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2018-06-21T09:12:00Z'
+    Posts:
+      required:
+        - links
+        - pagination
+        - posts
+      type: object
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+            prev:
+              type: string
+        pagination:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            total_pages:
+              type: integer
+              example: 16
+            posts_per_page:
+              type: integer
+              example: 20
+            total_posts:
+              type: integer
+              example: 307
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+    PostRequest:
+      required:
+        - title
+        - date
+        - content
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'My Journal Post'
+        date:
+          type: string
+          format: date
+          example: '2018-06-21'
+        content:
+          type: string
+          example: 'Some post content.'
+    PostRequestPartial:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'My Journal Post'
+        date:
+          type: string
+          format: date
+          example: '2018-06-21'
+        content:
+          type: string
+          example: 'Some post content.'
+    Stats:
+      required:
+        - posts
+        - configuration
+        - visits
+      type: object
+      properties:
+        posts:
+          type: object
+          required:
+            - count
+          properties:
+            count:
+              type: integer
+              example: 42
+            first_post_date:
+              type: string
+              format: date
+              example: '2018-01-01'
+        configuration:
+          type: object
+          required:
+            - title
+            - description
+            - theme
+            - posts_per_page
+            - google_analytics
+            - create_enabled
+            - edit_enabled
+          properties:
+            title:
+              type: string
+              example: "Jamie's Journal"
+            description:
+              type: string
+              example: "A private journal containing Jamie's innermost thoughts"
+            theme:
+              type: string
+              example: 'default'
+            posts_per_page:
+              type: integer
+              example: 20
+            google_analytics:
+              type: boolean
+            create_enabled:
+              type: boolean
+            edit_enabled:
+              type: boolean
+        visits:
+          type: object
+          required:
+            - daily
+            - monthly
+          properties:
+            daily:
+              type: array
+              description: Daily visit statistics for the last 14 days
+              items:
+                type: object
+                properties:
+                  date:
+                    type: string
+                    format: date
+                    example: '2023-12-25'
+                  api_hits:
+                    type: integer
+                    example: 15
+                  web_hits:
+                    type: integer
+                    example: 42
+                  total:
+                    type: integer
+                    example: 57
+            monthly:
+              type: array
+              description: Monthly visit statistics for all available months
+              items:
+                type: object
+                properties:
+                  month:
+                    type: string
+                    example: '2023-12'
+                  api_hits:
+                    type: integer
+                    example: 450
+                  web_hits:
+                    type: integer
+                    example: 1250
+                  total:
+                    type: integer
+                    example: 1700

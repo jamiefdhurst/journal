@@ -9,7 +9,14 @@ with the addition of an API.
 
 It makes use of a SQLite database to store the journal entries.
 
-[API Documentation](api/README.md)
+[API Documentation](api/README.md) - also available via `openapi.yml` as a URL
+when deployed.
+
+[Installation Guide](docs/installation.md) - full installation guide covering
+all methods, configuration reference, and reverse proxy setup.
+
+[User Guide](docs/user-guide.md) - creating and editing entries, and
+navigating the journal.
 
 ## Purpose
 
@@ -21,45 +28,110 @@ be understood through standard Golang libraries.
 It's also a nice little Journal that you can use to keep your thoughts in, or 
 as a basic blog platform.
 
-## Installation and Setup (local method)
+## Installation
 
-1. Clone the repository.
-2. Make sure the `$GOPATH/data` directory exists.
-3. Run `go get ./...` to install dependencies
-4. Run `go build journal.go` to create the executable.
-5. Run `./journal` to load the application on port 3000. You should now be able
-    to fully access it at [http://localhost:3000](http://localhost:3000)
+See the [Installation Guide](docs/installation.md) for full details, including
+configuration, running as a service, and setting up a reverse proxy.
 
-## Installation and Setup (Docker method)
-
-_Please note: you will need Docker installed on your local machine._
-
-1. Clone the repository to your chosen folder.
-2. Build the container with `docker build -t journal:latest .`
-3. Run the following to load the application and serve it on port 3000. You
-    should now be able to fully access it at [http://localhost:3000](http://localhost:3000)
-
-    ```bash
-    docker run --rm -v ./data:/go/data -p 3000:3000 -it journal:latest
-    ```
-
-## Environment Variables
-
-* `J_ARTICLES_PER_PAGE` - Articles to display per page, default `20`
-* `J_CREATE` - Set to `0` to disable article creation
-* `J_DB_PATH` - Path to SQLite DB - default is `$GOPATH/data/journal.db`
-* `J_DESCRIPTION` - Set the HTML description of the Journal
-* `J_EDIT` - Set to `0` to disable article modification
-* `J_GA_CODE` - Google Analytics tag value, starts with `UA-`, or ignore to disable Google Analytics
-* `J_GIPHY_API_KEY` - Set to a GIPHY API key to use, or ignore to disable GIPHY
-* `J_PORT` - Port to expose over HTTP, default is `3000`
-* `J_TITLE` - Set the title of the Journal
-
-To use the API key within your Docker setup, include it as follows:
+### Homebrew (macOS)
 
 ```bash
-docker run --rm -e J_GIPHY_API_KEY=... -v ./data:/go/data -p 3000:3000 -it journal:latest
+brew tap jamiefdhurst/journal
+brew install journal
 ```
+
+### Docker / Container Runtime
+
+```bash
+docker run -d \
+  --name journal \
+  -p 3000:3000 \
+  -v /var/lib/journal:/go/data \
+  jamiefdhurst/journal:latest
+```
+
+Images are also published to the GitHub Container Registry as
+`ghcr.io/jamiefdhurst/journal:latest`.
+
+### Debian / Ubuntu (apt)
+
+```bash
+curl -fsSL https://jamiefdhurst.github.io/packages/journal.asc \
+  | sudo tee /usr/share/keyrings/journal.asc > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/journal.asc] \
+  https://jamiefdhurst.github.io/packages stable main" \
+  | sudo tee /etc/apt/sources.list.d/journal.list
+
+sudo apt update && sudo apt install journal
+```
+
+### CentOS / RHEL / Fedora (yum/dnf)
+
+```bash
+sudo tee /etc/yum.repos.d/journal.repo > /dev/null <<'EOF'
+[journal]
+name=Journal
+baseurl=https://jamiefdhurst.github.io/packages/yum
+enabled=1
+gpgcheck=1
+gpgkey=https://jamiefdhurst.github.io/packages/journal.asc
+EOF
+
+sudo yum install journal
+```
+
+### ZIP archive (all platforms)
+
+Pre-built archives for Linux and macOS (amd64 and arm64) are attached to every
+[GitHub release](https://github.com/jamiefdhurst/journal/releases). Download
+the archive for your platform, extract it, and run the `journal` binary inside.
+
+### Build from source
+
+```bash
+git clone https://github.com/jamiefdhurst/journal.git
+cd journal
+go mod download
+go build -o journal ./cmd/journal
+./journal
+```
+
+## Configuration through Environment Variables
+
+The application uses environment variables to configure all aspects.
+
+You can optionally supply these through a `.env` file that will be parsed before
+any additional environment variables.
+
+### General Configuration
+
+* `J_CREATE` - Set to `0` to disable post creation
+* `J_WEB_PATH` - Override the directory used to locate web assets (templates, static files, themes). Defaults to the directory containing the binary, or the current working directory.
+* `J_DB_PATH` - Path to SQLite DB - default is `./data/journal.db`
+* `J_DESCRIPTION` - Set the HTML description of the Journal
+* `J_EDIT` - Set to `0` to disable post modification
+* `J_EXCERPT_WORDS` - The length of the post shown as a preview/excerpt in the index, default `50`
+* `J_GA_CODE` - Google Analytics tag value, starts with `UA-`, or ignore to disable Google Analytics
+* `J_PORT` - Port to expose over HTTP, default is `3000`
+* `J_POSTS_PER_PAGE` - Posts to display per page, default `20`
+* `J_THEME` - Theme to use from within the _web/themes_ folder, defaults to `default`
+* `J_TITLE` - Set the title of the Journal
+
+### SSL/TLS Configuration
+
+* `J_SSL_CERT` - Path to SSL certificate file for HTTPS (enables SSL when set)
+* `J_SSL_KEY` - Path to SSL private key file for HTTPS
+
+### Session and Cookie Security
+
+* `J_SESSION_KEY` - 32-byte encryption key for session data (AES-256). Must be exactly 32 printable ASCII characters. If not set, a random key is generated on startup (sessions won't persist across restarts).
+* `J_SESSION_NAME` - Cookie name for sessions, default `journal-session`
+* `J_COOKIE_DOMAIN` - Domain restriction for cookies, default is current domain only
+* `J_COOKIE_MAX_AGE` - Cookie expiry time in seconds, default `2592000` (30 days)
+* `J_COOKIE_HTTPONLY` - Set to `0` or `false` to allow JavaScript access to cookies (not recommended). Default is `true` for XSS protection.
+
+**Note:** When `J_SSL_CERT` is configured, session cookies automatically use the `Secure` flag to prevent transmission over unencrypted connections.
 
 ## Layout
 
@@ -77,9 +149,9 @@ The project layout follows the standard set out in the following document:
 * `/test` - API tests
 * `/test/data` - Test data
 * `/test/mocks` - Mock files for testing
-* `/web/app` - CSS/JS source files
 * `/web/static` - Compiled static public assets
 * `/web/templates` - View templates
+* `/web/themes` - Front-end themes, a default theme is included
 
 ## Development
 
@@ -89,11 +161,11 @@ The back-end can be extended and modified following the folder structure above.
 Tests for each file live alongside and are designed to be easy to read and as 
 functionally complete as possible.
 
-The easiest way to develop incrementally is to use a local go installation and 
+The easiest way to develop incrementally is to use a local go installation and
 run your Journal as follows:
 
 ```bash
-go run journal.go
+go run ./cmd/journal
 ```
 
 Naturally, any changes to the logic or functionality will require a restart of 
@@ -101,15 +173,15 @@ the binary itself.
 
 #### Dependencies
 
-The application currently only has one dependency:
+The application has the following dependencies (using go.mod and go.sum):
 
-* [github.com/mattn/go-sqlite3](https://github.com/mattn/go-sqlite3)
+- [github.com/ncruces/go-sqlite3](https://github.com/ncruces/go-sqlite3)
+- [github.com/gomarkdown/markdown](https://github.com/gomarkdown/markdown)
 
 This can be installed using the following commands from the journal folder:
 
 ```bash
 go get -v ./...
-go install -v ./...
 ```
 
 #### Templates
@@ -121,13 +193,11 @@ content.
 
 ### Front-end
 
-The front-end source files are in _web/app_ and require some tooling and 
-dependencies to be installed via `npm` such as gulp and webpack. You can then 
-use the following build targets:
+The front-end source files are intended to be divided into themes within the
+_web/themes_ folder. Each theme can include icons and a CSS stylesheet.
 
-* `gulp sass` - Compiles the SASS source into CSS
-* `gulp webpack` - Uglifies and minifies the JS
-* `gulp` - Watches for changes in SASS/JS files and immediately compiles
+A simple, basic and minimalist "default" theme is included, but any other 
+themes can be built and modified.
 
 ### Building/Testing
 
@@ -140,26 +210,3 @@ To test locally, simply use:
 go test -v ./...
 ```
 
-### Building for Lambda
-
-The application is designed to run as a Lambda connected to an EFS for SQLite 
-storage. This requires a different method of building to ensure it includes the 
-appropriate libraries and is built for the correct architecture.
-
-To build for Lambda, you will need the x86_64-unknown-linux-gnu cross compiler
-(if you're on a Mac):
-
-```bash
-brew tap SergioBenitez/osxct
-brew install x86_64-unknown-linux-gnu
-```
-
-To build, simply run:
-
-```bash
-make build
-```
-
-This will produce a Lambda output: `lambda.zip`, that you can upload onto an 
-Amazon Linux 2023 (al2023) runtime Lambda, if you configure the appropriate 
-environment variables.

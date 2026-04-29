@@ -3,24 +3,24 @@
 <form method="post">
     <fieldset>
 
-        <div class="form-group">
+        <div>
             <label for="form-title">Title:</label>
             <input type="text" id="form-title" name="title" value="{{.Journal.Title}}" />
         </div>
 
-        <div class="form-group">
+        <div>
             <label for="form-date">Date:</label>
             <input type="date" id="form-date" name="date" value="{{.Journal.GetEditableDate}}" />
         </div>
 
-        <div class="form-group">
+        <div>
             <label for="form-content">Content:</label>
-            <textarea id="form-content" name="content">{{.Journal.Content}}</textarea>
+            <textarea id="form-content" name="content" rows="10">{{.Journal.Content}}</textarea>
         </div>
 
         <p>
-            <button type="sumbit">Save</button>
             <a href="/" class="button button-outline">Back</a>
+            <button type="sumbit">Save</button>
         </p>
 
     </fieldset>
