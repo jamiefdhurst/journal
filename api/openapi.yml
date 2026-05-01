@@ -1,7 +1,7 @@
 openapi: '3.0.3'
 info:
   title: Journal
-  version: 'v1.0.0'
+  version: 'v1.0.1'
 paths:
   /api/v1/post:
     get:
