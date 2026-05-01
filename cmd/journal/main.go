@@ -53,14 +53,14 @@ func bootstrap(c *app.Container, db app.Database, mp app.MarkdownProcessor) (fun
 		return nil, fmt.Errorf("visits table: %w", err)
 	}
 
+	if err := ms.MigrateAddTimestamps(); err != nil {
+		return nil, fmt.Errorf("add timestamps migration: %w", err)
+	}
 	if err := ms.MigrateHTMLToMarkdown(); err != nil {
 		return nil, fmt.Errorf("html to markdown migration: %w", err)
 	}
 	if err := ms.MigrateRandomSlugs(); err != nil {
 		return nil, fmt.Errorf("random slug migration: %w", err)
-	}
-	if err := ms.MigrateAddTimestamps(); err != nil {
-		return nil, fmt.Errorf("add timestamps migration: %w", err)
 	}
 
 	return func() { c.Db.Close() }, nil
