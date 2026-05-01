@@ -18,6 +18,8 @@ all methods, configuration reference, and reverse proxy setup.
 [User Guide](docs/user-guide.md) - creating and editing entries, and
 navigating the journal.
 
+![Screenshot of Journal](/docs/screenshot.png)
+
 ## Purpose
 
 Journal serves as an easy-to-read and simple Golang program for new developers 
