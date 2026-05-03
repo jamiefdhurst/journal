@@ -85,7 +85,7 @@ func dataPath() string {
 }
 
 func main() {
-	const version = "1.0.1"
+	const version = "1.0.2"
 	fmt.Printf("Journal v%s\n-------------------\n\n", version)
 
 	if err := os.Chdir(dataPath()); err != nil {
